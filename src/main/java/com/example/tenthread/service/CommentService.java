@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-
+    //todo
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
@@ -58,8 +58,8 @@ public class CommentService {
     }
 
 
-    public ApiResponseDto deleteComment(Long commentId, CommentRequestDto requestDto, User user) {
-        userRepository.findById(user.getId()).orElseThrow(
+    public ApiResponseDto deleteComment(Long commentId, User user) {
+                userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
 

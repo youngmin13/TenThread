@@ -22,9 +22,13 @@ public class Post extends TimeStamped {
     @Column(nullable = false)
     private String content;
 
-    public Post(PostRequestDto requestDto) {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Post(PostRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        //this.user = user;
+        this.user = user;
     }
 }

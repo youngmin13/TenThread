@@ -31,10 +31,10 @@ public class CommentController {
     }
 
     @DeleteMapping("/comment/{commentId}")
-    public ApiResponseDto deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long commentId){
-        log.info("deleteComment : "+ requestDto.getBody());
+    public ApiResponseDto deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long commentId){
+        log.info("deleteComment : ");
 
-        return commentService.deleteComment(commentId,requestDto,userDetails.getUser());
+        return commentService.deleteComment(commentId,userDetails.getUser());
     }
 
     @ExceptionHandler({NullPointerException.class})
