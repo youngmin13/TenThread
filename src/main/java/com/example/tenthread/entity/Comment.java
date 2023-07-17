@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "comment")
@@ -20,13 +23,16 @@ public class Comment extends TimeStamped{
     @Column(nullable = false)
     private String body;
 
-/*    @ManyToOne
+    /*@ManyToOne
     @JoinColumn(name = "user_id")
     User user;*/
 
     @ManyToOne
     @JoinColumn(name = "post_id")
     Post post;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
+    private List<CommentLike> commentLikes = new ArrayList<>();
 
 
     //댓글 작성 생성자
