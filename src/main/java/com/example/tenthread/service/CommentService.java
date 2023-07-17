@@ -33,7 +33,7 @@ public class CommentService {
         );
 
         //댓글 작성
-        Comment comment = new Comment(requestDto,post);
+        Comment comment = new Comment(requestDto,post, user);
         commentRepository.save(comment);
 
         return new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value());
