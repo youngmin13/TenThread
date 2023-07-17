@@ -22,9 +22,9 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String email;
+    private String nickname;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
@@ -34,10 +34,18 @@ public class User {
 //    @OneToMany(mappedBy = "user")
 //    private List<LikeComment> likedComments;
 
-    public User(String username, String password, String email, UserRoleEnum role) {
+    public User(String username, String password, String nickname, UserRoleEnum role) {
         this.username = username;
         this.password = password;
-        this.email = email;
+        this.nickname = nickname;
         this.role = role;
+    }
+
+    public void setNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+    public void setPassword(String newPassword) {
+        this.password = newPassword;
     }
 }

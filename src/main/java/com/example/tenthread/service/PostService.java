@@ -1,8 +1,13 @@
 package com.example.tenthread.service;
 
-import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.PostRequestDto;
-import com.example.tenthread.dto.PostResponseDto;
+/*import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import org.apache.catalina.filters.AddDefaultCharsetFilter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+*/
+import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.Post;
 import com.example.tenthread.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
