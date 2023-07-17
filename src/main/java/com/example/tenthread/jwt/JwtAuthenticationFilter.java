@@ -1,5 +1,6 @@
-package com.example.tenthread.jwt;
+/*package com.example.tenthread.jwt;
 
+import com.example.tenthread.dto.LoginRequestDto;
 import com.example.tenthread.dto.UserRequestDto;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.security.UserDetailsImpl;
@@ -29,7 +30,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("로그인 시도");
         try {
-            UserRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserRequestDto.class);
+            LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -59,4 +60,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("로그인 실패");
         response.setStatus(401);
     }
-}
+}*/

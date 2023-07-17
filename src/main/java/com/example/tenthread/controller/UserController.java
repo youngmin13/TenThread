@@ -1,9 +1,6 @@
 package com.example.tenthread.controller;
 
-import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.ProfileRequestDto;
-import com.example.tenthread.dto.UserRequestDto;
-import com.example.tenthread.dto.UserResponseDto;
+import com.example.tenthread.dto.*;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,8 +28,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponseDto> login(@RequestBody UserRequestDto requestDto, HttpServletResponse response) {
-        userService.login(requestDto);
+    public ResponseEntity<ApiResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
+        userService.login(requestDto, response);
         return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.OK.value()));
     }
 
