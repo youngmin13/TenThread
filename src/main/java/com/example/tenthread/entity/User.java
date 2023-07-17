@@ -40,4 +40,12 @@ public class User {
         this.email = email;
         this.role = role;
     }
+
+    public void setUsername(String newUsername) {
+        this.username = newUsername;
+    }
+
+    public void setPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

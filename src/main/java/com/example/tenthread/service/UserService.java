@@ -1,6 +1,8 @@
 package com.example.tenthread.service;
 
+import com.example.tenthread.dto.ProfileRequestDto;
 import com.example.tenthread.dto.UserRequestDto;
+import com.example.tenthread.dto.UserResponseDto;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.repository.UserRepository;
@@ -45,5 +47,38 @@ public class UserService {
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+    }
+
+    public void beforeProfilePasswordCheck(User user, String password) {
+        User beforeProfileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new IllegalArgumentException("로그인해주세요.")
+        );
+
+        if(!passwordEncoder.matches(password, beforeProfileUser.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+    }
+
+    public UserResponseDto getMyProfile(User user) {
+        User myProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new IllegalArgumentException("올바르지 않은 회원정보입니다.")
+        );
+
+        return new UserResponseDto(myProfile.getUsername(), myProfile.getEmail());
+    }
+
+
+    public void updateProfile(User user, ProfileRequestDto profileRequestDto) {
+        User updateProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new IllegalArgumentException("올바르지 않은 회원정보입니다.")
+        );
+
+        String newUsername = profileRequestDto.getUsername();
+        String newPassword = profileRequestDto.getPassword();
+
+        updateProfile.setUsername(newUsername);
+        updateProfile.setPassword(newPassword);
+
+        userRepository.save(updateProfile);
     }
 }
