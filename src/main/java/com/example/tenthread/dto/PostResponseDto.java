@@ -14,6 +14,7 @@ public class PostResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private Integer likeCount;
 
     public PostResponseDto(Post post) {
         this.id = post.getId();
@@ -21,5 +22,6 @@ public class PostResponseDto {
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();
+        this.likeCount = post.getPostLikes().size();
     }
 }
