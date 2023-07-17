@@ -38,7 +38,7 @@ public class CommentController {
     }
 
     @ExceptionHandler({NullPointerException.class})
-    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
+    public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
         ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(
                 restApiException,
