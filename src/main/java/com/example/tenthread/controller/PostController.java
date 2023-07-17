@@ -4,10 +4,7 @@ import com.example.tenthread.dto.PostRequestDto;
 import com.example.tenthread.dto.PostResponseDto;
 import com.example.tenthread.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,5 +15,10 @@ public class PostController {
     @PostMapping("post")
     public PostResponseDto createPost(@RequestBody PostRequestDto requestDto) {
         return postService.createPost(requestDto);
+    }
+
+    @PutMapping("post/{postId}")
+    public PostResponseDto updatePost(@RequestBody PostRequestDto requestDto, @PathVariable Long postId) {
+        return postService.updatePost(requestDto, postId);
     }
 }
