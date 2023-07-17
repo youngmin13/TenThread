@@ -3,7 +3,9 @@ package com.example.tenthread.controller;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.tenthread.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +33,23 @@ public class PostController {
     private String bucket;
 
     @GetMapping("post/{postId}")
-    public PostResponseDto getPost(@PathVariable Long postId) {
+    public PostResponseDto getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPost(postId);
     }
 
     @PostMapping("post")
-    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto) {
-        return postService.createPost(requestDto);
+    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.createPost(requestDto, userDetails.getUser());
     }
 
     @PutMapping("post/{postId}")
-    public PostResponseDto updatePost(@RequestBody PostRequestDto requestDto, @PathVariable Long postId) {
-        return postService.updatePost(requestDto, postId);
+    public PostResponseDto updatePost(@RequestBody PostRequestDto requestDto, @PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.updatePost(requestDto, postId, userDetails.getUser());
     }
 
     @DeleteMapping("post/{postId}")
-    public ApiResponseDto deletePost(@PathVariable Long postId) {
-        return postService.deletePost(postId);
+    public ApiResponseDto deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.deletePost(postId, userDetails.getUser());
     }
 
     @PostMapping("/upload")
