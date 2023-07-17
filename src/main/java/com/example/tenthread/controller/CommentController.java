@@ -1,6 +1,7 @@
 package com.example.tenthread.controller;
 
 import com.example.tenthread.dto.CommentRequestDto;
+import com.example.tenthread.entity.Post;
 import com.example.tenthread.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService commentService;
-    @PostMapping("/comment")
-    public void createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto){
+    @PostMapping("/comment/{postId}")
+    public void createComment(/*@AuthenticationPrincipal UserDetailsImpl userDetails,*/ @RequestBody CommentRequestDto requestDto, @PathVariable Long postId){
       log.info("createComment : "+ requestDto.getBody());
-      commentService.createComment(requestDto,userDetails.getUser());
+      commentService.createComment(postId,requestDto/*,userDetails.getUser()*/);
     }
 
 }
