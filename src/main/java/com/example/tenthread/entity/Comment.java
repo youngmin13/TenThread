@@ -36,5 +36,9 @@ public class Comment extends TimeStamped{
         /*this.user = user;*/
     }
 
+    //댓글 수정 메서드
+    public void update(CommentRequestDto requestDto){
+        this.body = requestDto.getBody();
+    }
 
 }

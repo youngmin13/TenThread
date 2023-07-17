@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class CommentService {
         );
 */
         Post post = postRepository.findById(postId).orElseThrow(
-                () -> new NullPointerException("해당 게시글이 존재하지 않습니다.")
+                () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
         );
 
         //댓글 작성
@@ -33,6 +34,24 @@ public class CommentService {
         commentRepository.save(comment);
 
         return new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value());
+    }
+
+
+    @Transactional
+    public ApiResponseDto updateComment(Long commentId, CommentRequestDto requestDto/*, User user*/) {
+        /*userRepository.findById(user.getId()).orElseThrow(
+                () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
+        );
+*/
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
+        );
+        //댓글 수정 메서드
+        comment.update(requestDto);
+
+
+        return new ApiResponseDto("댓글 수정 성공", HttpStatus.OK.value());
     }
 
 
