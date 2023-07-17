@@ -13,3 +13,4 @@ public class ApiResponseDto {
         this.msg = msg;
         this.statusCode = statusCode;
     }
+}
