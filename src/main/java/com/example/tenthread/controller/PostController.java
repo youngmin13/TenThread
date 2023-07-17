@@ -3,32 +3,30 @@ package com.example.tenthread.controller;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.PostRequestDto;
 import com.example.tenthread.dto.PostResponseDto;
 import com.example.tenthread.service.PostService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/")
+@RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
 
     private final AmazonS3 amazonS3Client;;
 
-    @Autowired
-    public PostController(AmazonS3 amazonS3Client, PostService postService) {
-        this.amazonS3Client = amazonS3Client;
-        this.postService = postService;
-    }
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -63,13 +61,13 @@ public class PostController {
         try {
             amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
         } catch (IOException e) {
-            // 예외 처리
             e.printStackTrace();
             return "Failed to upload the image.";
         }
 
         return fileUrl;
     }
+
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
