@@ -33,7 +33,7 @@ public class BackOfficeController {
         return backOfficeService.updateUserRole(userId, userDetails.getUser());
     }
 
-    //예외 처리
+    //예외 처리 nullPointerException
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
         ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
@@ -43,7 +43,7 @@ public class BackOfficeController {
         );
     }
 
-    //예외 처리
+    //예외 처리 IllegalArgumentException
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
         ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
