@@ -27,5 +27,10 @@ public class CommentController {
         return commentService.updateComment(commentId,requestDto/*,userDetails.getUser()*/);
     }
 
+    @DeleteMapping("/comment/{commentId}")
+    public ApiResponseDto deleteComment(/*@AuthenticationPrincipal UserDetailsImpl userDetails,*/ @RequestBody CommentRequestDto requestDto, @PathVariable Long commentId){
+        log.info("deleteComment : "+ requestDto.getBody());
 
+        return commentService.deleteComment(commentId,requestDto/*,userDetails.getUser()*/);
+    }
 }
