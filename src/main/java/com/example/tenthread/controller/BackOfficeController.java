@@ -1,14 +1,16 @@
 package com.example.tenthread.controller;
 
+import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.UserResponseDto;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.BackOfficeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,8 +27,29 @@ public class BackOfficeController {
         return backOfficeService.getUserList(userDetails.getUser());
     }
 
-    //2. 관리자 페이지로 이동
+    //2. 권한 수정하기 (일반 -> 관리자)
+    @PatchMapping("/back/{userId}")
+    public ApiResponseDto updateUserRole(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return backOfficeService.updateUserRole(userId, userDetails.getUser());
+    }
 
-    //3. 권한 수정하기 (일반 -> 관리자)
+    //예외 처리
+    @ExceptionHandler({NullPointerException.class})
+    public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
+        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                restApiException,
+                HttpStatus.BAD_REQUEST
+        );
+    }
 
+    //예외 처리
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
+        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                restApiException,
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }
