@@ -51,7 +51,7 @@ public class BackOfficeService {
                 changeRoleUser.updateRole();
                 return new ApiResponseDto("관리자 변환 성공", HttpStatus.OK.value());
             }
-            return new ApiResponseDto("관리자 변환 실패", HttpStatus.BAD_REQUEST.value());
+            return null;
 
         }else{
             throw new IllegalArgumentException("관리자가 아닙니다.");
