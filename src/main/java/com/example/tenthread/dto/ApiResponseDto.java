@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ApiResponseDto {
     private String msg;
-    private int statusCode;
+    private Integer statusCode;
 
     public ApiResponseDto(String msg, int statusCode) {
         this.msg = msg;
