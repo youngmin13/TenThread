@@ -24,19 +24,14 @@ import java.io.IOException;
 public class PostController {
     private final PostService postService;
 
-    private final AmazonS3 amazonS3Client;;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
-
     @GetMapping("post/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPost(postId);
     }
 
     @PostMapping("post")
-    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.createPost(requestDto, userDetails.getUser());
+    public PostResponseDto createPost(@RequestPart("file") MultipartFile[] files, @RequestPart("PostRequestDto") PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.createPost(requestDto, userDetails.getUser(), files);
     }
 
     @PutMapping("post/{postId}")
@@ -45,28 +40,9 @@ public class PostController {
     }
 
     @DeleteMapping("post/{postId}")
-    public ApiResponseDto deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDto deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return postService.deletePost(postId, userDetails.getUser());
     }
-
-    @PostMapping("/upload")
-    public String createImage(@RequestParam("file") MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String fileUrl = "https://" + bucket + "/test/" + fileName;
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
-
-        try {
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to upload the image.";
-        }
-
-        return fileUrl;
-    }
-
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {

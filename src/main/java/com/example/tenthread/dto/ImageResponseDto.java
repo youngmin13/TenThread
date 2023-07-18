@@ -10,11 +10,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ImageResponseDto {
-    private Long id;
-    private String image1;
+    private String image;
 
     public ImageResponseDto(PostImage image) {
-        this.id = image.getId();
-        this.image1 = image.getImage1();
+        this.image = image.getFileName();
     }
 }
