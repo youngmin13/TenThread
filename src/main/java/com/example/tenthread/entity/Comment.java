@@ -23,9 +23,9 @@ public class Comment extends TimeStamped{
     @Column(nullable = false)
     private String body;
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    User user;*/
+    User user;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -36,10 +36,10 @@ public class Comment extends TimeStamped{
 
 
     //댓글 작성 생성자
-    public Comment(CommentRequestDto requestDto, Post post/*, User user*/) {
+    public Comment(CommentRequestDto requestDto, Post post, User user) {
         this.body = requestDto.getBody();
         this.post = post;
-        /*this.user = user;*/
+        this.user = user;
     }
 
     //댓글 수정 메서드

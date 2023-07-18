@@ -5,6 +5,7 @@ import com.example.tenthread.dto.CommentRequestDto;
 import com.example.tenthread.entity.Comment;
 import com.example.tenthread.entity.Post;
 import com.example.tenthread.entity.User;
+import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.repository.CommentRepository;
 import com.example.tenthread.repository.PostRepository;
 import com.example.tenthread.repository.UserRepository;
@@ -17,12 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-    //todo
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
-    public ApiResponseDto createComment(Long postId, CommentRequestDto requestDto, User user){
+    public void createComment(Long postId, CommentRequestDto requestDto, User user){
 
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
@@ -33,32 +33,37 @@ public class CommentService {
         );
 
         //댓글 작성
-        Comment comment = new Comment(requestDto,post);
+        Comment comment = new Comment(requestDto,post, user);
         commentRepository.save(comment);
 
-        return new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value());
+
     }
 
 
     @Transactional
-    public ApiResponseDto updateComment(Long commentId, CommentRequestDto requestDto, User user) {
+    public void updateComment(Long commentId, CommentRequestDto requestDto, User user) {
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
-
-
+        
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
         );
-        //댓글 수정 메서드
-        comment.update(requestDto);
-
-
-        return new ApiResponseDto("댓글 수정 성공", HttpStatus.OK.value());
+        
+        if(user.getRole().equals(UserRoleEnum.ADMIN)){
+            //댓글 수정 메서드
+            comment.update(requestDto);
+        } else{
+            if(comment.getUser().getUsername().equals(user.getUsername())){
+                comment.update(requestDto);
+            }else{
+                throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
+            }
+        }
     }
 
 
-    public ApiResponseDto deleteComment(Long commentId, User user) {
+    public void deleteComment(Long commentId, User user) {
                 userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
@@ -67,8 +72,16 @@ public class CommentService {
                 () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
         );
 
-        commentRepository.delete(comment);
+        if(user.getRole().equals(UserRoleEnum.ADMIN)){
+            //댓글 삭제 메서드
+            commentRepository.delete(comment);
+        }else {
+            if (comment.getUser().getUsername().equals(user.getUsername())) {
+                commentRepository.delete(comment);
+            } else {
+                throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+            }
+        }
 
-        return new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value());
     }
 }
