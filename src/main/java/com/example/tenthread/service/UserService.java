@@ -2,7 +2,6 @@ package com.example.tenthread.service;
 
 import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.RefreshToken;
-import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
@@ -10,7 +9,6 @@ import com.example.tenthread.repository.RefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,33 +82,27 @@ public class UserService {
     }
 
 
-    /**
-     * 프로필 변경 메서드
-     * @param user : 현재 로그인한 유저
-     * @param profileRequestDto : 프로필 변경시 필요한 정보 (닉네임, 예전 비번, 바꿀 비번)
-     */
     public void updateProfile(User user, ProfileRequestDto profileRequestDto) {
+        // 로그인한 유저가 존재하는지 한번 더 확인 -> 굳이 할 필요는 없을 듯...
         User updateProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new IllegalArgumentException("올바르지 않은 회원정보입니다.")
         );
 
+        // 바꿀 닉네임, 예전 비번, 바꿀 비번
         String newNickname = profileRequestDto.getNickname();
         String oldPassword = profileRequestDto.getOldPassword();
         String newPassword = profileRequestDto.getNewPassword();
 
+        // 예전 비번이 현재 로그인한 유저의 비번이 맞는지
         if(!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
+        // 업데이트
         updateProfile.setNickname(newNickname);
-        updateProfile.setPassword(newPassword);
+        updateProfile.setPassword(passwordEncoder.encode(newPassword));
 
+        // 저장
         userRepository.save(updateProfile);
-    }
-
-    public User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> {
-            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
-        });
     }
 }
