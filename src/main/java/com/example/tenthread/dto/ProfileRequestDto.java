@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class ProfileRequestDto {
     private String nickname;
-    private String password;
+    private String oldPassword;
+    private String newPassword;
 }
