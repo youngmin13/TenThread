@@ -37,23 +37,4 @@ public class UserController {
     public ResponseEntity<ApiResponseDto> logout() {
         return ResponseEntity.ok().body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
     }
-
-    @PostMapping("/beforeProfile")
-    public String beforeProfilePasswordCheck (@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                      @RequestBody String password) {
-        userService.beforeProfilePasswordCheck(userDetails.getUser(), password);
-        return "forward:/profile";
-    }
-
-    @GetMapping("/profile")
-    public UserResponseDto getMyProfile (@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userService.getMyProfile(userDetails.getUser());
-    }
-
-    @PutMapping("/profile")
-    public ResponseEntity<ApiResponseDto> updateProfile (@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                         @RequestBody ProfileRequestDto profileRequestDto) {
-        userService.updateProfile(userDetails.getUser(), profileRequestDto);
-        return ResponseEntity.ok().body(new ApiResponseDto("프로필 변경 성공", HttpStatus.ACCEPTED.value()));
-    }
 }
