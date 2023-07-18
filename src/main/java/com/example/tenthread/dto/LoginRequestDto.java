@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoginRequestDto {
-    @Pattern(regexp = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$",
-            message = "최소  ")
+    @Pattern(regexp = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
     private String username;
 
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[_!#$%&'*+/=?`{|}~^.-])[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]{8,15}$",

@@ -42,22 +42,11 @@ public class WebSecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-   /* @Bean // JwtAuthenticationFilter 활성화
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
-    }
-
-    @Bean // JwtAuthorizationFilter 활성화
-    public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
-    }*/
-
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil);
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable());
@@ -74,8 +63,15 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
-        /*http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);*/
+        http.logout(logout -> {
+            logout.logoutUrl("/logout")
+                    .invalidateHttpSession(true)
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        String message = "로그아웃되었습니다.";
+                        request.getSession().setAttribute("logoutMessage", message);
+                        response.sendRedirect("/");
+                    });
+        });
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 

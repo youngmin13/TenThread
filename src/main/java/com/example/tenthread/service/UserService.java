@@ -1,33 +1,33 @@
 package com.example.tenthread.service;
 
-import com.example.tenthread.dto.LoginRequestDto;
-import com.example.tenthread.dto.ProfileRequestDto;
-import com.example.tenthread.dto.UserRequestDto;
-import com.example.tenthread.dto.UserResponseDto;
+import com.example.tenthread.dto.*;
+import com.example.tenthread.entity.RefreshToken;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.repository.RefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
     private final JwtUtil jwtUtil;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
+    @Transactional
     public void signup(UserRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
@@ -42,6 +42,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void login(LoginRequestDto requestDto, HttpServletResponse response) {
         String username = requestDto.getUsername();
         String password = requestDto.getPassword();
@@ -54,8 +55,23 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtUtil.createToken(user.getUsername(), user.getRole());
-        response.addHeader("Authorization", token);
+        TokenDto tokenDto = jwtUtil.createAllToken(user.getUsername(), user.getRole());
+
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUsername(requestDto.getUsername());
+
+        if(refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefreshToken()));
+        } else {
+            RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), requestDto.getUsername());
+            refreshTokenRepository.save(newToken);
+        }
+
+        setHeader(response, tokenDto);
+    }
+
+    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
+        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 
     public void beforeProfilePasswordCheck(User user, String password) {
