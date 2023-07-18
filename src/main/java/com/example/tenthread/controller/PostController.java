@@ -24,11 +24,6 @@ import java.io.IOException;
 public class PostController {
     private final PostService postService;
 
-    private final AmazonS3 amazonS3Client;;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
-
     @GetMapping("post/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPost(postId);
@@ -45,32 +40,9 @@ public class PostController {
     }
 
     @DeleteMapping("post/{postId}")
-    public ApiResponseDto deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDto deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return postService.deletePost(postId, userDetails.getUser());
     }
-
-    @PostMapping("/upload")
-    public String createImage(@RequestParam("file") MultipartFile[] files) {
-        for (MultipartFile file : files) {
-            String fileName = file.getOriginalFilename();
-            // 파일 처리 로직
-            System.out.println(fileName);
-        }
-        //String fileUrl = "https://" + bucket + "/test/" + fileName;
-//        ObjectMetadata metadata = new ObjectMetadata();
-//        metadata.setContentType(file.getContentType());
-//        metadata.setContentLength(file.getSize());
-//
-//        try {
-//            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return "Failed to upload the image.";
-//        }
-
-        return "1";
-    }
-
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
