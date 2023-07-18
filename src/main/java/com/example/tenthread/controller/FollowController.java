@@ -1,6 +1,7 @@
 package com.example.tenthread.controller;
 
 import com.example.tenthread.dto.ApiResponseDto;
+import com.example.tenthread.dto.FollowResponseDto;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.FollowService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class FollowController {
 
     private final FollowService followService;
+
+    @GetMapping()
+    public FollowResponseDto getFollow(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return followService.getFollow(userDetails.getUser());
+    }
 
     @PostMapping("/{userId}")
     public ApiResponseDto createFollow(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {

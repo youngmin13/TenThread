@@ -1,6 +1,7 @@
 package com.example.tenthread.entity;
 
 import com.example.tenthread.dto.PostRequestDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
