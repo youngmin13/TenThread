@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FollowService {
@@ -46,8 +48,6 @@ public class FollowService {
     }
 
     public FollowResponseDto getFollow(User user) {
-        Follow follow = followRepository.findByFollow(user);
-
-        return new FollowResponseDto(follow, user);
+        return new FollowResponseDto(user);
     }
 }
