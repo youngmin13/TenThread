@@ -1,6 +1,8 @@
 package com.example.tenthread.controller;
 
 import com.example.tenthread.dto.ApiResponseDto;
+import com.example.tenthread.dto.NoticeRequestDto;
+import com.example.tenthread.dto.NoticeResponseDto;
 import com.example.tenthread.dto.UserResponseDto;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.security.UserDetailsImpl;
@@ -34,6 +36,25 @@ public class BackOfficeController {
         return ResponseEntity.ok().body(new ApiResponseDto("관리자로 변경 성공", HttpStatus.ACCEPTED.value()));
     }
 
+    //3. 공지글 등록
+    @PostMapping("/back/notice")
+    public ResponseEntity<ApiResponseDto> createNotice(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody NoticeRequestDto requestDto){
+        backOfficeService.createNotice(requestDto, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("공지글 등록 완료", HttpStatus.CREATED.value()));
+    }
+
+    //4. 공지글 전체 조회
+    @GetMapping("/back/notice")
+    public List<NoticeResponseDto> getNotices(){
+        return backOfficeService.getNotices();
+
+    }
+    //5. 공지글 한개 조회
+    @GetMapping("/back/notice/{noticeId}")
+    public NoticeResponseDto getNoticeOne(@PathVariable Long noticeId){
+        return backOfficeService.getNoticeOne(noticeId);
+
+    }
     //예외 처리 nullPointerException
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
