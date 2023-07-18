@@ -75,23 +75,6 @@ public class UserService {
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 
-    /**
-     * 프로필 GET 페이지로 가기 전에 비밀번호 확인
-     * @param user  : 로그인 한 유저
-     * @param profilePasswordCheckDto : 입력한 패스워드
-     */
-    public void beforeProfilePasswordCheck(User user, ProfilePasswordCheckDto profilePasswordCheckDto) {
-        User beforeProfileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new IllegalArgumentException("로그인해주세요.")
-        );
-
-        String checkPass = profilePasswordCheckDto.getPassword();
-
-        if(!passwordEncoder.matches(checkPass, beforeProfileUser.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-    }
-
     public UserResponseDto getMyProfile(User user) {
         User myProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new IllegalArgumentException("올바르지 않은 회원정보입니다.")
@@ -107,7 +90,12 @@ public class UserService {
         );
 
         String newNickname = profileRequestDto.getNickname();
-        String newPassword = profileRequestDto.getPassword();
+        String oldPassword = profileRequestDto.getOldPassword();
+        String newPassword = profileRequestDto.getNewPassword();
+
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
 
         updateProfile.setNickname(newNickname);
         updateProfile.setPassword(newPassword);
