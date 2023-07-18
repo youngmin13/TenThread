@@ -1,24 +1,21 @@
 package com.example.tenthread.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.example.tenthread.security.UserDetailsImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.PostRequestDto;
 import com.example.tenthread.dto.PostResponseDto;
+import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.PostService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 
 @RestController
