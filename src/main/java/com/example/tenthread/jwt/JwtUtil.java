@@ -1,47 +1,38 @@
 package com.example.tenthread.jwt;
 
-import com.example.tenthread.dto.TokenDto;
-import com.example.tenthread.entity.RefreshToken;
 import com.example.tenthread.entity.UserRoleEnum;
-import com.example.tenthread.repository.RefreshTokenRepository;
-import com.example.tenthread.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
-
-    private static final String AUTHORIZATION_KEY = "role";
-    private final UserDetailsServiceImpl userDetailsService;
-    private final RefreshTokenRepository refreshTokenRepository;
-    public static final String ACCESS_TOKEN = "Access_Token";
-    public static final String REFRESH_TOKEN = "Refresh_Token";
-    private static final long ACCESS_TIME = 15 * 60 * 1000L; // 15분
-    private static final long REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L; // 7일
+    // Header KEY 값
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    // 사용자 권한 키값. 사용자 권한도 토큰안에 넣어주기 때문에 그때 사용하는 키값
+    public static final String AUTHORIZATION_KEY = "auth";
+    // Token 식별자
+    public static final String BEARER_PREFIX = "Bearer ";
 
     @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
     private String secretKey;
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
+    private List<String> blacklist = new ArrayList<>();
+
+    // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
 
     @PostConstruct
@@ -50,30 +41,36 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public TokenDto createAllToken(String username, UserRoleEnum role) {
-        return new TokenDto(createToken(username, role, "Access"), createToken(username, role, "Refresh"));
+    // header 토큰을 가져오기 Keys.hmacShaKeyFor(bytes);
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken= request.getHeader(AUTHORIZATION_HEADER);
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
-    public String createToken(String username, UserRoleEnum role, String type) {
+    // 토큰 생성
+    public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
 
-        long time = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
-
-        return Jwts.builder()
+        // 토큰 만료시간
+        // 60분
+        long TOKEN_TIME = 60 * 60 * 1000L;
+        return BEARER_PREFIX +
+                Jwts.builder()
                         .setSubject(username) // 사용자 식별자값(ID)
-                        .claim(AUTHORIZATION_KEY, role) // 사용자 권한
-                        .setExpiration(new Date(date.getTime() + time)) // 만료 시간
+                        .claim(AUTHORIZATION_KEY, role)
+                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘
                         .compact();
     }
 
-    public String getTokenFromHeader(HttpServletRequest request, String type) {
-        return type.equals("Access") ? request.getHeader(ACCESS_TOKEN) : request.getHeader(REFRESH_TOKEN);
-    }
-
+    // 토큰 검증
     public boolean validateToken(String token) {
         try {
+            // 토큰의 위변조, 만료 체크
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
@@ -88,38 +85,16 @@ public class JwtUtil {
         return false;
     }
 
-    public Boolean refreshTokenValidation(String token) {
-        if(!validateToken(token)) return false;
-
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUsername(getUsernameFromToken(token));
-
-        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken());
+    // 토큰에서 사용자 정보 가져오기
+    public Claims getUserInfoFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
-    public Authentication createAuthentication(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    public void addToBlacklist(String token) {
+        blacklist.add(token);
     }
 
-    public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+    public boolean isTokenBlacklisted(String token) {
+        return blacklist.contains(token);
     }
-
-    public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-        return claims.get(AUTHORIZATION_KEY, String.class);
-    }
-
-    public void setAccessToken(HttpServletResponse response, String accessToken) {
-        response.setHeader("Access_Token", accessToken);
-    }
-
-    public void setRefreshToken(HttpServletResponse response, String refreshToken) {
-        response.setHeader("Refresh_Token", refreshToken);
-    }
-
-
-//    public Claims getUserInfoFromToken(String token) {
-//        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-//    }
 }

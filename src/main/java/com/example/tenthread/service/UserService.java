@@ -1,28 +1,21 @@
 package com.example.tenthread.service;
 
 import com.example.tenthread.dto.*;
-import com.example.tenthread.entity.RefreshToken;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
-import com.example.tenthread.repository.RefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
@@ -41,36 +34,19 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional
-    public void login(LoginRequestDto requestDto, HttpServletResponse response) {
+    public void login(LoginRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = requestDto.getPassword();
 
+        //사용자 확인 (username 이 없는 경우)
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new IllegalArgumentException("등록된 사용자가 없습니다.")
         );
 
+        //비밀번호 확인 (password 가 다른 경우)
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-
-        TokenDto tokenDto = jwtUtil.createAllToken(user.getUsername(), user.getRole());
-
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUsername(requestDto.getUsername());
-
-        if(refreshToken.isPresent()) {
-            refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefreshToken()));
-        } else {
-            RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), requestDto.getUsername());
-            refreshTokenRepository.save(newToken);
-        }
-
-        setHeader(response, tokenDto);
-    }
-
-    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
-        response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
-        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 
     public UserResponseDto getMyProfile(User user) {
@@ -104,5 +80,11 @@ public class UserService {
 
         // 저장
         userRepository.save(updateProfile);
+    }
+
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
+        });
     }
 }

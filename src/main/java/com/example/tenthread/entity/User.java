@@ -57,4 +57,6 @@ public class User {
     public void setPassword(String newPassword) {
         this.password = newPassword;
     }
+
+    public void updateRole() { this.role = UserRoleEnum.ADMIN; }
 }
