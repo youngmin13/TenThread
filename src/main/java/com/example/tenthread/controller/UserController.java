@@ -51,4 +51,8 @@ public class UserController {
         userService.updateProfile(userDetails.getUser(), profileRequestDto);
         return ResponseEntity.ok().body(new ApiResponseDto("프로필 변경 성공", HttpStatus.ACCEPTED.value()));
     }
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponseDto> logout() {
+        return ResponseEntity.ok().body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
+    }
 }

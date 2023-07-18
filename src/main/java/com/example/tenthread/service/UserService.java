@@ -2,6 +2,7 @@ package com.example.tenthread.service;
 
 import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.RefreshToken;
+import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
@@ -74,12 +75,19 @@ public class UserService {
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 
-    public void beforeProfilePasswordCheck(User user, String password) {
+    /**
+     * 프로필 GET 페이지로 가기 전에 비밀번호 확인
+     * @param user  : 로그인 한 유저
+     * @param profilePasswordCheckDto : 입력한 패스워드
+     */
+    public void beforeProfilePasswordCheck(User user, ProfilePasswordCheckDto profilePasswordCheckDto) {
         User beforeProfileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new IllegalArgumentException("로그인해주세요.")
         );
 
-        if(!passwordEncoder.matches(password, beforeProfileUser.getPassword())) {
+        String checkPass = profilePasswordCheckDto.getPassword();
+
+        if(!passwordEncoder.matches(checkPass, beforeProfileUser.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
     }
