@@ -29,7 +29,7 @@ public class Post extends TimeStamped {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<PostLike> postLikes = new ArrayList<>();
 
     public Post(PostRequestDto requestDto, User user) {
