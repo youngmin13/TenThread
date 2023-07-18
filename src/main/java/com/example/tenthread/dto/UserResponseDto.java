@@ -1,5 +1,6 @@
 package com.example.tenthread.dto;
 
+import com.example.tenthread.entity.Follow;
 import lombok.Getter;
 import lombok.Setter;
 
