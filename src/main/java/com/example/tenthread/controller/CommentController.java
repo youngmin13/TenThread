@@ -20,7 +20,7 @@ public class CommentController {
     private final CommentService commentService;
 
     //댓글 작성
-    @PostMapping("/comment/{postId}")
+    @PostMapping("/{postId}/comment")
     public ResponseEntity<ApiResponseDto> createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long postId){
       log.info("createComment : "+ requestDto.getBody());
       commentService.createComment(postId,requestDto,userDetails.getUser());
