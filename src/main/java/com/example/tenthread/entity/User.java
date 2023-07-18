@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -33,6 +36,12 @@ public class User {
 //
 //    @OneToMany(mappedBy = "user")
 //    private List<LikeComment> likedComments;
+
+    @OneToMany(mappedBy = "follow", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Follow> followList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Post> postList = new ArrayList<>();
 
     public User(String username, String password, String nickname, UserRoleEnum role) {
         this.username = username;

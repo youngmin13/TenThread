@@ -1,6 +1,7 @@
 package com.example.tenthread.service;
 
 import com.example.tenthread.dto.ApiResponseDto;
+import com.example.tenthread.dto.FollowResponseDto;
 import com.example.tenthread.entity.Follow;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.repository.FollowRepository;
@@ -42,5 +43,11 @@ public class FollowService {
         followRepository.delete(follow);
 
         return new ApiResponseDto("팔로우 취소", HttpStatus.OK.value());
+    }
+
+    public FollowResponseDto getFollow(User user) {
+        Follow follow = followRepository.findByFollow(user);
+
+        return new FollowResponseDto(follow, user);
     }
 }
