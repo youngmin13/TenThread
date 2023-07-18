@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -28,11 +31,20 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
+    @Column(nullable = true)
+    private Long kakaoId;
+
 //    @OneToMany(mappedBy = "user")
 //    private List<LikePost> likedPosts;
 //
 //    @OneToMany(mappedBy = "user")
 //    private List<LikeComment> likedComments;
+
+    @OneToMany(mappedBy = "follow", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Follow> followList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Post> postList = new ArrayList<>();
 
     public User(String username, String password, String nickname, UserRoleEnum role) {
         this.username = username;
@@ -41,12 +53,25 @@ public class User {
         this.role = role;
     }
 
+    public User(String username, String password, String nickname, UserRoleEnum role, Long kakaoId) {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.role = role;
+        this.kakaoId = kakaoId;
+    }
+
     public void setNickname(String newNickname) {
         this.nickname = newNickname;
     }
 
     public void setPassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public User kakaoIdUpdate(Long kakaoId) {
+        this.kakaoId = kakaoId;
+        return this;
     }
 
     public void updateRole() {

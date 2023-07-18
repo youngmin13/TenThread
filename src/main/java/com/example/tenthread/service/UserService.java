@@ -92,4 +92,10 @@ public class UserService {
         // 저장
         userRepository.save(updateProfile);
     }
+
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
+        });
+    }
 }
