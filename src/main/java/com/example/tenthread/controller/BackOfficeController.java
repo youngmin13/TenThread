@@ -29,8 +29,9 @@ public class BackOfficeController {
 
     //2. 권한 수정하기 (일반 -> 관리자)
     @PatchMapping("/back/{userId}")
-    public ApiResponseDto updateUserRole(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return backOfficeService.updateUserRole(userId, userDetails.getUser());
+    public ResponseEntity<ApiResponseDto> updateUserRole(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        backOfficeService.updateUserRole(userId, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("관리자로 변경 성공", HttpStatus.ACCEPTED.value()));
     }
 
     //예외 처리 nullPointerException

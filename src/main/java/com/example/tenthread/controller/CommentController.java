@@ -21,24 +21,27 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping("/comment/{postId}")
-    public ApiResponseDto createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long postId){
+    public ResponseEntity<ApiResponseDto> createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long postId){
       log.info("createComment : "+ requestDto.getBody());
-      return commentService.createComment(postId,requestDto,userDetails.getUser());
+      commentService.createComment(postId,requestDto,userDetails.getUser());
+      return ResponseEntity.ok().body(new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value()));
     }
 
     //댓글 수정
     @PutMapping("/comment/{commentId}")
-    public ApiResponseDto updateComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long commentId){
+    public ResponseEntity<ApiResponseDto> updateComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long commentId){
         log.info("updateComment : "+ requestDto.getBody());
-        return commentService.updateComment(commentId,requestDto,userDetails.getUser());
+        commentService.updateComment(commentId,requestDto,userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 수정 성공", HttpStatus.OK.value()));
     }
 
     //댓글 삭제
     @DeleteMapping("/comment/{commentId}")
-    public ApiResponseDto deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long commentId){
+    public ResponseEntity<ApiResponseDto> deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long commentId){
         log.info("deleteComment : ");
 
-        return commentService.deleteComment(commentId,userDetails.getUser());
+        commentService.deleteComment(commentId,userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value()));
     }
 
     //예외 처리
