@@ -1,13 +1,16 @@
 package com.example.tenthread.controller;
 
-import com.example.tenthread.dto.*;
-import com.example.tenthread.security.UserDetailsImpl;
+import com.example.tenthread.dto.ApiResponseDto;
+import com.example.tenthread.dto.LoginRequestDto;
+import com.example.tenthread.dto.UserRequestDto;
+import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.service.KakaoService;
 import com.example.tenthread.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final KakaoService kakaoService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, KakaoService kakaoService) {
         this.userService = userService;
+        this.kakaoService = kakaoService;
     }
 
     @PostMapping("/signup")
@@ -36,5 +41,12 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponseDto> logout() {
         return ResponseEntity.ok().body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<ApiResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        String token = kakaoService.kakaoLogin(code);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        return ResponseEntity.ok().body(new ApiResponseDto("카카오 로그인 성공", HttpStatus.OK.value()));
     }
 }
