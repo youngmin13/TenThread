@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "prev_passwords")
 public class PrevPassword extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
