@@ -53,4 +53,14 @@ public class CommentController {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    //예외 처리
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
+        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                restApiException,
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }

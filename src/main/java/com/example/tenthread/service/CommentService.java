@@ -5,6 +5,7 @@ import com.example.tenthread.dto.CommentRequestDto;
 import com.example.tenthread.entity.Comment;
 import com.example.tenthread.entity.Post;
 import com.example.tenthread.entity.User;
+import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.repository.CommentRepository;
 import com.example.tenthread.repository.PostRepository;
 import com.example.tenthread.repository.UserRepository;
@@ -44,14 +45,21 @@ public class CommentService {
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
-
-
+        
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
         );
-        //댓글 수정 메서드
-        comment.update(requestDto);
-
+        
+        if(user.getRole().equals(UserRoleEnum.ADMIN)){
+            //댓글 수정 메서드
+            comment.update(requestDto);
+        } else{
+            if(comment.getUser().getUsername().equals(user.getUsername())){
+                comment.update(requestDto);
+            }else{
+                throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
+            }
+        }
     }
 
 
@@ -64,6 +72,16 @@ public class CommentService {
                 () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
         );
 
-        commentRepository.delete(comment);
+        if(user.getRole().equals(UserRoleEnum.ADMIN)){
+            //댓글 삭제 메서드
+            commentRepository.delete(comment);
+        }else {
+            if (comment.getUser().getUsername().equals(user.getUsername())) {
+                commentRepository.delete(comment);
+            } else {
+                throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+            }
+        }
+
     }
 }
