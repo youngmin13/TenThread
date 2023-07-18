@@ -73,4 +73,8 @@ public class User {
         this.kakaoId = kakaoId;
         return this;
     }
+
+    public void updateRole() {
+        this.role = UserRoleEnum.ADMIN;
+    }
 }
