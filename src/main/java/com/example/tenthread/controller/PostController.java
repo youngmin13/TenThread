@@ -35,8 +35,8 @@ public class PostController {
     }
 
     @PostMapping("post")
-    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.createPost(requestDto, userDetails.getUser());
+    public PostResponseDto createPost(@RequestPart("file") MultipartFile[] files, @RequestPart("PostRequestDto") PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.createPost(requestDto, userDetails.getUser(), files);
     }
 
     @PutMapping("post/{postId}")
@@ -50,21 +50,25 @@ public class PostController {
     }
 
     @PostMapping("/upload")
-    public String createImage(@RequestParam("file") MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String fileUrl = "https://" + bucket + "/test/" + fileName;
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
-
-        try {
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to upload the image.";
+    public String createImage(@RequestParam("file") MultipartFile[] files) {
+        for (MultipartFile file : files) {
+            String fileName = file.getOriginalFilename();
+            // 파일 처리 로직
+            System.out.println(fileName);
         }
+        //String fileUrl = "https://" + bucket + "/test/" + fileName;
+//        ObjectMetadata metadata = new ObjectMetadata();
+//        metadata.setContentType(file.getContentType());
+//        metadata.setContentLength(file.getSize());
+//
+//        try {
+//            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "Failed to upload the image.";
+//        }
 
-        return fileUrl;
+        return "1";
     }
 
 

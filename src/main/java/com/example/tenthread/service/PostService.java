@@ -9,26 +9,48 @@ import org.springframework.web.multipart.MultipartFile;
 */
 import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.Post;
+import com.example.tenthread.entity.PostImage;
 import com.example.tenthread.entity.User;
+import com.example.tenthread.repository.PostImageRepository;
 import com.example.tenthread.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostImageService postImageService;
 
-    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
+    public PostResponseDto createPost(PostRequestDto requestDto, User user, MultipartFile[] files) {
+        List<String> fileNames = new ArrayList<>();
+
+        if (files.length > 5) {
+            throw new IllegalArgumentException("사진은 최대 5장 까지 등록가능합니다!");
+        }
+
+        for (MultipartFile file : files) {
+            String fileName = file.getOriginalFilename();
+            // 파일 처리 로직
+            fileNames.add(fileName);
+        }
+
         Post post = new Post(requestDto, user);
-
         postRepository.save(post);
+
+        // 이미지 파일 처리
+        for (String fileName : fileNames) {
+            postImageService.saveFile(fileName, post);
+        }
 
         return new PostResponseDto(post);
     }
-
     public PostResponseDto getPost(Long postId) {
         Post post = findPost(postId);
 
