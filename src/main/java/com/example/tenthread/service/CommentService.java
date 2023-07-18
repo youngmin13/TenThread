@@ -17,12 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-    //todo
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
-    public ApiResponseDto createComment(Long postId, CommentRequestDto requestDto, User user){
+    public void createComment(Long postId, CommentRequestDto requestDto, User user){
 
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
@@ -36,12 +35,12 @@ public class CommentService {
         Comment comment = new Comment(requestDto,post, user);
         commentRepository.save(comment);
 
-        return new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value());
+
     }
 
 
     @Transactional
-    public ApiResponseDto updateComment(Long commentId, CommentRequestDto requestDto, User user) {
+    public void updateComment(Long commentId, CommentRequestDto requestDto, User user) {
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
@@ -53,12 +52,10 @@ public class CommentService {
         //댓글 수정 메서드
         comment.update(requestDto);
 
-
-        return new ApiResponseDto("댓글 수정 성공", HttpStatus.OK.value());
     }
 
 
-    public ApiResponseDto deleteComment(Long commentId, User user) {
+    public void deleteComment(Long commentId, User user) {
                 userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
@@ -68,7 +65,5 @@ public class CommentService {
         );
 
         commentRepository.delete(comment);
-
-        return new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value());
     }
 }

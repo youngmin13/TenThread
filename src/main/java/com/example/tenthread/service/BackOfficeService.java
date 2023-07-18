@@ -1,13 +1,12 @@
 package com.example.tenthread.service;
 
-import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.UserResponseDto;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
+import com.example.tenthread.repository.PostRepository;
 import com.example.tenthread.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,7 @@ public class BackOfficeService {
 
     //권한 수정하기 (일반 -> 관리자)
     @Transactional
-    public ApiResponseDto updateUserRole(Long userId, User user) {
+    public void updateUserRole(Long userId, User user) {
         log.info("updateUserRole");
         User existingUser = userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
@@ -49,9 +48,7 @@ public class BackOfficeService {
             } else if (changeRoleUser.getRole().equals(UserRoleEnum.USER)) {
 
                 changeRoleUser.updateRole();
-                return new ApiResponseDto("관리자 변환 성공", HttpStatus.OK.value());
             }
-            return null;
 
         }else{
             throw new IllegalArgumentException("관리자가 아닙니다.");
