@@ -8,6 +8,8 @@ import com.example.tenthread.entity.PostLike;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.repository.PostLikeRepository;
 import com.example.tenthread.repository.PostRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +30,8 @@ public class PostService {
     private final S3Service s3Service;
     private final PostLikeRepository postLikeRepository;
 
-    public PostResponseDto createPost(PostRequestDto requestDto, User user, MultipartFile[] files) {
+    public PostResponseDto createPost(String postRequestDto, User user, MultipartFile[] files) throws JsonProcessingException {
+        PostRequestDto requestDto = conversionDto(postRequestDto);
 
         validateFile(files);
 
@@ -49,7 +52,8 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(PostRequestDto requestDto, Long postId, User user, MultipartFile[] files) throws IOException {
+    public PostResponseDto updatePost(String postRequestDto, Long postId, User user, MultipartFile[] files) throws IOException {
+        PostRequestDto requestDto = conversionDto(postRequestDto);
 
         validateFile(files);
 
@@ -128,5 +132,10 @@ public class PostService {
                 .collect(Collectors.toList());
 
         return new PostListResponseDto(postList);
+    }
+
+    public PostRequestDto conversionDto(String requestDto) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(requestDto, PostRequestDto.class);
     }
 }

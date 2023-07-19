@@ -15,6 +15,10 @@ public class WebController {
         return "index";
     }
 
+    @GetMapping("/createPost")
+    public String createPost() {
+        return "createPost";
+    }
     @GetMapping("/signup")
     public String signup() { return "signup"; }
 

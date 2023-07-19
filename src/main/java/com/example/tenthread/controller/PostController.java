@@ -3,7 +3,7 @@ package com.example.tenthread.controller;
 import com.example.tenthread.dto.*;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.PostService;
-import com.sun.jdi.request.DuplicateRequestException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +33,14 @@ public class PostController {
     }
 
     @PostMapping("/post")
-    public ResponseEntity<PostResponseDto> createPost(@RequestPart("file") MultipartFile[] files, @RequestPart("PostRequestDto") PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<PostResponseDto> createPost(@RequestParam("file") MultipartFile[] files, @RequestParam("postRequestDto") String requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws JsonProcessingException {
         PostResponseDto result = postService.createPost(requestDto, userDetails.getUser(), files);
         return ResponseEntity.status(201).body(result);
     }
 
+
     @PutMapping("/post/{postId}")
-    public ResponseEntity<PostResponseDto> updatePost(@RequestPart("PostRequestDto") PostRequestDto requestDto,@RequestPart("file") MultipartFile[] files, @PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+    public ResponseEntity<PostResponseDto> updatePost(@RequestPart("postRequestDto") String requestDto,@RequestPart("file") MultipartFile[] files, @PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         PostResponseDto result = postService.updatePost(requestDto, postId, userDetails.getUser(), files);
         return ResponseEntity.status(200).body(result);
     }
@@ -50,13 +51,13 @@ public class PostController {
         return ResponseEntity.status(200).body(result);
     }
 
-    @PostMapping("posts/{id}/like")
+    @PostMapping("/posts/{id}/like")
     public ResponseEntity<ApiResponseDto> likePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
         postService.likePost(id, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공", HttpStatus.ACCEPTED.value()));
     }
 
-    @DeleteMapping("posts/{id}/like")
+    @DeleteMapping("/posts/{id}/like")
     public ResponseEntity<ApiResponseDto> deleteLikePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
         postService.deleteLikePost(id, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
