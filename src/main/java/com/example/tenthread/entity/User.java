@@ -4,6 +4,13 @@ import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.LinkedMultiValueMap;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +43,7 @@ public class User {
 
     @Column(nullable = false)
     private boolean isBlocked;
+
 
 //    @OneToMany(mappedBy = "user")
 //    private List<LikePost> likedPosts;

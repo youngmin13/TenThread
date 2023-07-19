@@ -46,8 +46,6 @@ public class FollowService {
     }
 
     public FollowResponseDto getFollow(User user) {
-        Follow follow = followRepository.findByFollow(user);
-
-        return new FollowResponseDto(follow, user);
+        return new FollowResponseDto(user);
     }
 }

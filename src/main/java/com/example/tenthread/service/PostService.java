@@ -1,45 +1,59 @@
 package com.example.tenthread.service;
 
-/*import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import org.apache.catalina.filters.AddDefaultCharsetFilter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
-*/
+
 import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.Post;
+import com.example.tenthread.entity.PostImage;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostImageService postImageService;
+    private final S3Service s3Service;
 
-    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
+    public PostResponseDto createPost(PostRequestDto requestDto, User user, MultipartFile[] files) {
+
+        validateFile(files);
+
+        String fileNames = s3Service.uploadImage(files);
+
         Post post = new Post(requestDto, user);
-
         postRepository.save(post);
+
+        // 이미지 파일 처리
+        postImageService.saveFile(fileNames, post);
 
         return new PostResponseDto(post);
     }
-
-    public PostResponseDto getPost(Long postId) {
+    public PostDetailResponseDto getPost(Long postId) {
         Post post = findPost(postId);
 
-        return new PostResponseDto(post);
+        return new PostDetailResponseDto(post);
     }
 
     @Transactional
-    public PostResponseDto updatePost(PostRequestDto requestDto, Long postId, User user) {
+    public PostResponseDto updatePost(PostRequestDto requestDto, Long postId, User user, MultipartFile[] files) throws IOException {
+
+        validateFile(files);
+
         Post post = findPost(postId);
 
         validateUser(user, post);
+
+        PostImage postImage = postImageService.getPostImage(postId);
+        postImageService.updateFile(postImage,files);
 
         post.setTitle(requestDto.getTitle());
         post.setContent(requestDto.getContent());
@@ -47,11 +61,13 @@ public class PostService {
         return new PostResponseDto(post);
     }
 
-    public ApiResponseDto deletePost(Long postId, User user) {
+    public ApiResponseDto deletePost(Long postId, User user) throws IOException {
         Post post = findPost(postId);
 
         validateUser(user, post);
-
+        PostImage postImage = postImageService.getPostImage(postId);
+        String url = postImage.getFileName();
+        s3Service.deleteImage(url.split(","));
         postRepository.delete(post);
 
         return new ApiResponseDto("삭제 성공", HttpStatus.OK.value());
@@ -69,5 +85,19 @@ public class PostService {
         } else {
             return true;
         }
+    }
+
+    public void validateFile(MultipartFile[] files) {
+        if (files.length > 5) {
+            throw new IllegalArgumentException("사진은 최대 5장까지 가능합니다.");
+        }
+    }
+
+    public PostListResponseDto getPosts() {
+        List<PostDetailResponseDto> postList = postRepository.findAll().stream()
+                .map(PostDetailResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new PostListResponseDto(postList);
     }
 }
