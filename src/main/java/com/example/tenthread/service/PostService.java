@@ -25,9 +25,7 @@ public class PostService {
 
     public PostResponseDto createPost(PostRequestDto requestDto, User user, MultipartFile[] files) {
 
-        if (files.length > 5) {
-            throw new IllegalArgumentException("사진은 최대 5장 까지 등록가능합니다!");
-        }
+        validateFile(files);
 
         String fileNames = s3Service.uploadImage(files);
 
@@ -47,6 +45,9 @@ public class PostService {
 
     @Transactional
     public PostResponseDto updatePost(PostRequestDto requestDto, Long postId, User user, MultipartFile[] files) throws IOException {
+
+        validateFile(files);
+
         Post post = findPost(postId);
 
         validateUser(user, post);
@@ -83,6 +84,12 @@ public class PostService {
             throw new IllegalArgumentException("게시글을 작성한 유저가 아닙니다.");
         } else {
             return true;
+        }
+    }
+
+    public void validateFile(MultipartFile[] files) {
+        if (files.length > 5) {
+            throw new IllegalArgumentException("사진은 최대 5장까지 가능합니다.");
         }
     }
 
