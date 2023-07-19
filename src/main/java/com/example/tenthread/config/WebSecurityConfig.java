@@ -1,12 +1,15 @@
 package com.example.tenthread.config;
 
-//import com.example.tenthread.jwt.JwtAuthenticationFilter;
 import com.example.tenthread.jwt.JwtAuthorizationFilter;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.redis.LogoutHandler;
 import com.example.tenthread.security.UserDetailsServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -20,17 +23,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final LogoutHandler logoutHandler;
     private final UserDetailsServiceImpl userDetailsService;
+    private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration authenticationConfiguration;
-
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration) {
-        this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
-        this.authenticationConfiguration = authenticationConfiguration;
-    }
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,22 +43,11 @@ public class WebSecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-   /* @Bean // JwtAuthenticationFilter 활성화
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
-    }
-
-    @Bean // JwtAuthorizationFilter 활성화
-    public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
-    }*/
-
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper, redisTemplate);
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable());
@@ -70,12 +60,22 @@ public class WebSecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/back/notice/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
-        /*http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);*/
+        http.logout(logout -> {
+            logout.logoutUrl("/logout")
+                    .invalidateHttpSession(true)
+                    .addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("로그아웃에 성공했습니다.");
+                        response.getWriter().flush();
+                    });
+        });
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 

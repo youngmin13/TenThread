@@ -23,10 +23,13 @@ public class UserController {
 
     private final NaverService naverService;
 
-    public UserController(UserService userService, KakaoService kakaoService, NaverService naverService) {
+    private final JwtUtil jwtUtil;
+
+    public UserController(UserService userService, KakaoService kakaoService, NaverService naverService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.kakaoService = kakaoService;
         this.naverService = naverService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/signup")
