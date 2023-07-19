@@ -32,4 +32,8 @@ public class Notice extends TimeStamped {
 
     }
 
+    public void update(NoticeRequestDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+    }
 }

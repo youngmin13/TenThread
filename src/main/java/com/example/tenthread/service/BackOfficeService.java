@@ -31,8 +31,6 @@ public class BackOfficeService {
         if(validateExistingUser(user)) {
             if (validateUserRole(user)) {
                 return userRepository.findAllByOrderByIdDesc().stream().map(UserResponseDto::new).toList();
-            } else {
-                throw new IllegalArgumentException("관리자가 아닙니다.");
             }
         }
         return null;
@@ -53,8 +51,6 @@ public class BackOfficeService {
 
                     changeRoleUser.updateRole();
                 }
-            } else {
-                throw new IllegalArgumentException("관리자가 아닙니다.");
             }
         }
     }
@@ -68,8 +64,6 @@ public class BackOfficeService {
             if (validateUserRole(user)) {
                 Notice notice = new Notice(requestDto, user);
                 noticeRepository.save(notice);
-            } else {
-                throw new IllegalArgumentException("관리자가 아닙니다.");
             }
         }
     }
@@ -92,6 +86,20 @@ public class BackOfficeService {
     }
 
 
+    //공지글 수정
+    @Transactional
+    public void updateNotice(Long noticeId, NoticeRequestDto requestDto, User user) {
+        log.info("updateNotice");
+        if(validateExistingUser(user)){
+            if(validateUserRole(user)){
+                Notice foundNotice = noticeRepository.findById(noticeId).orElseThrow(
+                        () -> new NullPointerException("공지글이 존재하지 않습니다.")
+                );
+                foundNotice.update(requestDto);
+            }
+        }
+    }
+
     //관리자 판별
     public boolean validateUserRole(User user){
         log.info("validateUserRole()");
@@ -104,6 +112,7 @@ public class BackOfficeService {
 
     //존재하는 유저인지 판별
     public boolean validateExistingUser(User user){
+        log.info("validateExistingUser()");
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다."));
 

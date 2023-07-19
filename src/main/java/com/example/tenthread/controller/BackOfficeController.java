@@ -55,6 +55,14 @@ public class BackOfficeController {
         return backOfficeService.getNoticeOne(noticeId);
 
     }
+
+    //6. 공지글 수정
+    @PutMapping("/back/notice/{noticeId}")
+    public ResponseEntity<ApiResponseDto> updateNotice(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable Long noticeId ,@RequestBody NoticeRequestDto requestDto){
+        backOfficeService.updateNotice(noticeId,requestDto,userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("공지글 수정 완료",HttpStatus.OK.value()));
+    }
+
     //예외 처리 nullPointerException
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
