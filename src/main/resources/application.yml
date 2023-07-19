@@ -9,3 +9,8 @@ cloud:
     credentials:
       accessKey: AKIA23I3RWAPZ4FL6QL4
       secretKey: 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
+
+spring:
+  redis:
+    host:localhost
+    port:6379

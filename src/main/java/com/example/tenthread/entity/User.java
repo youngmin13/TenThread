@@ -31,6 +31,9 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
+    @Column(nullable = true)
+    private Long kakaoId;
+
 //    @OneToMany(mappedBy = "user")
 //    private List<LikePost> likedPosts;
 //
@@ -50,6 +53,14 @@ public class User {
         this.role = role;
     }
 
+    public User(String username, String password, String nickname, UserRoleEnum role, Long kakaoId) {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.role = role;
+        this.kakaoId = kakaoId;
+    }
+
     public void setNickname(String newNickname) {
         this.nickname = newNickname;
     }
@@ -58,5 +69,8 @@ public class User {
         this.password = newPassword;
     }
 
-    public void updateRole() { this.role = UserRoleEnum.ADMIN; }
+    public User kakaoIdUpdate(Long kakaoId) {
+        this.kakaoId = kakaoId;
+        return this;
+    }
 }

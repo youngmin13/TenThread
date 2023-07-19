@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,11 +26,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper) {
+
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper, RedisTemplate<String, String> redisTemplate) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.objectMapper = objectMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -45,19 +49,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            if (jwtUtil.isTokenBlacklisted(token)) {
-                ApiResponseDto responseDto = new ApiResponseDto("더이상 사용할 수 없는 토큰입니다.", HttpStatus.UNAUTHORIZED.value());
+            Claims info = jwtUtil.getUserInfoFromToken(token);
+            String username = info.getSubject();
+
+            // 로그아웃 확인
+            if (isLoggedOut(username)) {
+
+                ApiResponseDto responseDto = new ApiResponseDto("로그아웃된 사용자입니다.", HttpStatus.UNAUTHORIZED.value());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json; charset=UTF-8");
                 response.getWriter().write(objectMapper.writeValueAsString(responseDto));
                 return;
             }
 
-            Claims info = jwtUtil.getUserInfoFromToken(token);
             setAuthentication(info.getSubject());
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isLoggedOut(String username) {
+        return redisTemplate.opsForSet().isMember("logged_out_users", username);
     }
 
 

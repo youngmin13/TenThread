@@ -1,14 +1,15 @@
 package com.example.tenthread.config;
 
-//import com.example.tenthread.jwt.JwtAuthenticationFilter;
 import com.example.tenthread.jwt.JwtAuthorizationFilter;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.redis.JwtLogoutHandler;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,8 +27,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final JwtLogoutHandler jwtLogoutHandler;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,7 +45,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper, redisTemplate);
     }
 
     @Bean
@@ -56,17 +60,18 @@ public class WebSecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
         http.logout(logout -> {
             logout.logoutUrl("/logout")
                     .invalidateHttpSession(true)
+                    .addLogoutHandler(jwtLogoutHandler)
                     .logoutSuccessHandler((request, response, authentication) -> {
-                        String message = "로그아웃되었습니다.";
-                        request.getSession().setAttribute("logoutMessage", message);
-                        response.sendRedirect("/");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("로그아웃에 성공했습니다.");
+                        response.getWriter().flush();
                     });
         });
 

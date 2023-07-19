@@ -19,7 +19,6 @@ public class UserService {
 
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
-    @Transactional
     public void signup(UserRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
@@ -38,12 +37,10 @@ public class UserService {
         String username = requestDto.getUsername();
         String password = requestDto.getPassword();
 
-        //사용자 확인 (username 이 없는 경우)
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new IllegalArgumentException("등록된 사용자가 없습니다.")
         );
 
-        //비밀번호 확인 (password 가 다른 경우)
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
