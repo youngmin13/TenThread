@@ -11,38 +11,22 @@
           integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/init.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-        *{font-family: 'Jua', sans-serif;}
 
-        button {
-            border:none;
-            background-color: inherit;
-            width: 70px;
-        }
-        @media (min-width: 992px) {
-
-        }
-        .container {
-            margin-top:80px;
-            border-radius: 25px;
-            padding: 50px 50px;
-        }
-        a {
-            text-decoration: none;
-            color: black;
-        }
-        .hidden {
-            visibility:hidden;
-        }
-    </style>
     <script>
         window.onload = function() {
             getUserData();
         }
     </script>
+    <style>
+        @media (min-width: 992px) {
+            .container {
+                width: 1280px;
+                top: 300px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -55,11 +39,22 @@
 
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasRightLabel">Offcanvas right</h5>
+                <h5 class="offcanvas-title mx-auto" id="userManagementOffcanvasLabel">유저이름</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                ...
+                <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
+
+                <!-- User and Notice Management content goes here -->
+                <ul class="mt-5">
+                    <li><a href="/main/back/notice" class="fs-5">공지글 관리</a></li>
+                    <li><a href="/main/back/user" class="fs-5">유저 관리</a></li>
+                    <!-- Add more management options here -->
+                </ul>
+            </div>
+            <div class="offcanvas-footer mt-auto">
+                <hr class="hr">
+                <a href="/logout" class="fs-5 ms-2">로그아웃</a>
             </div>
         </div>
     </div>
