@@ -53,8 +53,11 @@
             <h1 class="h1">텐스레드</h1>
                 <button class="fa-solid fa-square-arrow-up-right fs-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
                 <div>
-                    <button class="signup" onclick="location.href='/signup'">회원가입</button>
-                    <button class="login" onclick="location.href='/login'">로그인</button>
+                    <button class="signup-button" onclick="location.href='/signup'">회원가입</button>
+                    <button class="login-button" onclick="location.href='/login'">로그인</button>
+                    <button href="#" class="logout-button" style="display: none;">로그아웃</button>
+                    <button class="profile-button" onclick="location.href='/profile'">프로필</button>
+                    <button class="post-button" onclick="location.href='/post'">게시글 추가</button>
                 </div>
                 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                   <div class="offcanvas-header">
@@ -145,7 +148,79 @@
         </div>
         <hr class="hr my-5" >
     </div>
-<script></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLoginStatus();
+    });
+
+    function getCookieValueByName(name) {
+        var cookie = document.cookie;
+        var cookiePairs = cookie.split(';');
+
+        for (var i = 0; i < cookiePairs.length; i++) {
+            var pair = cookiePairs[i].trim();
+            if (pair.startsWith(name + '=')) {
+                return pair.substring(name.length + 1);
+            }
+        }
+
+        return null;
+    }
+
+    function isLoggedIn() {
+        var jwtCookie = getCookieValueByName('jwt');
+
+        return !!jwtCookie; // JWT 쿠키가 존재하면 true, 그렇지 않으면 false 반환
+    }
+
+    function updateLoginStatus() {
+        if (isLoggedIn()) {
+            // JWT 값을 추출하여 로그인 상태로 인식합니다.
+            document.querySelector('.login-button').style.display = 'none';
+            document.querySelector('.signup-button').style.display = 'none';
+            document.querySelector('.logout-button').style.display = 'inline-block';
+            document.querySelector('.profile-button').style.display = 'inline-block';
+            document.querySelector('.post-button').style.display = 'inline-block';
+        } else {
+            // JWT 값이 없으면 비로그인 상태로 인식합니다.
+            document.querySelector('.login-button').style.display = 'inline-block';
+            document.querySelector('.signup-button').style.display = 'inline-block';
+            document.querySelector('.logout-button').style.display = 'none';
+            document.querySelector('.profile-button').style.display = 'none';
+            document.querySelector('.post-button').style.display = 'none';
+        }
+    }
+
+
+    document.querySelector('.logout-button').addEventListener('click', function() {
+        logout();
+    });
+
+    // 로그아웃 요청 함수
+    function logout() {
+        // 로그아웃 요청을 보내는 코드를 작성합니다.
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 로그아웃이 성공한 경우에 대한 처리를 수행합니다.
+                // 예를 들어, 로그아웃 성공 메시지를 표시하거나 홈페이지로 리다이렉트할 수 있습니다.
+                console.log(data.message); // 로그아웃 성공 메시지
+                window.location.href = '/home'; // 홈페이지로 리다이렉트
+            })
+            .catch(error => {
+                // 로그아웃 요청이 실패한 경우에 대한 처리를 수행합니다.
+                console.error('로그아웃 요청 실패:', error);
+                // 예를 들어, 에러 메시지를 표시하거나 다시 시도할 수 있는 버튼을 보여줄 수 있습니다.
+            });
+    }
+
+</script>
 
 </body>
 </html>
