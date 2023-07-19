@@ -56,33 +56,4 @@ public class CommentController {
         commentService.deleteLikeComment(id, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("댓글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
     }
-
-    //예외 처리
-    @ExceptionHandler({NullPointerException.class})
-    public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
-        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(
-                restApiException,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    //예외 처리
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
-        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(
-                restApiException,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler({DuplicateRequestException.class})
-    public ResponseEntity<ApiResponseDto> handleException(DuplicateRequestException ex) {
-        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(
-                restApiException,
-                HttpStatus.BAD_REQUEST
-        );
-    }
 }
