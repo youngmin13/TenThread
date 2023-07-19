@@ -5,6 +5,7 @@ import com.example.tenthread.dto.LoginRequestDto;
 import com.example.tenthread.dto.UserRequestDto;
 import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.service.KakaoService;
+import com.example.tenthread.service.NaverService;
 import com.example.tenthread.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,13 +19,17 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
     private final KakaoService kakaoService;
 
-    public UserController(UserService userService, JwtUtil jwtUtil, KakaoService kakaoService) {
+    private final NaverService naverService;
+
+    private final JwtUtil jwtUtil;
+
+    public UserController(UserService userService, KakaoService kakaoService, NaverService naverService, JwtUtil jwtUtil) {
         this.userService = userService;
-        this.jwtUtil = jwtUtil;
         this.kakaoService = kakaoService;
+        this.naverService = naverService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/signup")
@@ -45,10 +50,22 @@ public class UserController {
         return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponseDto> logout() {
+        return ResponseEntity.ok().body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
+    }
+
     @GetMapping("/kakao/callback")
     public ResponseEntity<ApiResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         String token = kakaoService.kakaoLogin(code);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         return ResponseEntity.ok().body(new ApiResponseDto("카카오 로그인 성공", HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/naver/callback")
+    public ResponseEntity<ApiResponseDto> naverLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        String token = naverService.naverLogin(code);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        return ResponseEntity.ok().body(new ApiResponseDto("네이버 로그인 성공", HttpStatus.OK.value()));
     }
 }
