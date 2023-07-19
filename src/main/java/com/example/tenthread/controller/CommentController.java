@@ -22,9 +22,9 @@ public class CommentController {
     //댓글 작성
     @PostMapping("/post/{postId}/comment")
     public ResponseEntity<ApiResponseDto> createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto requestDto, @PathVariable Long postId){
-      log.info("createComment : "+ requestDto.getBody());
-      commentService.createComment(postId,requestDto,userDetails.getUser());
-      return ResponseEntity.ok().body(new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value()));
+        log.info("createComment : "+ requestDto.getBody());
+        commentService.createComment(postId,requestDto,userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 작성 성공", HttpStatus.OK.value()));
     }
 
     //댓글 수정
