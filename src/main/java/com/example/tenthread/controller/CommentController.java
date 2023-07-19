@@ -5,6 +5,7 @@ import com.example.tenthread.dto.CommentRequestDto;
 import com.example.tenthread.entity.Post;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.CommentService;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,18 @@ public class CommentController {
         return ResponseEntity.ok().body(new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value()));
     }
 
+    @PostMapping("/comments/{id}/like")
+    public ResponseEntity<ApiResponseDto> likeComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        commentService.likeComment(id, userDetails.getUser());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("댓글 좋아요 성공", HttpStatus.ACCEPTED.value()));
+    }
+
+    @DeleteMapping("/comments/{id}/like")
+    public ResponseEntity<ApiResponseDto> deleteLikeComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        commentService.deleteLikeComment(id, userDetails.getUser());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("댓글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
+    }
+
     //예외 처리
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
@@ -57,6 +70,15 @@ public class CommentController {
     //예외 처리
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
+        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                restApiException,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler({DuplicateRequestException.class})
+    public ResponseEntity<ApiResponseDto> handleException(DuplicateRequestException ex) {
         ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(
                 restApiException,

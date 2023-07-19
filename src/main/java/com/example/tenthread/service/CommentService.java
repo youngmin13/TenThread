@@ -2,18 +2,19 @@ package com.example.tenthread.service;
 
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.CommentRequestDto;
-import com.example.tenthread.entity.Comment;
-import com.example.tenthread.entity.Post;
-import com.example.tenthread.entity.User;
-import com.example.tenthread.entity.UserRoleEnum;
+import com.example.tenthread.entity.*;
+import com.example.tenthread.repository.CommentLikeRepository;
 import com.example.tenthread.repository.CommentRepository;
 import com.example.tenthread.repository.PostRepository;
 import com.example.tenthread.repository.UserRepository;
+import com.sun.jdi.request.DuplicateRequestException;
 import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     public void createComment(Long postId, CommentRequestDto requestDto, User user){
 
@@ -83,5 +85,34 @@ public class CommentService {
             }
         }
 
+    }
+
+    @Transactional
+    public void likeComment(Long id, User user) {
+        Comment comment = findComment(id);
+
+        if (commentLikeRepository.existsByUserAndComment(user, comment)) {
+            throw new DuplicateRequestException("이미 좋아요 한 댓글 입니다.");
+        } else {
+            CommentLike commentLike = new CommentLike(user, comment);
+            commentLikeRepository.save(commentLike);
+        }
+    }
+
+    @Transactional
+    public void deleteLikeComment(Long id, User user) {
+        Comment comment = findComment(id);
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findByUserAndComment(user, comment);
+        if (commentLikeOptional.isPresent()) {
+            commentLikeRepository.delete(commentLikeOptional.get());
+        } else {
+            throw new IllegalArgumentException("해당 댓글에 취소할 좋아요가 없습니다.");
+        }
+    }
+
+    public Comment findComment(long id) {
+        return commentRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("선택한 댓글은 존재하지 않습니다.")
+        );
     }
 }

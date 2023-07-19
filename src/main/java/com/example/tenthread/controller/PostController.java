@@ -3,7 +3,9 @@ package com.example.tenthread.controller;
 import com.example.tenthread.dto.*;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.PostService;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -46,5 +48,17 @@ public class PostController {
     public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         ApiResponseDto result = postService.deletePost(postId, userDetails.getUser());
         return ResponseEntity.status(200).body(result);
+    }
+
+    @PostMapping("/posts/{id}/like")
+    public ResponseEntity<ApiResponseDto> likePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        postService.likePost(id, userDetails.getUser());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공", HttpStatus.ACCEPTED.value()));
+    }
+
+    @DeleteMapping("/posts/{id}/like")
+    public ResponseEntity<ApiResponseDto> deleteLikePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        postService.deleteLikePost(id, userDetails.getUser());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
     }
 }
