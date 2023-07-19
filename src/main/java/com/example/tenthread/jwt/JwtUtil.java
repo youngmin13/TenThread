@@ -77,7 +77,8 @@ public class JwtUtil {
             // 토큰의 위변조, 만료 체크
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             if(redisUtil.hasKeyBlackList(token)){
-                throw new RuntimeException("로그아웃되었습니다. 다시 로그인해주세요.");
+                logger.error("로그아웃되었습니다. 다시 로그인해주세요.");
+                return false;
             }
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {

@@ -1,12 +1,11 @@
 package com.example.tenthread.controller;
 
-import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.LoginRequestDto;
 import com.example.tenthread.dto.UserRequestDto;
+import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.service.KakaoService;
 import com.example.tenthread.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

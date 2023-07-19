@@ -50,28 +50,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(token);
-            String username = info.getSubject();
-
-            // 로그아웃 확인
-            if (isLoggedOut(username)) {
-
-                ApiResponseDto responseDto = new ApiResponseDto("로그아웃된 사용자입니다.", HttpStatus.UNAUTHORIZED.value());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json; charset=UTF-8");
-                response.getWriter().write(objectMapper.writeValueAsString(responseDto));
-                return;
-            }
-
             setAuthentication(info.getSubject());
         }
 
         filterChain.doFilter(request, response);
     }
-
-    private boolean isLoggedOut(String username) {
-        return redisTemplate.opsForSet().isMember("logged_out_users", username);
-    }
-
 
     // 인증 처리
     public void setAuthentication(String username) {

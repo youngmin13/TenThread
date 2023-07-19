@@ -1,7 +1,6 @@
 package com.example.tenthread.redis;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Component;
@@ -32,9 +31,9 @@ public class RedisUtil {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    public void setBlackList(String key, Object o, int minutes) {
+    public void setBlackList(String key, Object o) {
         redisBlackListTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(o.getClass()));
-        redisBlackListTemplate.opsForValue().set(key, o, minutes, TimeUnit.MINUTES);
+        redisBlackListTemplate.opsForValue().set(key, o);
     }
 
     public Object getBlackList(String key) {
