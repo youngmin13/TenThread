@@ -65,32 +65,28 @@
     </div>
 </header>
 <div class="container" >
-    <table class="table">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>아이디</th>
-            <th>닉네임</th>
-            <th>등급</th>
-            <th>차단여부</th>
-            <th>관리자권한</th>
-            <th>차단</th>
-        </tr>
-        </thead>
-        <tbody>
-        <div id="base-box">
 
-        </div>
-
-        </tbody>
-    </table>
 </div>
 <script>
+    let jwtCookie = getCookieValueByName('jwt');
+    function getCookieValueByName(name) {
+        let cookie = document.cookie;
+        let cookiePairs = cookie.split(';');
+        for (let i = 0; i < cookiePairs.length; i++) {
+            let pair = cookiePairs[i].trim();
+            if (pair.startsWith(name + '=')) {
+                return pair.substring(name.length + 1);
+            }
+        }
+        return null;
+    }
+
+
     function getUserData(){
         fetch('/api/back/user', {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtCookie}`
             },
         })
             .then(response => {
@@ -100,33 +96,85 @@
                 return response.json(); // JSON 형태의 응답 데이터 파싱
             })
             .then(data => {
+                let temp_html = `
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">아이디</th>
+                <th scope="col">닉네임</th>
+                <th scope="col">등급</th>
+                <th scope="col">차단여부</th>
+                <th scope="col">관리자권한</th>
+                <th scope="col">차단</th>
+            </tr>
+            </thead>
+            <tbody id="base-box">
+            </tbody>
+        </table>`;
+
                 $('#base-box').empty();
-                for(let i=0; i<data.length; i++){
-                    let id = data.id;
-                    let username = data.username;
-                    let nickname = data.nickname;
-                    let role = data.role;
-                    let blocked = data.blocked;
-                    if(blocked === "true"){
-                        blocked = "차단됨"
-                    }else{
-                        blocked = "정상"
+                let user_html = '';
+                for (let i = 0; i < data.length; i++) {
+                    let id = data[i].id;
+                    let username = data[i].username;
+                    let nickname = data[i].nickname;
+                    let role = data[i].role;
+                    let blocked = data[i].blocked;
+
+                    // 차단 상태에 따라 버튼 텍스트와 이벤트 핸들러를 조정하는 함수
+                    function getBlockButtonHandler(blocked, id) {
+                        if (blocked) {
+                            return {
+                                buttonText: "차단해제하기",
+                                handler: `unblockUser('unblock-${id}')`,
+                                id : `unblock-${id}`
+                            };
+                        } else {
+                            return {
+                                buttonText: "차단하기",
+                                handler: `blockUser('block-${id}')`,
+                                id : `block-${id}`
+                            };
+                        }
                     }
-                    let temp_html=
+                    // blocked 변수의 값에 따라 버튼과 이벤트 핸들러를 결정
+                    const blockButtonContent = getBlockButtonHandler(blocked, id);
+                    let temp_html2 =
                         `
-                            <tr>
-                                <td>${id}</td>
-                                <td>${username}</td>
-                                <td>${nickname}</td>
-                                <td>${role}</td>
-                                <td>${blocked}</td>
-                                <td><button onclick="upgradeManager('upgrade-'${id})" class="btn btn-warning w-50" id="upgrade-${id}" value="${id}">변경하기</button></td>
-                                <td><button onclick="blockUser('block-${id}')" class="btn btn-danger w-50" id="block-${id}" value="${id}">차단하기</button></td>
-                            </tr>
-                        `
-                    $('#base-box').append(temp_html);
+                <tr scope="row">
+                    <td>${id}</td>
+                    <td>${username}</td>
+                    <td>${nickname}</td>
+                    <td>${role}</td>
+                    <td>${blocked ? "차단됨" : "정상"}</td>
+                    <td><button onclick="upgradeManager('upgrade-${id}')" class="btn btn-warning w-50" id="upgrade-${id}" value="${id}">변경하기</button></td>
+                    <td><button onclick="${blockButtonContent.handler}" class="btn btn-danger w-50" id="${blockButtonContent.id}" value="${id}">${blockButtonContent.buttonText}</button></td>
+                </tr>
+                `;
+                    user_html+=temp_html2;
                 }
 
+                $('.container').append(temp_html);
+                $('#base-box').append(user_html);
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
+    function upgradeManager(elementId){
+        let userId = document.getElementById(elementId).value;
+        fetch("/api/back/user/"+userId, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${jwtCookie}`
+            },
+        })
+            .then(response => {
+                if (response.status === 400) {
+                    alert('요청이 실패했습니다.');
+                }
             })
             .catch(error => {
                 // 오류 처리 로직을 작성합니다.
@@ -135,11 +183,12 @@
     }
     function blockUser(elementId){
         let userId = document.getElementById(elementId).value;
+        console.log(elementId+":"+userId);
 
-        fetch("/api/back/user/"+{userId}+"/block", {
+        fetch("/api/back/user/"+userId+"/block", {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtCookie}`
             },
         })
             .then(response => {
@@ -151,10 +200,28 @@
                 // 오류 처리 로직을 작성합니다.
                 console.error(error);
             });
-
     }
 
+    function unblockUser(elementId){
+        let userId = document.getElementById(elementId).value;
+        console.log(elementId+":"+userId);
 
+        fetch("/api/back/user/"+userId+"/unblock", {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${jwtCookie}`
+            },
+        })
+            .then(response => {
+                if (response.status === 400) {
+                    alert('요청이 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
 </script>
 </body>
 </html>
