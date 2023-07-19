@@ -46,10 +46,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(PostRequestDto requestDto, Long postId, User user) {
+    public PostResponseDto updatePost(PostRequestDto requestDto, Long postId, User user, MultipartFile[] files) throws IOException {
         Post post = findPost(postId);
 
         validateUser(user, post);
+
+        PostImage postImage = postImageService.getPostImage(postId);
+        postImageService.updateFile(postImage,files);
 
         post.setTitle(requestDto.getTitle());
         post.setContent(requestDto.getContent());
@@ -61,7 +64,7 @@ public class PostService {
         Post post = findPost(postId);
 
         validateUser(user, post);
-        PostImage postImage = postImageService.getImage(postId);
+        PostImage postImage = postImageService.getPostImage(postId);
         String url = postImage.getFileName();
         s3Service.deleteImage(url.split(","));
         postRepository.delete(post);
