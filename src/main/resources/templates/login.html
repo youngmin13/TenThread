@@ -98,7 +98,7 @@
 
                 // 로그인 성공 처리
                 alert('로그인 성공');
-                window.location.href = '/'; // 로그인 성공 시 이동할 페이지 경로
+                window.location.href = '/main/'; // 로그인 성공 시 이동할 페이지 경로
               } else {
                 return response.json().then(function (data) {
                   throw new Error(data.msg);

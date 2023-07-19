@@ -53,11 +53,11 @@
             <h1 class="h1">텐스레드</h1>
                 <button class="fa-solid fa-square-arrow-up-right fs-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
                 <div>
-                    <button class="signup-button" onclick="location.href='/signup'">회원가입</button>
-                    <button class="login-button" onclick="location.href='/login'">로그인</button>
+                    <button class="signup-button" onclick="location.href='/main/signup'">회원가입</button>
+                    <button class="login-button" onclick="location.href='/main/login'">로그인</button>
                     <button href="#" class="logout-button" style="display: none;">로그아웃</button>
-                    <button class="profile-button" onclick="location.href='/profile'">프로필</button>
-                    <button class="post-button" onclick="location.href='/post'">게시글 추가</button>
+                    <button class="profile-button" onclick="location.href='/main/profile'">프로필</button>
+                    <button class="post-button" onclick="location.href='/main/createPost'">게시글 추가</button>
                 </div>
                 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                   <div class="offcanvas-header">
@@ -211,7 +211,7 @@
                 // 로그아웃이 성공한 경우에 대한 처리를 수행합니다.
                 // 예를 들어, 로그아웃 성공 메시지를 표시하거나 홈페이지로 리다이렉트할 수 있습니다.
                 console.log(data.message); // 로그아웃 성공 메시지
-                window.location.href = '/home'; // 홈페이지로 리다이렉트
+                window.location.href = '/main/home'; // 홈페이지로 리다이렉트
             })
             .catch(error => {
                 // 로그아웃 요청이 실패한 경우에 대한 처리를 수행합니다.
