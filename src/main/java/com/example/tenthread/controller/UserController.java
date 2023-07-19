@@ -40,12 +40,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
-        try {
-            userService.login(requestDto, response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponseDto("회원을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST.value()));
-        }
-
+        userService.login(requestDto, response);
         return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
     }
 
