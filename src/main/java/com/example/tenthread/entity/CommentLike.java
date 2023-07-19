@@ -3,13 +3,12 @@ package com.example.tenthread.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @Table(name = "comment_like")
-public class CommentLike extends TimeStamped {
+public class CommentLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
