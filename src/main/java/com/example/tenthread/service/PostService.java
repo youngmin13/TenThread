@@ -1,9 +1,7 @@
 package com.example.tenthread.service;
 
 
-import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.PostRequestDto;
-import com.example.tenthread.dto.PostResponseDto;
+import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.Post;
 import com.example.tenthread.entity.PostImage;
 import com.example.tenthread.entity.User;
@@ -15,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +39,10 @@ public class PostService {
 
         return new PostResponseDto(post);
     }
-    public PostResponseDto getPost(Long postId) {
+    public PostDetailResponseDto getPost(Long postId) {
         Post post = findPost(postId);
 
-        return new PostResponseDto(post);
+        return new PostDetailResponseDto(post);
     }
 
     @Transactional
@@ -84,5 +84,13 @@ public class PostService {
         } else {
             return true;
         }
+    }
+
+    public PostListResponseDto getPosts() {
+        List<PostDetailResponseDto> postList = postRepository.findAll().stream()
+                .map(PostDetailResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new PostListResponseDto(postList);
     }
 }
