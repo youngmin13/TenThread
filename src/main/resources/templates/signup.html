@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 4px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .form-group input[type="submit"] {
+            background-color: #4caf50;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">회원가입</div>
+    <form>
+        <div class="form-group">
+            <label for="username">username:</label>
+            <input type="username" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="nickname">nickname:</label>
+            <input type="nickname" id="nickname" name="nickname" required>
+        </div>
+        <div class="form-group">
+            <label for="password">password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="role">role:</label>
+            <input type="role" id="role" name="role" required>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="가입">
+        </div>
+    </form>
+</div>
+<script>
+    document.querySelector('form').addEventListener('submit', function(event) {event.preventDefault();
+
+        // 폼 데이터 수집
+        var formData = new FormData(this);
+
+        // FormData 객체를 Javascript 객체로 변환
+        var formObject = {};
+        formData.forEach(function(value, key) {
+            formObject[key] = value;
+        })
+
+        // 서버로 폼 데이터 전송
+        fetch('/api/auth/signup', {
+            method: 'POST',
+            body: JSON.stringify(formObject), // FormData 객체를 JSON 형식으로 변환하여 전송
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(function(response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(function(data) {
+                    throw new Error(data.msg);
+                });
+            }
+        }).then(function(data) {
+            alert(data.msg);
+            window.location.href = '/login';
+        }).catch(function(error) {
+            console.error(error);
+            alert(error);
+        });
+    })
+
+</script>
+</body>
+</html>
