@@ -63,6 +63,13 @@ public class BackOfficeController {
         return ResponseEntity.ok().body(new ApiResponseDto("공지글 수정 완료",HttpStatus.OK.value()));
     }
 
+    //7. 공지글 삭제
+    @DeleteMapping("/back/notice/{noticeId}")
+    public ResponseEntity<ApiResponseDto> deleteNotice(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long noticeId){
+        backOfficeService.deleteNotice(noticeId, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("공지글 삭제 완료",HttpStatus.OK.value()));
+    }
+
     //예외 처리 nullPointerException
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {

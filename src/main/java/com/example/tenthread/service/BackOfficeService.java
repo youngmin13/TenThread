@@ -119,4 +119,15 @@ public class BackOfficeService {
         return true;
     }
 
+    public void deleteNotice(Long noticeId, User user) {
+        log.info("deleteNotice()");
+        if(validateExistingUser(user)){
+            if(validateUserRole(user)){
+                Notice foundNotice = noticeRepository.findById(noticeId).orElseThrow(
+                        () -> new NullPointerException("공지글이 존재하지 않습니다.")
+                );
+                noticeRepository.delete(foundNotice);
+            }
+        }
+    }
 }
