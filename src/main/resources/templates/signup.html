@@ -85,7 +85,7 @@
             formObject[key] = value;
         })
 
-        // 서버로 폼 데이터 전송 (AJAX 요청 등)
+        // 서버로 폼 데이터 전송
         fetch('/api/auth/signup', {
             method: 'POST',
             body: JSON.stringify(formObject), // FormData 객체를 JSON 형식으로 변환하여 전송
@@ -96,13 +96,16 @@
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error('Error: ' + response.status);
+                return response.json().then(function(data) {
+                    throw new Error(data.msg);
+                });
             }
         }).then(function(data) {
             alert(data.message);
             window.location.href = '/login';
         }).catch(function(error) {
             console.error(error);
+            alert(error);
         });
     })
 
