@@ -9,6 +9,7 @@ import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.repository.NoticeRepository;
 import com.example.tenthread.repository.PostRepository;
 import com.example.tenthread.repository.UserRepository;
+import jakarta.persistence.Table;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,8 +55,6 @@ public class BackOfficeService {
             }
         }
     }
-
-
 
     //공지글 작성
     public void createNotice(NoticeRequestDto requestDto, User user) {
@@ -113,6 +112,44 @@ public class BackOfficeService {
         }
     }
 
+    //유저 차단하기
+    @Transactional
+    public void blockUser(Long userId, User user) {
+        log.info("blockUser()");
+        if(validateExistingUser(user)){
+            if(validateUserRole(user)){
+                User foundUser = userRepository.findById(userId).orElseThrow(
+                        () -> new NullPointerException("해당 유저가 존재하지 않습니다.")
+                );
+
+                if(foundUser.getRole().equals(UserRoleEnum.ADMIN)){
+                   throw new IllegalArgumentException("관리자계정은 차단이 불가능 합니다.");
+                }
+                if(foundUser.isBlocked()){
+                    throw new IllegalArgumentException("이미 차단된 계정입니다.");
+                }
+                foundUser.setBlocked(true);
+            }
+        }
+    }
+
+    //유저 차단 해제하기
+    @Transactional
+    public void unBlockUser(Long userId, User user) {
+        log.info("unBlockUser()");
+        if(validateExistingUser(user)){
+            if(validateUserRole(user)){
+                User foundUser = userRepository.findById(userId).orElseThrow(
+                        () -> new NullPointerException("해당 유저가 존재하지 않습니다.")
+                );
+                if(foundUser.isBlocked()){
+                    foundUser.setBlocked(false);
+                }else{
+                    throw new IllegalArgumentException("이미 차단 해제된 계정입니다.");
+                }
+            }
+        }
+    }
     //관리자 판별
     public boolean validateUserRole(User user){
         log.info("validateUserRole()");
@@ -131,6 +168,7 @@ public class BackOfficeService {
 
         return true;
     }
+
 
 
 }

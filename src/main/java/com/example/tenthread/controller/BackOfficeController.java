@@ -24,13 +24,13 @@ public class BackOfficeController {
     private final BackOfficeService backOfficeService;
 
     //1. 유저 전체 조회 (최신 가입순)
-    @GetMapping("/back/users")
+    @GetMapping("/back/user")
     public List<UserResponseDto> getUserList(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return backOfficeService.getUserList(userDetails.getUser());
     }
 
     //2. 권한 수정하기 (일반 -> 관리자)
-    @PatchMapping("/back/{userId}")
+    @PatchMapping("/back/user/{userId}")
     public ResponseEntity<ApiResponseDto> updateUserRole(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         backOfficeService.updateUserRole(userId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("관리자로 변경 성공", HttpStatus.ACCEPTED.value()));
@@ -69,6 +69,21 @@ public class BackOfficeController {
         backOfficeService.deleteNotice(noticeId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("공지글 삭제 완료",HttpStatus.OK.value()));
     }
+
+    //8. 유저 차단하기
+    @PutMapping("/back/user/{userId}/block")
+    public ResponseEntity<ApiResponseDto> blockUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId){
+        backOfficeService.blockUser(userId, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("유저 차단 완료",HttpStatus.OK.value()));
+    }
+
+    //9. 유저 차단 해제 하기
+    @PutMapping("/back/user/{userId}/unblock")
+    public ResponseEntity<ApiResponseDto> unBlockUser(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId) {
+        backOfficeService.unBlockUser(userId, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("유저 차단 해제 완료", HttpStatus.OK.value()));
+    }
+
 
     //예외 처리 nullPointerException
     @ExceptionHandler({NullPointerException.class})
