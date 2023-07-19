@@ -38,6 +38,11 @@
             visibility:hidden;
         }
     </style>
+    <script>
+        window.onload = function() {
+            getUserData();
+        }
+    </script>
 </head>
 
 <body>
@@ -59,7 +64,7 @@
         </div>
     </div>
 </header>
-<div class="container" id="base-box">
+<div class="container" >
     <table class="table">
         <thead>
         <tr>
@@ -68,42 +73,88 @@
             <th>닉네임</th>
             <th>등급</th>
             <th>차단여부</th>
-            <th class="">관리자권한</th>
+            <th>관리자권한</th>
             <th>차단</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>1</td>
-            <td>kys123@naver.com</td>
-            <td>kys123</td>
-            <td>USER</td>
-            <td>정상</td>
-            <td class=""><button onclick="upgradeManager()" class="btn btn-warning w-50">변경하기</button></td>
-            <td class=""><button onclick="upgradeManager()" class="btn btn-danger w-50">차단하기</button></td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>kys1234@naver.com</td>
-            <td>kys1234</td>
-            <td>ADMIN</td>
-            <td>정상</td>
-            <td class=""><button onclick="upgradeManager()" class="btn btn-warning w-50">변경하기</button></td>
-            <td class=""><button onclick="upgradeManager()" class="btn btn-danger w-50">차단하기</button></td>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>kys12@naver.com</td>
-            <td>kys12</td>
-            <td>USER</td>
-            <td>차단됨</td>
-            <td class=""><button onclick="upgradeManager()" class="btn btn-warning w-50">변경하기</button></td>
-            <td class=""><button onclick="upgradeManager()" class="btn btn-danger w-50">차단하기</button></td>
-        </tr>
+        <div id="base-box">
+
+        </div>
 
         </tbody>
     </table>
 </div>
-</div>
+<script>
+    function getUserData(){
+        fetch('/api/back/user', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (response.status === 400) {
+                    alert('요청이 실패했습니다.');
+                }
+                return response.json(); // JSON 형태의 응답 데이터 파싱
+            })
+            .then(data => {
+                $('#base-box').empty();
+                for(let i=0; i<data.length; i++){
+                    let id = data.id;
+                    let username = data.username;
+                    let nickname = data.nickname;
+                    let role = data.role;
+                    let blocked = data.blocked;
+                    if(blocked === "true"){
+                        blocked = "차단됨"
+                    }else{
+                        blocked = "정상"
+                    }
+                    let temp_html=
+                        `
+                            <tr>
+                                <td>${id}</td>
+                                <td>${username}</td>
+                                <td>${nickname}</td>
+                                <td>${role}</td>
+                                <td>${blocked}</td>
+                                <td><button onclick="upgradeManager('upgrade-'${id})" class="btn btn-warning w-50" id="upgrade-${id}" value="${id}">변경하기</button></td>
+                                <td><button onclick="blockUser('block-${id}')" class="btn btn-danger w-50" id="block-${id}" value="${id}">차단하기</button></td>
+                            </tr>
+                        `
+                    $('#base-box').append(temp_html);
+                }
+
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
+    function blockUser(elementId){
+        let userId = document.getElementById(elementId).value;
+
+        fetch("/api/back/user/"+{userId}+"/block", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (response.status === 400) {
+                    alert('요청이 실패했습니다.');
+                }
+        })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+
+    }
+
+
+</script>
 </body>
 </html>
