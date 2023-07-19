@@ -2,7 +2,7 @@ package com.example.tenthread.config;
 
 import com.example.tenthread.jwt.JwtAuthorizationFilter;
 import com.example.tenthread.jwt.JwtUtil;
-import com.example.tenthread.redis.LogoutHandler;
+import com.example.tenthread.redis.TokenLogoutHandler;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final LogoutHandler logoutHandler;
+    private final TokenLogoutHandler tokenLogoutHandler;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -69,12 +70,7 @@ public class WebSecurityConfig {
         http.logout(logout -> {
             logout.logoutUrl("/logout")
                     .invalidateHttpSession(true)
-                    .addLogoutHandler(logoutHandler)
-                    .logoutSuccessHandler((request, response, authentication) -> {
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("로그아웃에 성공했습니다.");
-                        response.getWriter().flush();
-                    });
+                    .addLogoutHandler(tokenLogoutHandler);
         });
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -38,18 +38,14 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @Column(nullable = true)
-    private Long kakaoId;
-
     @Column(nullable = false)
     private boolean isBlocked;
 
+    @Column(nullable = true)
+    private Long socialId;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<LikePost> likedPosts;
-//
-//    @OneToMany(mappedBy = "user")
-//    private List<LikeComment> likedComments;
+    @Column(nullable = true)
+    private String social;
 
     @OneToMany(mappedBy = "follow", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Follow> followList = new ArrayList<>();
@@ -65,12 +61,13 @@ public class User {
         this.isBlocked = false;
     }
 
-    public User(String username, String password, String nickname, UserRoleEnum role, Long kakaoId) {
+    public User(String username, String password, String nickname, UserRoleEnum role, Long socialId, String social) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
-        this.kakaoId = kakaoId;
+        this.socialId = socialId;
+        this.social = social;
         this.isBlocked = false;
     }
 
@@ -85,8 +82,9 @@ public class User {
     public void setBlocked(boolean flag){
         this.isBlocked = flag;
     }
-    public User kakaoIdUpdate(Long kakaoId) {
-        this.kakaoId = kakaoId;
+    public User socialUpdate(Long socialId, String social) {
+        this.socialId = socialId;
+        this.social = social;
         return this;
     }
 
