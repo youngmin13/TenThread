@@ -1,6 +1,7 @@
 package com.example.tenthread.service;
 
 import com.example.tenthread.dto.SocialUserInfoDto;
+import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.repository.UserRepository;
@@ -18,30 +19,28 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.example.tenthread.entity.User;
 
 import java.net.URI;
 import java.util.UUID;
 
-@Slf4j(topic = "KAKAO Login")
+@Slf4j(topic = "NAVER Login")
 @Service
 @RequiredArgsConstructor
-public class KakaoService {
-
+public class NaverService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
 
-    public String kakaoLogin(String code) throws JsonProcessingException {
+    public String naverLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
-        SocialUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
+        SocialUserInfoDto naverUserInfo = getNaverUserInfo(accessToken);
 
         // 3. 필요시에 회원 가입
-        User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
+        User kakaoUser = registerNaverUserIfNeeded(naverUserInfo);
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
@@ -52,8 +51,8 @@ public class KakaoService {
     private String getToken(String code) throws JsonProcessingException {
         // 요청 URL 만들기
         URI uri = UriComponentsBuilder
-                .fromUriString("https://kauth.kakao.com")
-                .path("/oauth/token")
+                .fromUriString("https://nid.naver.com")
+                .path("/oauth2.0/token")
                 .encode()
                 .build()
                 .toUri();
@@ -65,8 +64,9 @@ public class KakaoService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "ae7708e065de7e86cbeadd427359aa6c");
-        body.add("redirect_uri", "http://localhost:8080/api/auth/kakao/callback");
+        body.add("X-Naver-Client-I", "XmNSzEFig_bVI5wTlG3V");
+        body.add("X-Naver-Client-Secret", "StN6tgNiUr");
+        body.add("redirect_uri", "http://localhost:8080/api/auth/naver/callback");
         body.add("code", code);
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
@@ -85,11 +85,11 @@ public class KakaoService {
         return jsonNode.get("access_token").asText();
     }
 
-    private SocialUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
+    private SocialUserInfoDto getNaverUserInfo(String accessToken) throws JsonProcessingException {
         // 요청 URL 만들기
         URI uri = UriComponentsBuilder
-                .fromUriString("https://kapi.kakao.com")
-                .path("/v2/user/me")
+                .fromUriString("https://openapi.naver.com")
+                .path("/v1/nid/me")
                 .encode()
                 .build()
                 .toUri();
@@ -116,26 +116,26 @@ public class KakaoService {
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
-        String social = "KAKAO";
+        String social = "NAVER";
 
         // 실제 저장은 email이 아니라 username으로 되어있음
         return new SocialUserInfoDto(id, nickname, email, social);
     }
 
-    private User registerKakaoUserIfNeeded(SocialUserInfoDto kakaoUserInfo) {
+    private User registerNaverUserIfNeeded(SocialUserInfoDto naverUserInfo) {
         // DB 에 중복된 Kakao Id 가 있는지 확인
-        Long kakaoId = kakaoUserInfo.getId();
-        String social = kakaoUserInfo.getSocial();
-        User kakaoUser = userRepository.findBySocialIdAndSocial(kakaoId, social).orElse(null);
+        Long naverId = naverUserInfo.getId();
+        String social = naverUserInfo.getSocial();
+        User naverUser = userRepository.findBySocialIdAndSocial(naverId, social).orElse(null);
 
-        if (kakaoUser == null) {
+        if (naverUser == null) {
             // 카카오 사용자 email (username) 동일한 email (username) 가진 회원이 있는지 확인
-            String kakaoUsername = kakaoUserInfo.getUsername();
-            User sameUsernameUser = userRepository.findByUsername(kakaoUsername).orElse(null);
+            String naverUsername = naverUserInfo.getUsername();
+            User sameUsernameUser = userRepository.findByUsername(naverUsername).orElse(null);
             if (sameUsernameUser != null) {
-                kakaoUser = sameUsernameUser;
+                naverUser = sameUsernameUser;
                 // 기존 회원정보에 카카오 Id 추가
-                kakaoUser = kakaoUser.socialUpdate(kakaoId, social);
+                naverUser = naverUser.socialUpdate(naverId, social);
             } else {
                 // 신규 회원가입
                 // password: random UUID
@@ -143,13 +143,13 @@ public class KakaoService {
                 String encodedPassword = passwordEncoder.encode(password);
 
                 // email: kakao email -> username으로 하기로 했음 (kakao email <=> kakaoUserInfo username <=> User username)
-                String email = kakaoUserInfo.getUsername();
+                String email = naverUserInfo.getUsername();
 
-                kakaoUser = new User(kakaoUserInfo.getNickname(), encodedPassword, email, UserRoleEnum.USER, kakaoId, social);
+                naverUser = new User(naverUserInfo.getNickname(), encodedPassword, email, UserRoleEnum.USER, naverId, social);
             }
 
-            userRepository.save(kakaoUser);
+            userRepository.save(naverUser);
         }
-        return kakaoUser;
+        return naverUser;
     }
 }
