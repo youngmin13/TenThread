@@ -4,7 +4,9 @@ import com.example.tenthread.dto.ApiResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -36,4 +38,15 @@ public class WebController {
         return "backoffice/main";
     }
 
+    @GetMapping("/back/notice")
+    public String adminNotice(){
+        return "backoffice/notice";
+    }
+
+
+    @GetMapping("/back/notice/{noticeId}")
+    public String adminNoticeOne(@PathVariable Long noticeId, Model model){
+        model.addAttribute("noticeId",noticeId);
+        return "backoffice/noticeOne";
+    }
 }
