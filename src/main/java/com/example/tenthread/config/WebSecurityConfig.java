@@ -70,8 +70,9 @@ public class WebSecurityConfig {
         );
 
         http.logout(logout -> {
-            logout.logoutUrl("/api/auth/logout")
+            logout.logoutUrl("/logout")
                     .invalidateHttpSession(true)
+                    .deleteCookies("jwt")
                     .addLogoutHandler(tokenLogoutHandler);
         });
 
