@@ -5,6 +5,7 @@ import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.redis.TokenLogoutHandler;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -28,11 +28,10 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final TokenLogoutHandler tokenLogoutHandler;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final TokenLogoutHandler tokenLogoutHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,7 +45,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper, redisTemplate);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper);
     }
 
     @Bean
@@ -69,12 +68,14 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
-        http.logout(logout -> {
-            logout.logoutUrl("/logout")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("jwt")
-                    .addLogoutHandler(tokenLogoutHandler);
-        });
+        http.logout((logout ->
+                logout.logoutUrl("/api/auth/logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("jwt")
+                        .addLogoutHandler(tokenLogoutHandler)
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // 아무런 응답을 하지 않도록 처리
+                        })));
 
         http.formLogin((formLogin) ->
                 formLogin.loginPage("/login").permitAll()
