@@ -68,7 +68,7 @@ public class WebSecurityConfig {
         );
 
         http.logout(logout -> {
-            logout.logoutUrl("/logout")
+            logout.logoutUrl("/api/auth/logout")
                     .invalidateHttpSession(true)
                     .addLogoutHandler(tokenLogoutHandler);
         });
