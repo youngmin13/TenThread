@@ -25,16 +25,10 @@ public class TokenLogoutHandler implements LogoutHandler {
             boolean isValidToken = jwtUtil.validateToken(token);
 
             if (!isValidToken) {
-                // 유효하지 않은 토큰에 대한 응답 처리
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("text/plain");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("유효하지 않은 토큰입니다.");
                 return;
             }
 
             redisUtil.setBlackList(token, true);
-
 
         } catch(Exception e) {
             e.printStackTrace();

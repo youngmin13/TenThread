@@ -68,12 +68,7 @@ public class WebSecurityConfig {
         http.logout(logout -> {
             logout.logoutUrl("/logout")
                     .invalidateHttpSession(true)
-                    .addLogoutHandler(tokenLogoutHandler)
-                    .logoutSuccessHandler((request, response, authentication) -> {
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("로그아웃에 성공했습니다.");
-                        response.getWriter().flush();
-                    });
+                    .addLogoutHandler(tokenLogoutHandler);
         });
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
