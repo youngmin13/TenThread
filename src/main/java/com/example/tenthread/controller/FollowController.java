@@ -5,6 +5,7 @@ import com.example.tenthread.dto.FollowResponseDto;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.FollowService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +17,20 @@ public class FollowController {
     private final FollowService followService;
 
     @GetMapping()
-    public FollowResponseDto getFollow(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return followService.getFollow(userDetails.getUser());
+    public ResponseEntity<FollowResponseDto> getFollow(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        FollowResponseDto result = followService.getFollow(userDetails.getUser());
+        return ResponseEntity.status(200).body(result);
     }
 
     @PostMapping("/{userId}")
-    public ApiResponseDto createFollow(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return followService.createFollow(userId, userDetails.getUser());
+    public ResponseEntity<ApiResponseDto> createFollow(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ApiResponseDto result = followService.createFollow(userId, userDetails.getUser());
+        return ResponseEntity.status(200).body(result);
     }
 
     @DeleteMapping("/{userId}")
-    public ApiResponseDto deleteFollow(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return followService.deleteFollow(userId, userDetails.getUser());
+    public ResponseEntity<ApiResponseDto> deleteFollow(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ApiResponseDto result = followService.deleteFollow(userId, userDetails.getUser());
+        return ResponseEntity.status(200).body(result);
     }
 }

@@ -1,14 +1,9 @@
 package com.example.tenthread.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.PostRequestDto;
-import com.example.tenthread.dto.PostResponseDto;
+import com.example.tenthread.dto.*;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,24 +19,34 @@ import java.io.IOException;
 public class PostController {
     private final PostService postService;
 
+    @GetMapping("posts")
+    public ResponseEntity<PostListResponseDto> getPosts() {
+        PostListResponseDto result = postService.getPosts();
+        return ResponseEntity.status(200).body(result);
+    }
+
     @GetMapping("post/{postId}")
-    public PostResponseDto getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.getPost(postId);
+    public ResponseEntity<PostDetailResponseDto> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostDetailResponseDto result = postService.getPost(postId);
+        return ResponseEntity.status(200).body(result);
     }
 
     @PostMapping("post")
-    public PostResponseDto createPost(@RequestPart("file") MultipartFile[] files, @RequestPart("PostRequestDto") PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.createPost(requestDto, userDetails.getUser(), files);
+    public ResponseEntity<PostResponseDto> createPost(@RequestPart("file") MultipartFile[] files, @RequestPart("PostRequestDto") PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostResponseDto result = postService.createPost(requestDto, userDetails.getUser(), files);
+        return ResponseEntity.status(201).body(result);
     }
 
     @PutMapping("post/{postId}")
-    public PostResponseDto updatePost(@RequestBody PostRequestDto requestDto, @PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.updatePost(requestDto, postId, userDetails.getUser());
+    public ResponseEntity<PostResponseDto> updatePost(@RequestPart("PostRequestDto") PostRequestDto requestDto,@RequestPart("file") MultipartFile[] files, @PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        PostResponseDto result = postService.updatePost(requestDto, postId, userDetails.getUser(), files);
+        return ResponseEntity.status(200).body(result);
     }
 
     @DeleteMapping("post/{postId}")
-    public ApiResponseDto deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return postService.deletePost(postId, userDetails.getUser());
+    public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        ApiResponseDto result = postService.deletePost(postId, userDetails.getUser());
+        return ResponseEntity.status(200).body(result);
     }
 
     @ExceptionHandler({IllegalArgumentException.class})

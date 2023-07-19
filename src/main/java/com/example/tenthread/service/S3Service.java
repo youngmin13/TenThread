@@ -28,18 +28,7 @@ public class S3Service {
 
         for (MultipartFile file : files) {
             String fileName = file.getOriginalFilename();
-
-            String fileUrl = "https://" + bucket +".s3."+ region + ".amazonaws.com/" + fileName;
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-            try {
-                amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("이미지의 크기가 너무 큽니다");
-            }
-            // 파일 처리 로직
+            String fileUrl = S3FileUpload(file,fileName);
             fileNames.add(fileUrl);
         }
 
@@ -54,6 +43,20 @@ public class S3Service {
             }
         } catch (SdkClientException e) {
             throw new IOException("S3에서 이미지를 삭제하는 도중 에러가 발생!", e);
+        }
+    }
+
+    public String S3FileUpload(MultipartFile file, String fileName) {
+        String fileUrl = "https://" + bucket +".s3."+ region + ".amazonaws.com/" + fileName;
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
+        try {
+            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+            return fileUrl;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("이미지의 크기가 너무 큽니다");
         }
     }
 }
