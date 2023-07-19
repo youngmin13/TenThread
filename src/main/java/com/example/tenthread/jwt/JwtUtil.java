@@ -19,6 +19,8 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+import static org.hibernate.internal.CoreLogging.logger;
+
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
@@ -79,7 +81,7 @@ public class JwtUtil {
             // 토큰의 위변조, 만료 체크
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             if(redisUtil.hasKeyBlackList(token)){
-                logger.error("로그아웃되었습니다. 다시 로그인해주세요.");
+                logger.info("로그아웃하여 블랙리스트로 처리된 토큰입니다.");
                 return false;
             }
             return true;

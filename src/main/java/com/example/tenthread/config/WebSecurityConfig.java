@@ -77,7 +77,7 @@ public class WebSecurityConfig {
                         })));
 
         http.formLogin((formLogin) ->
-                formLogin.loginPage("/login").permitAll()
+                formLogin.loginPage("/main/login").permitAll()
         );
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
