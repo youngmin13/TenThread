@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Post</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    input[type="file"] {
+      margin-top: 5px;
+    }
+
+    input[type="submit"] {
+      margin-top: 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+<h1>게시글 생성</h1>
+<form id="postForm" enctype="multipart/form-data">
+  <label for="title">제목:</label>
+  <input type="text" id="title" name="title" required>
+
+  <label for="content">내용:</label>
+  <textarea id="content" name="content" rows="4" required></textarea>
+
+  <label for="image1">이미지 1:</label>
+  <input type="file" id="image1" name="file">
+
+  <label for="image2">이미지 2:</label>
+  <input type="file" id="image2" name="file">
+
+  <label for="image3">이미지 3:</label>
+  <input type="file" id="image3" name="file">
+
+  <label for="image4">이미지 4:</label>
+  <input type="file" id="image4" name="file">
+
+  <label for="image5">이미지 5:</label>
+  <input type="file" id="image5" name="file">
+
+  <input type="submit" value="게시글 생성">
+</form>
+
+<script>
+  const form = document.getElementById("postForm");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    const postRequestDto = {
+      title: title,
+      content: content
+    };
+
+    const formData = new FormData();
+    formData.append("postRequestDto", JSON.stringify(postRequestDto));
+
+    // 이미지 파일 추가
+    const imageInputs = document.querySelectorAll('input[type="file"]');
+    imageInputs.forEach((input, index) => {
+      const files = input.files;
+      for (let i = 0; i < files.length; i++) {
+        formData.append(`file`, files[i]);
+      }
+    });
+
+    const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3ZXIwNjA5OUBuYXZlci5jb20iLCJhdXRoIjoiVVNFUiIsImV4cCI6MTY4OTc2MTg3MywiaWF0IjoxNjg5NzU4MjczfQ.kXQmtEATugtDx97HO3V-4yl6XWRgaeG2-cYQg-_ompQ";
+
+    fetch("http://localhost:8080/api/post", {
+      method: "POST",
+      headers: {
+        "Authorization": `${token}`,
+      },
+      body: formData
+    })
+            .then(response => response.json())
+            .then(data => {
+              // 필요한 경우 서버로부터 받은 데이터를 처리
+              alert("게시글이 생성되었습니다");
+              window.location.href = "/main/home"
+              console.log(data);
+            })
+            .catch(error => {
+              // 에러 처리
+              console.error("에러:", error);
+            });
+  });
+
+</script>
+</body>
+</html>
