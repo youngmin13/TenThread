@@ -83,25 +83,4 @@ public class BackOfficeController {
         backOfficeService.unBlockUser(userId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("유저 차단 해제 완료", HttpStatus.OK.value()));
     }
-
-
-    //예외 처리 nullPointerException
-    @ExceptionHandler({NullPointerException.class})
-    public ResponseEntity<ApiResponseDto> handleException(NullPointerException ex) {
-        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(
-                restApiException,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    //예외 처리 IllegalArgumentException
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
-        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(
-                restApiException,
-                HttpStatus.BAD_REQUEST
-        );
-    }
 }
