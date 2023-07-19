@@ -41,6 +41,9 @@ public class User {
     @Column(nullable = true)
     private Long kakaoId;
 
+    @Column(nullable = false)
+    private boolean isBlocked;
+
 
 //    @OneToMany(mappedBy = "user")
 //    private List<LikePost> likedPosts;
@@ -59,6 +62,7 @@ public class User {
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+        this.isBlocked = false;
     }
 
     public User(String username, String password, String nickname, UserRoleEnum role, Long kakaoId) {
@@ -67,6 +71,7 @@ public class User {
         this.nickname = nickname;
         this.role = role;
         this.kakaoId = kakaoId;
+        this.isBlocked = false;
     }
 
     public void setNickname(String newNickname) {
@@ -77,6 +82,9 @@ public class User {
         this.password = newPassword;
     }
 
+    public void setBlocked(boolean flag){
+        this.isBlocked = flag;
+    }
     public User kakaoIdUpdate(Long kakaoId) {
         this.kakaoId = kakaoId;
         return this;
