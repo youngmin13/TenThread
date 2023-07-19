@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
     private final KakaoService kakaoService;
 
-    public UserController(UserService userService, KakaoService kakaoService) {
+    public UserController(UserService userService, JwtUtil jwtUtil, KakaoService kakaoService) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
         this.kakaoService = kakaoService;
     }
 
@@ -34,13 +36,13 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
-        userService.login(requestDto, response);
-        return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.OK.value()));
-    }
+        try {
+            userService.login(requestDto, response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponseDto("회원을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST.value()));
+        }
 
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponseDto> logout() {
-        return ResponseEntity.ok().body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
     }
 
     @GetMapping("/kakao/callback")
