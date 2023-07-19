@@ -31,4 +31,9 @@ public class WebController {
     public ResponseEntity<ApiResponseDto> logout() {
         return ResponseEntity.ok().body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
     }
+    @GetMapping("/back/user")
+    public String adminMain(){
+        return "backoffice/main";
+    }
+
 }
