@@ -5,6 +5,7 @@ import com.example.tenthread.dto.LoginRequestDto;
 import com.example.tenthread.dto.UserRequestDto;
 import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.service.KakaoService;
+import com.example.tenthread.service.NaverService;
 import com.example.tenthread.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,9 +21,12 @@ public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
 
-    public UserController(UserService userService, KakaoService kakaoService) {
+    private final NaverService naverService;
+
+    public UserController(UserService userService, KakaoService kakaoService, NaverService naverService) {
         this.userService = userService;
         this.kakaoService = kakaoService;
+        this.naverService = naverService;
     }
 
     @PostMapping("/signup")
@@ -48,5 +52,12 @@ public class UserController {
         String token = kakaoService.kakaoLogin(code);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         return ResponseEntity.ok().body(new ApiResponseDto("카카오 로그인 성공", HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/naver/callback")
+    public ResponseEntity<ApiResponseDto> naverLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        String token = naverService.naverLogin(code);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        return ResponseEntity.ok().body(new ApiResponseDto("네이버 로그인 성공", HttpStatus.OK.value()));
     }
 }

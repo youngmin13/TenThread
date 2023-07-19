@@ -39,7 +39,10 @@ public class User {
     private UserRoleEnum role;
 
     @Column(nullable = true)
-    private Long kakaoId;
+    private Long socialId;
+
+    @Column(nullable = true)
+    private String social;
 
 
 //    @OneToMany(mappedBy = "user")
@@ -61,12 +64,13 @@ public class User {
         this.role = role;
     }
 
-    public User(String username, String password, String nickname, UserRoleEnum role, Long kakaoId) {
+    public User(String username, String password, String nickname, UserRoleEnum role, Long socialId, String social) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
-        this.kakaoId = kakaoId;
+        this.socialId = socialId;
+        this.social = social;
     }
 
     public void setNickname(String newNickname) {
@@ -77,8 +81,9 @@ public class User {
         this.password = newPassword;
     }
 
-    public User kakaoIdUpdate(Long kakaoId) {
-        this.kakaoId = kakaoId;
+    public User socialUpdate(Long socialId, String social) {
+        this.socialId = socialId;
+        this.social = social;
         return this;
     }
 
