@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>로그인</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f2f2f2;
+      border-radius: 4px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .form-group input[type="submit"] {
+      background-color: #4caf50;
+      color: #ffffff;
+      cursor: pointer;
+    }
+    .form-group input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="title">로그인</div>
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="username">사용자명:</label>
+      <input type="username" id="username" name="username" required>
+    </div>
+    <div class="form-group">
+      <label for="password">비밀번호:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div class="form-group">
+      <input type="submit" value="로그인">
+    </div>
+  </form>
+</div>
+</body>
+<script>
+  document.querySelector('#loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    var username = document.querySelector('#username').value;
+    var password = document.querySelector('#password').value;
+
+    fetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username: username, password: password }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include' // 쿠키 포함 옵션 설정
+    })
+            .then(function(response) {
+              if (response.ok) {
+                // JWT 값을 추출하기 위해 Authorization 헤더를 확인
+                var authorizationHeader = response.headers.get('Authorization');
+                var jwt = null;
+
+                if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
+                  jwt = authorizationHeader.slice('Bearer '.length);
+                }
+
+                // JWT 값을 쿠키에 설정 (예시: 7일 동안 유효한 쿠키로 설정)
+                var expirationDate = new Date();
+                expirationDate.setDate(expirationDate.getDate() + 7);
+                document.cookie = 'jwt=' + jwt + '; expires=' + expirationDate.toUTCString() + '; path=/';
+
+                // 로그인 성공 처리
+                alert('로그인 성공');
+                window.location.href = '/'; // 로그인 성공 시 이동할 페이지 경로
+              } else {
+                throw new Error('Error: ' + response.status);
+              }
+            })
+            .catch(function(error) {
+              console.error(error);
+            });
+  });
+
+</script>
+</html>

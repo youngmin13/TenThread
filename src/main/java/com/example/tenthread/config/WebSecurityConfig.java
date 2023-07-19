@@ -64,6 +64,8 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/back/notice/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/signup").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
@@ -72,6 +74,10 @@ public class WebSecurityConfig {
                     .invalidateHttpSession(true)
                     .addLogoutHandler(tokenLogoutHandler);
         });
+
+        http.formLogin((formLogin) ->
+                formLogin.loginPage("/login").permitAll()
+        );
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
