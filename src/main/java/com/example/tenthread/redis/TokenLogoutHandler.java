@@ -20,9 +20,25 @@ public class TokenLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String token = extractTokenFromRequest(request);
-        if(jwtUtil.validateToken(token)) {
+        try {
+            String token = extractTokenFromRequest(request);
+            boolean isValidToken = jwtUtil.validateToken(token);
+
+            if (!isValidToken) {
+                // 유효하지 않은 토큰에 대한 응답 처리
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("text/plain");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("유효하지 않은 토큰입니다.");
+                return;
+            }
+
             redisUtil.setBlackList(token, true);
+
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return;
         }
     }
 
