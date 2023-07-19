@@ -1,21 +1,34 @@
 package com.example.tenthread.service;
 
 import com.example.tenthread.dto.*;
+import com.example.tenthread.entity.PrevPassword;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.repository.PrevPasswordRepository;
 import com.example.tenthread.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    private final JwtUtil jwtUtil;
+
+    private final PrevPasswordRepository prevPasswordRepository;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, PrevPasswordRepository prevPasswordRepository) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.prevPasswordRepository = prevPasswordRepository;
+    }
 
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
@@ -31,9 +44,13 @@ public class UserService {
 
         User user = new User(username, password, getNickname, role);
         userRepository.save(user);
+
+        // prevPassword에 비밀번호 저장
+        PrevPassword prevPassword = new PrevPassword(password, user);
+        prevPasswordRepository.save(prevPassword);
     }
 
-    public void login(LoginRequestDto requestDto) {
+    public void login(LoginRequestDto requestDto, HttpServletResponse response) {
         String username = requestDto.getUsername();
         String password = requestDto.getPassword();
 
@@ -44,6 +61,9 @@ public class UserService {
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+
+        String token = jwtUtil.createToken(user.getUsername(), user.getRole());
+        response.addHeader("Authorization", token);
     }
 
     public UserResponseDto getMyProfile(User user) {
@@ -55,6 +75,11 @@ public class UserService {
     }
 
 
+    /**
+     * 프로필 변경 메서드
+     * @param user : 현재 로그인한 유저
+     * @param profileRequestDto : 프로필 변경시 필요한 정보 (닉네임, 예전 비번, 바꿀 비번)
+     */
     public void updateProfile(User user, ProfileRequestDto profileRequestDto) {
         // 로그인한 유저가 존재하는지 한번 더 확인 -> 굳이 할 필요는 없을 듯...
         User updateProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(
@@ -70,6 +95,21 @@ public class UserService {
         if(!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+
+        // 현재 유저 아이디를 가지고 있는 예전 비밀번호들 목록
+        List<PrevPasswordResponseDto> prevPasswords = prevPasswordRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId()).stream().map(PrevPasswordResponseDto::new).toList();
+
+        for (PrevPasswordResponseDto pass : prevPasswords) {
+            if (passwordEncoder.matches(newPassword, pass.getPassword())) {
+                throw new IllegalArgumentException("최근 3번안에 사용한 비밀번호입니다.");
+            }
+        }
+
+        if (prevPasswords.size() >= 3) {
+            prevPasswords.remove(prevPasswords.size() - 1);
+        }
+        PrevPassword currentPassword = new PrevPassword(passwordEncoder.encode(newPassword), user);
+        prevPasswordRepository.save(currentPassword);
 
         // 업데이트
         updateProfile.setNickname(newNickname);

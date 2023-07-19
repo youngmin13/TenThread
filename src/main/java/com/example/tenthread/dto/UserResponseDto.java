@@ -1,7 +1,7 @@
 package com.example.tenthread.dto;
 
-import com.example.tenthread.entity.Follow;
 import com.example.tenthread.entity.User;
+import com.example.tenthread.entity.Follow;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,4 +20,5 @@ public class UserResponseDto {
         this.username = user.getUsername();
         this.nickname = user.getNickname();
     }
+
 }

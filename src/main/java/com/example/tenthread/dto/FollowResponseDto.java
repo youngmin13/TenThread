@@ -15,11 +15,15 @@ public class FollowResponseDto {
     private String nickname;
     private List<FollowingResponseDto> followingList = new ArrayList<>();
 
-    public FollowResponseDto(Follow follow, User user) {
-        this.id = follow.getId();
+    public FollowResponseDto(User user) {
+        this.id = user.getId();
         this.nickname = user.getNickname();
-        for(Follow following : user.getFollowList()) {
-            followingList.add(new FollowingResponseDto(following));
+
+        if (user.getFollowList() != null) {
+            for (Follow following : user.getFollowList()) {
+                followingList.add(new FollowingResponseDto(following));
+            }
         }
     }
 }
+
