@@ -22,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -79,6 +81,14 @@ public class WebSecurityConfig {
         http.formLogin((formLogin) ->
                 formLogin.loginPage("/main/login").permitAll()
         );
+
+        // 인증되지 않은 사용자가 localhost:8080에 접근했을 때 로그인 페이지가 아니라 홈페이지로 리디렉션되도록 설정
+        http.exceptionHandling((exceptionHandling) ->
+                exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
+                    response.sendRedirect("/main/home");
+                })
+        );
+
 
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 

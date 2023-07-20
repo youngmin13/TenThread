@@ -83,8 +83,8 @@ public class PostService {
     }
 
     @Transactional
-    public void likePost(Long id, User user) {
-        Post post = findPost(id);
+    public void likePost(Long postId, User user) {
+        Post post = findPost(postId);
 
         // if (postLikeRepository.findByUserAndPost(user, post).isPresent()) {
         if (postLikeRepository.existsByUserAndPost(user, post)) {
@@ -96,8 +96,8 @@ public class PostService {
     }
 
     @Transactional
-    public void deleteLikePost(Long id, User user) {
-        Post post = findPost(id);
+    public void deleteLikePost(Long postId, User user) {
+        Post post = findPost(postId);
         Optional<PostLike> postLikeOptional = postLikeRepository.findByUserAndPost(user, post);
         if (postLikeOptional.isPresent()) {
             postLikeRepository.delete(postLikeOptional.get());
