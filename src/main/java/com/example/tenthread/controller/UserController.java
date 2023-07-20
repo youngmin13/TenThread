@@ -8,6 +8,7 @@ import com.example.tenthread.service.KakaoService;
 import com.example.tenthread.service.NaverService;
 import com.example.tenthread.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,11 @@ public class UserController {
     public ResponseEntity<ApiResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
         userService.login(requestDto, response);
         return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request) {
+        userService.logout(request);
     }
 
     @GetMapping("/kakao/callback")

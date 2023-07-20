@@ -5,17 +5,21 @@ import com.example.tenthread.redis.RedisUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+
+import static org.hibernate.internal.CoreLogging.logger;
 
 @Component
 @RequiredArgsConstructor
@@ -77,7 +81,7 @@ public class JwtUtil {
             // 토큰의 위변조, 만료 체크
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             if(redisUtil.hasKeyBlackList(token)){
-                logger.error("로그아웃되었습니다. 다시 로그인해주세요.");
+                logger.info("로그아웃하여 블랙리스트로 처리된 토큰입니다.");
                 return false;
             }
             return true;

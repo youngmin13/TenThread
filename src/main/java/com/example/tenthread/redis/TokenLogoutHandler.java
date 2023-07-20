@@ -3,13 +3,17 @@ package com.example.tenthread.redis;
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.jwt.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 @Component
 public class TokenLogoutHandler implements LogoutHandler {
@@ -25,30 +29,44 @@ public class TokenLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-
-        String token = extractTokenFromRequest(request);
+        String token = extractTokenFromCookie(request);
         boolean isValidToken = jwtUtil.validateToken(token);
 
         if (!isValidToken) {
             // 유효하지 않은 토큰인 경우
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             ApiResponseDto responseDto = new ApiResponseDto("유효하지 않은 요청입니다.", HttpStatus.BAD_REQUEST.value());
+            writeJsonResponse(response, responseDto);
             return;
         }
+
+        // Redis 블랙리스트에 토큰 추가
+        redisUtil.setBlackList(token, true);
 
         // 로그아웃 성공 코드
         response.setStatus(HttpServletResponse.SC_OK);
         ApiResponseDto responseDto = new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value());
+        writeJsonResponse(response, responseDto);
 
-        // Redis 블랙리스트에 토큰 추가
-        redisUtil.setBlackList(token, true);
     }
 
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader("Authorization");
-        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
+    private void writeJsonResponse(HttpServletResponse response, ApiResponseDto responseDto) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write(objectMapper.writeValueAsString(responseDto));
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return null;
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            token = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("jwt")).findFirst().map(Cookie::getValue).orElse(null);
+        }
+        return token;
     }
 }
