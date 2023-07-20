@@ -12,5 +12,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 //    Optional<User> findByKakaoId(Long kakaoId);
     List<User> findAllByOrderByIdDesc();
 
-    Optional<User> findBySocialIdAndSocial(Long kakaoId, String social);
+    Optional<User> findBySocialIdAndSocial(String kakaoId, String social);
 }

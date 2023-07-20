@@ -125,130 +125,90 @@
         </div>
         <hr class="hr my-5" >
     </div>
-<script>
+    <script>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        updateLoginStatus();
-        getPosts();
-
-        // 모든 요소가 로드된 후에 updateLikeStatus() 함수를 호출합니다.
-        document.addEventListener('load', function() {
-            updateLikeStatus();
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLoginStatus();
+            getPosts();
         });
-    });
 
-    function getCookieValueByName(name) {
-        var cookie = document.cookie;
-        var cookiePairs = cookie.split(';');
+        function getCookieValueByName(name) {
+            var cookie = document.cookie;
+            var cookiePairs = cookie.split(';');
 
-        for (var i = 0; i < cookiePairs.length; i++) {
-            var pair = cookiePairs[i].trim();
-            if (pair.startsWith(name + '=')) {
-                return pair.substring(name.length + 1);
+            for (var i = 0; i < cookiePairs.length; i++) {
+                var pair = cookiePairs[i].trim();
+                if (pair.startsWith(name + '=')) {
+                    return pair.substring(name.length + 1);
+                }
+            }
+
+            return null;
+        }
+
+        function isLoggedIn() {
+            var jwtCookie = getCookieValueByName('jwt');
+
+            return !!jwtCookie; // JWT 쿠키가 존재하면 true, 그렇지 않으면 false 반환
+        }
+
+        function updateLoginStatus() {
+            if (isLoggedIn()) {
+                // JWT 값을 추출하여 로그인 상태로 인식합니다.
+                document.querySelector('.login-button').style.display = 'none';
+                document.querySelector('.signup-button').style.display = 'none';
+                document.querySelector('.logout-button').style.display = 'inline-block';
+                document.querySelector('.profile-button').style.display = 'inline-block';
+                document.querySelector('.post-button').style.display = 'inline-block';
+            } else {
+                // JWT 값이 없으면 비로그인 상태로 인식합니다.
+                document.querySelector('.login-button').style.display = 'inline-block';
+                document.querySelector('.signup-button').style.display = 'inline-block';
+                document.querySelector('.logout-button').style.display = 'none';
+                document.querySelector('.profile-button').style.display = 'none';
+                document.querySelector('.post-button').style.display = 'none';
             }
         }
 
-        return null;
-    }
 
-    function isLoggedIn() {
-        var jwtCookie = getCookieValueByName('jwt');
+        document.querySelector('.logout-button').addEventListener('click', function() {
+            logout();
+        });
 
-        return !!jwtCookie; // JWT 쿠키가 존재하면 true, 그렇지 않으면 false 반환
-    }
+        document.querySelector('.profile-button').addEventListener('click', function() {
+            window.location.href = "/main/profile"
+        });
 
-    function updateLoginStatus() {
-        if (isLoggedIn()) {
-            // JWT 값을 추출하여 로그인 상태로 인식합니다.
-            document.querySelector('.login-button').style.display = 'none';
-            document.querySelector('.signup-button').style.display = 'none';
-            document.querySelector('.logout-button').style.display = 'inline-block';
-            document.querySelector('.profile-button').style.display = 'inline-block';
-            document.querySelector('.post-button').style.display = 'inline-block';
-        } else {
-            // JWT 값이 없으면 비로그인 상태로 인식합니다.
-            document.querySelector('.login-button').style.display = 'inline-block';
-            document.querySelector('.signup-button').style.display = 'inline-block';
-            document.querySelector('.logout-button').style.display = 'none';
-            document.querySelector('.profile-button').style.display = 'none';
-            document.querySelector('.post-button').style.display = 'none';
-        }
-    }
-
-    function updateLikeStatus() {
-        var jwtCookie = getCookieValueByName('jwt');
-        if (isLoggedIn()) {
-            fetch('/api/auth/likes', {
-                method: "GET",
+        // 로그아웃 요청 함수
+        function logout() {
+            // 로그아웃 요청을 보내는 코드를 작성합니다.
+            fetch('/api/auth/logout', {
+                method: 'POST',
                 headers: {
-                    "Authorization": "Bearer " + jwtCookie
-                }
+                    'Content-Type': 'application/json'
+                },
             })
                 .then(response => response.json())
                 .then(data => {
-                    var likedPosts = data.postIds; // API에서 받아온 postId 리스트
-                    var likedComments = data.commentIds; // API에서 받아온 commentId 리스트
-
-                    var likeButtons = document.querySelectorAll(".like-button");
-                    var likeButtonArray = Array.from(likeButtons); // NodeList를 배열로 변환
-
-                    likeButtonArray.forEach(likeButton => {
-                        var postId = likeButton.dataset.postId;
-                        var commentId = likeButton.dataset.commentId; // (가정) 버튼에 commentId가 있다고 가정
-
-                        var isLikedPost = likedPosts.includes(postId.toString());
-                        var isLikedComment = likedComments.includes(commentId.toString());
-
-                        if (isLikedPost || isLikedComment) {
-                            likeButton.classList.add("liked");
-                            likeButton.style.color = "red";
-                        }
-                    });
+                    alert(data.msg); // 로그아웃 성공 메시지
+                    localStorage.clear();
+                    window.location.href = '/main/home'; // 홈페이지로 리다이렉트
                 })
                 .catch(error => {
-                    console.error("Fetch 에러:", error);
+                    console.error('로그아웃 요청 실패:', error);
                 });
         }
-    }
 
-    document.querySelector('.logout-button').addEventListener('click', function() {
-        logout();
-    });
-
-    document.querySelector('.profile-button').addEventListener('click', function() {
-        window.location.href = "/main/profile"
-    });
-
-    // 로그아웃 요청 함수
-    function logout() {
-        // 로그아웃 요청을 보내는 코드를 작성합니다.
-        fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.msg); // 로그아웃 성공 메시지
-                localStorage.clear();
-                window.location.href = '/main/home'; // 홈페이지로 리다이렉트
-            })
-            .catch(error => {
-                console.error('로그아웃 요청 실패:', error);
-            });
-    }
-
-    function getPosts() {
-        const container = document.getElementById("base-box");
-        let htmlTemplate = ``;
-        let num = 0
-        fetch("/api/posts")
-            .then(response => response.json())
-            .then(data => {
-                for(let i = 0; i < data.postList.length; i++) {
-                    const postData = data.postList[i];
-                    let userHtml = `
+        function getPosts() {
+            const container = document.getElementById("base-box");
+            let htmlTemplate = ``;
+            let num = 0
+            fetch("/api/posts")
+                .then(response => response.json())
+                .then(data => {
+                    for(let i = 0; i < data.postList.length; i++) {
+                        const postData = data.postList[i];
+                        let userHtml = `
                         <div class="user-info-box">
                             <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
                             <span class="me-2">${postData.nickname}</span>
@@ -277,7 +237,7 @@
   </div>
 </div>
                         `
-                    let commentHtml = `
+                        let commentHtml = `
                     <div class="col-md-4" id="comment-base-box-1">
                         <span class="fs-4">댓글 수 ${postData.commentList.length}</span>
                         <div class="comment-box mt-3 d-flex ">
@@ -293,7 +253,7 @@
                         </div>
                     </div>
                     `
-                    let postHtml = `
+                        let postHtml = `
                     <div class="col-md-12 mt-3 fs-5">
                         <p>${postData.content}</p>
                     </div>
@@ -306,86 +266,85 @@
                     </div>
                     </div>
                     `
-                    num++;
-                    let totalHtml = userHtml + commentHtml + postHtml;
-                    htmlTemplate += totalHtml;
-                }
-                container.innerHTML = htmlTemplate;
-                updateLikeStatus();
-            })
-            .catch(error => {
-                console.error("Fetch 에러:", error);
-            });
-    }
-
-    function handlePostLikeButton(postId, likeButton) {
-        var jwtCookie = getCookieValueByName("jwt");
-
-        // Check if the postId is already liked in the cache (localStorage)
-        var isLiked = localStorage.getItem(`post_${postId}_liked`);
-
-        if (isLiked === "true") {
-            // If the postId is already liked, update the button style
-            likeButton.classList.add("liked");
-            likeButton.style.color = "red";
-        } else if (isLiked === "false") {
-            // If the postId is not liked, update the button style
-            likeButton.classList.remove("liked");
-            likeButton.style.color = "";
+                        num++;
+                        let totalHtml = userHtml + commentHtml + postHtml;
+                        htmlTemplate += totalHtml;
+                    }
+                    container.innerHTML = htmlTemplate;
+                })
+                .catch(error => {
+                    console.error("Fetch 에러:", error);
+                });
         }
 
-        // Add a click event listener to the likeButton
-        likeButton.addEventListener("click", function () {
-            var isLiked = likeButton.classList.contains("liked");
+        function handlePostLikeButton(postId, likeButton) {
+            var jwtCookie = getCookieValueByName("jwt");
 
-            // If the postId is already liked and the button is clicked, send a delete request to unlike the post
-            if (isLiked) {
-                fetch(`/api/post/${postId}/like`, {
-                    method: "DELETE",
-                    headers: {
-                        "Authorization": "Bearer " + jwtCookie,
-                        "Content-Type": "application/json"
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        // Update the button style
-                        likeButton.classList.remove("liked");
-                        likeButton.style.color = "";
-                        // Update the cache (localStorage)
-                        localStorage.setItem(`post_${postId}_liked`, "false");
-                    })
-                    .catch(error => {
-                        console.error("게시글 좋아요 취소 요청 실패:", error);
-                    });
-            } else {
-                // If the postId is not liked and the button is clicked, send a post request to like the post
-                fetch(`/api/post/${postId}/like`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer " + jwtCookie,
-                        "Content-Type": "application/json"
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        // Update the button style
-                        likeButton.classList.add("liked");
-                        likeButton.style.color = "red";
-                        // Update the cache (localStorage)
-                        localStorage.setItem(`post_${postId}_liked`, "true");
-                    })
-                    .catch(error => {
-                        console.error("게시글 좋아요 요청 실패:", error);
-                    });
+            // Check if the postId is already liked in the cache (localStorage)
+            var isLiked = localStorage.getItem(`post_${postId}_liked`);
+
+            if (isLiked === "true") {
+                // If the postId is already liked, update the button style
+                likeButton.classList.add("liked");
+                likeButton.style.color = "red";
+            } else if (isLiked === "false") {
+                // If the postId is not liked, update the button style
+                likeButton.classList.remove("liked");
+                likeButton.style.color = "";
             }
-        });
-    }
+
+            // Add a click event listener to the likeButton
+            likeButton.addEventListener("click", function () {
+                var isLiked = likeButton.classList.contains("liked");
+
+                // If the postId is already liked and the button is clicked, send a delete request to unlike the post
+                if (isLiked) {
+                    fetch(`/api/post/${postId}/like`, {
+                        method: "DELETE",
+                        headers: {
+                            "Authorization": "Bearer " + jwtCookie,
+                            "Content-Type": "application/json"
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            // Update the button style
+                            likeButton.classList.remove("liked");
+                            likeButton.style.color = "";
+                            // Update the cache (localStorage)
+                            localStorage.setItem(`post_${postId}_liked`, "false");
+                        })
+                        .catch(error => {
+                            console.error("게시글 좋아요 취소 요청 실패:", error);
+                        });
+                } else {
+                    // If the postId is not liked and the button is clicked, send a post request to like the post
+                    fetch(`/api/post/${postId}/like`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer " + jwtCookie,
+                            "Content-Type": "application/json"
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            // Update the button style
+                            likeButton.classList.add("liked");
+                            likeButton.style.color = "red";
+                            // Update the cache (localStorage)
+                            localStorage.setItem(`post_${postId}_liked`, "true");
+                        })
+                        .catch(error => {
+                            console.error("게시글 좋아요 요청 실패:", error);
+                        });
+                }
+            });
+        }
 
 
-</script>
+    </script>
 
 </body>
 </html>

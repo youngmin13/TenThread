@@ -111,7 +111,7 @@ public class KakaoService {
         );
 
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
-        Long id = jsonNode.get("id").asLong();
+        String id = jsonNode.get("id").asText();
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
@@ -119,12 +119,12 @@ public class KakaoService {
         String social = "KAKAO";
 
         // 실제 저장은 email이 아니라 username으로 되어있음
-        return new SocialUserInfoDto(id, nickname, email, social);
+        return new SocialUserInfoDto(id, email, nickname, social);
     }
 
     private User registerKakaoUserIfNeeded(SocialUserInfoDto kakaoUserInfo) {
         // DB 에 중복된 Kakao Id 가 있는지 확인
-        Long kakaoId = kakaoUserInfo.getId();
+        String kakaoId = kakaoUserInfo.getId();
         String social = kakaoUserInfo.getSocial();
         User kakaoUser = userRepository.findBySocialIdAndSocial(kakaoId, social).orElse(null);
 
