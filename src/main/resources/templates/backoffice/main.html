@@ -167,10 +167,12 @@
             },
         })
             .then(response => {
-                if (response.status === 400) {
-                    alert('요청이 실패했습니다.');
-                }
+                return response.json()
             })
+            .then(data =>{
+                alert(data.msg)
+                window.location.reload()
+        })
             .catch(error => {
                 // 오류 처리 로직을 작성합니다.
                 console.error(error);
@@ -187,10 +189,12 @@
             },
         })
             .then(response => {
-                if (response.status === 400) {
-                    alert('요청이 실패했습니다.');
-                }
+                return response.json()
         })
+            .then(data =>{
+                alert(data.msg)
+                window.location.reload()
+            })
             .catch(error => {
                 // 오류 처리 로직을 작성합니다.
                 console.error(error);
@@ -208,9 +212,11 @@
             },
         })
             .then(response => {
-                if (response.status === 400) {
-                    alert('요청이 실패했습니다.');
-                }
+                return response.json()
+            })
+            .then(data =>{
+                alert(data.msg)
+                window.location.reload()
             })
             .catch(error => {
                 // 오류 처리 로직을 작성합니다.

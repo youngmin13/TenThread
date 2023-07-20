@@ -76,9 +76,6 @@
                 body: JSON.stringify(updateData)
             })
                 .then(response => {
-                    if (response.status === 400) {
-                        alert('요청이 실패했습니다.');
-                    }
                     return response.json(); // JSON 형태의 응답 데이터 파싱
                 })
                 .then(data => {
@@ -98,9 +95,6 @@
                 },
             })
                 .then(response => {
-                    if (response.status === 400) {
-                        alert('요청이 실패했습니다.');
-                    }
                     return response.json(); // JSON 형태의 응답 데이터 파싱
                 })
                 .then(data => {
