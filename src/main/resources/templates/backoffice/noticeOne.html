@@ -14,7 +14,82 @@
     <link href="/css/init.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
     <script>
-        let noticeId = /*[[${noticeId}]]*/ {};
+        let jwtCookie = getCookieValueByName('jwt');
+        function getCookieValueByName(name) {
+            let cookie = document.cookie;
+            let cookiePairs = cookie.split(';');
+            for (let i = 0; i < cookiePairs.length; i++) {
+                let pair = cookiePairs[i].trim();
+                if (pair.startsWith(name + '=')) {
+                    return pair.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
+         let noticeId = [[${noticeId}]];
+
+        window.onload = function() {
+            getNoticeData();
+        }
+        function getNoticeData(){
+            fetch('/api/back/notice/'+noticeId, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtCookie}`
+                },
+            })
+                .then(response => {
+                    if (response.status === 400) {
+                        alert('요청이 실패했습니다.');
+                    }
+                    return response.json(); // JSON 형태의 응답 데이터 파싱
+                })
+                .then(data => {
+                    let title = data.title;
+                    let content =  data.content;
+                    let titleElement = document.getElementById('title');
+                    let contentElement = document.getElementById('content');
+                    titleElement.value = title;
+                    contentElement.textContent = content;
+                })
+                .catch(error => {
+                    // 오류 처리 로직을 작성합니다.
+                    console.error(error);
+                });
+        }
+        function updateNotice(){
+            console.log("updateNotice");
+            let updateTitle = document.getElementById('title').value;
+            let updateContent = document.getElementById('content').value;
+
+            console.log(updateContent);
+            let updateData = {
+                title: updateTitle,
+                content: updateContent
+            }
+            fetch('/api/back/notice/'+noticeId, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwtCookie}`
+                },
+                body: JSON.stringify(updateData)
+            })
+                .then(response => {
+                    if (response.status === 400) {
+                        alert('요청이 실패했습니다.');
+                    }
+                    return response.json(); // JSON 형태의 응답 데이터 파싱
+                })
+                .then(data => {
+                    alert(data.msg);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    // 오류 처리 로직을 작성합니다.
+                    console.error(error);
+                });
+        }
     </script>
 </head>
 <body>
