@@ -89,7 +89,7 @@
                         <span class="fw-bold">유저이름</span>
                     </div>
                     <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
-                    <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:red"></button>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handleCommentLikeButton('1', this)"></button>
                 </div>
                 <div class="text-end" style="color: #949494;">
                     <span>1 like</span>
@@ -101,7 +101,7 @@
                 <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
             </div>
             <div class="d-flex like-box">
-                <button onclick="" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red"></button>
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handleCommentLikeButton('2', this)"></button>
                 <div class="text-start fs-5" style="color: #949494;">
                     <span>1 like</span>
                     <span>post</span>
@@ -127,7 +127,7 @@
                         <span class="fw-bold">유저이름</span>
                     </div>
                     <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
-                    <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:red"></button>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('1', this)"></button>
                 </div>
                 <div class="text-end" style="color: #949494;">
                     <span>1 like</span>
@@ -139,7 +139,7 @@
                 <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
             </div>
             <div class="d-flex like-box">
-                <button onclick="" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red"></button>
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('2', this)"></button>
                 <div class="text-start fs-5" style="color: #949494;">
                     <span>1 like</span>
                     <span>post</span>
@@ -215,6 +215,54 @@
                 console.error('로그아웃 요청 실패:', error);
             });
     }
+
+    function handlePostLikeButton(postId) {
+        var jwtCookie = getCookieValueByName("jwt");
+
+        // 코멘트의 좋아요 기능을 처리하는 fetch 요청을 보냄
+        fetch("/api/post/" + postId, {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + jwtCookie,
+                "Content-Type": "application/json"
+            }
+            // ... 기타 필요한 설정과 데이터 추가 ...
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 서버로부터 받은 응답에 대한 처리
+                console.log(data);
+            })
+            .catch(error => {
+                // 에러 처리
+                console.error("코멘트 좋아요 요청 실패:", error);
+            });
+    }
+
+
+    function handleCommentLikeButton(commentId) {
+        var jwtCookie = getCookieValueByName("jwt");
+
+        // 코멘트의 좋아요 기능을 처리하는 fetch 요청을 보냄
+        fetch("/api/comment/" + commentId, {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + jwtCookie,
+                "Content-Type": "application/json"
+            }
+            // ... 기타 필요한 설정과 데이터 추가 ...
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 서버로부터 받은 응답에 대한 처리
+                console.log(data);
+            })
+            .catch(error => {
+                // 에러 처리
+                console.error("코멘트 좋아요 요청 실패:", error);
+            });
+    }
+
 
 </script>
 
