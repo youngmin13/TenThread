@@ -3,7 +3,10 @@ package com.example.tenthread.controller;
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.dto.LoginRequestDto;
 import com.example.tenthread.dto.UserRequestDto;
+import com.example.tenthread.entity.User;
+import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.KakaoService;
 import com.example.tenthread.service.NaverService;
 import com.example.tenthread.service.UserService;
@@ -12,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
