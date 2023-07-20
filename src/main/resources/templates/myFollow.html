@@ -92,9 +92,58 @@
         </div>
     </div>
     <h3>내가 작성한 게시글</h3>
-    <div id="posts-container"></div>
+    <div class="mycards">
+        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+            <div class='col'>
+                <div class='card h-100'>
+                    <h5 class='card-title'></h5>
+                    <div class='card-body'>
+                        <p class='card-content'></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </header>
 <script>
+    $(document).ready(function () {
+        fetchMyPosts();
+    });
+
+    function fetchMyPosts() {
+        fetch('/api/myFollow', {
+            method: 'GET',
+            headers: {
+                Authorization: prefix + getCookieValueByName('jwt'),
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(function (data) {
+                    throw new Error(data);
+                });
+            }
+        }).then(function (data) {
+            if (data && data.postList && data.postList.length > 0) {
+                let postsContainer = $("#cards-box");
+                let html = "";
+
+                data.postList.forEach(function (post) {
+                    html += "<div class='col'>" + "<div className='card h-100'>" +
+                        "<h5 class='card-title'>" + post.title + "</h5>" + "<div class='card-body'>" +
+                        "<p class='card-content'>" + post.content + "</p>" +
+                        "</div>" + "</div>" + "</div>";
+                });
+                postsContainer.html(html);
+            }
+        }).catch(function (error) {
+            console.error(error);
+            alert(error);
+        });
+    }
 
     let prefix = "Bearer ";
 
