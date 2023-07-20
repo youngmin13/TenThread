@@ -52,4 +52,9 @@ public class WebController {
     public String getProfile() {
         return "profile";
     }
+
+    @GetMapping("/myPage")
+    public String myPage() {
+        return "myPage";
+    }
 }
