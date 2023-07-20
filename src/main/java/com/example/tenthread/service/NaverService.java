@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j(topic = "NAVER Login")
@@ -33,6 +35,7 @@ public class NaverService {
     private final JwtUtil jwtUtil;
 
     public String naverLogin(String code) throws JsonProcessingException {
+        // 여기까지는 들어옴
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -56,6 +59,7 @@ public class NaverService {
                 .encode()
                 .build()
                 .toUri();
+        //--------------//
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -64,10 +68,11 @@ public class NaverService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("X-Naver-Client-I", "XmNSzEFig_bVI5wTlG3V");
-        body.add("X-Naver-Client-Secret", "StN6tgNiUr");
+        body.add("client_id", "XmNSzEFig_bVI5wTlG3V");
+        body.add("client_secret", "StN6tgNiUr");
         body.add("redirect_uri", "http://localhost:8080/api/auth/naver/callback");
         body.add("code", code);
+        body.add("state", "test");
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
                 .post(uri)
@@ -82,6 +87,8 @@ public class NaverService {
 
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
+        System.out.println("NaverService.getToken");
+        System.out.println(jsonNode);
         return jsonNode.get("access_token").asText();
     }
 
@@ -97,7 +104,7 @@ public class NaverService {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
                 .post(uri)
@@ -111,20 +118,20 @@ public class NaverService {
         );
 
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
-        Long id = jsonNode.get("id").asLong();
-        String nickname = jsonNode.get("properties")
+        String id = jsonNode.get("response").get("id").asText();
+        String nickname = jsonNode.get("response")
                 .get("nickname").asText();
-        String email = jsonNode.get("kakao_account")
+        String email = jsonNode.get("response")
                 .get("email").asText();
         String social = "NAVER";
 
         // 실제 저장은 email이 아니라 username으로 되어있음
-        return new SocialUserInfoDto(id, nickname, email, social);
+        return new SocialUserInfoDto(id, email, nickname, social);
     }
 
     private User registerNaverUserIfNeeded(SocialUserInfoDto naverUserInfo) {
         // DB 에 중복된 Kakao Id 가 있는지 확인
-        Long naverId = naverUserInfo.getId();
+        String naverId = naverUserInfo.getId();
         String social = naverUserInfo.getSocial();
         User naverUser = userRepository.findBySocialIdAndSocial(naverId, social).orElse(null);
 

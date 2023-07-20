@@ -88,8 +88,8 @@ public class CommentService {
     }
 
     @Transactional
-    public void likeComment(Long id, User user) {
-        Comment comment = findComment(id);
+    public void likeComment(Long commentId, User user) {
+        Comment comment = findComment(commentId);
 
         if (commentLikeRepository.existsByUserAndComment(user, comment)) {
             throw new DuplicateRequestException("이미 좋아요 한 댓글 입니다.");
@@ -100,8 +100,8 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteLikeComment(Long id, User user) {
-        Comment comment = findComment(id);
+    public void deleteLikeComment(Long commentId, User user) {
+        Comment comment = findComment(commentId);
         Optional<CommentLike> commentLikeOptional = commentLikeRepository.findByUserAndComment(user, comment);
         if (commentLikeOptional.isPresent()) {
             commentLikeRepository.delete(commentLikeOptional.get());
@@ -110,8 +110,8 @@ public class CommentService {
         }
     }
 
-    public Comment findComment(long id) {
-        return commentRepository.findById(id).orElseThrow(() ->
+    public Comment findComment(long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(() ->
                 new IllegalArgumentException("선택한 댓글은 존재하지 않습니다.")
         );
     }

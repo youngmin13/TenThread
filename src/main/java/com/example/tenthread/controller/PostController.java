@@ -51,15 +51,15 @@ public class PostController {
         return ResponseEntity.status(200).body(result);
     }
 
-    @PostMapping("/posts/{id}/like")
-    public ResponseEntity<ApiResponseDto> likePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
-        postService.likePost(id, userDetails.getUser());
+    @PostMapping("/post/{postId}/like")
+    public ResponseEntity<ApiResponseDto> likePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        postService.likePost(postId, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공", HttpStatus.ACCEPTED.value()));
     }
 
-    @DeleteMapping("/posts/{id}/like")
-    public ResponseEntity<ApiResponseDto> deleteLikePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
-        postService.deleteLikePost(id, userDetails.getUser());
+    @DeleteMapping("/post/{postId}/like")
+    public ResponseEntity<ApiResponseDto> deleteLikePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        postService.deleteLikePost(postId, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
     }
 }

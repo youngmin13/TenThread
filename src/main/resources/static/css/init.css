@@ -28,3 +28,9 @@ a:hover {
 .hidden {
     visibility:hidden;
 }
+
+.custom-carousel-image {
+    width: 300px;
+    height: 500px;
+    object-fit: cover;
+}
