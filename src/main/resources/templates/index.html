@@ -194,6 +194,7 @@
             .then(response => response.json())
             .then(data => {
                 alert(data.msg); // 로그아웃 성공 메시지
+                localStorage.clear();
                 window.location.href = '/main/home'; // 홈페이지로 리다이렉트
             })
             .catch(error => {
@@ -247,7 +248,7 @@
                                 <span class="fw-bold">유저이름</span>
                             </div>
                         <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
-                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:red"></button>
+                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>
                         </div>
                         <div class="text-end" style="color: #949494;">
                             <span>1 like</span>
@@ -260,7 +261,7 @@
                         <p>${postData.content}</p>
                     </div>
                     <div class="d-flex like-box">
-                        <button onclick="" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red"></button>
+                        <button onclick="handlePostLikeButton(${postData.id}, this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:#ccc" ></button>
                         <div class="text-start fs-5" style="color: #949494;">
                             <span>${postData.likeCount} like</span>
                             <span>post</span>
@@ -282,113 +283,67 @@
     function handlePostLikeButton(postId, likeButton) {
         var jwtCookie = getCookieValueByName("jwt");
 
-        // 현재 버튼의 상태를 가져옵니다.
-        var isLiked = likeButton.classList.contains("liked");
+        // Check if the postId is already liked in the cache (localStorage)
+        var isLiked = localStorage.getItem(`post_${postId}_liked`);
 
-        // 좋아요 버튼이 눌린 상태라면 취소 요청을 보냅니다.
-        if (isLiked) {
-            fetch(`/api/post/${postId}/like`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": "Bearer " + jwtCookie,
-                    "Content-Type": "application/json"
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // 서버로부터 받은 응답에 대한 처리
-                    console.log(data);
-                    // 좋아요 취소가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
-                    likeButton.classList.remove("liked");
-                    likeButton.style.color = "gray";
-                })
-                .catch(error => {
-                    // 에러 처리
-                    console.error("게시글 좋아요 취소 요청 실패:", error);
-                });
-        } else {
-            // 좋아요 버튼이 눌리지 않은 상태라면 추가 요청을 보냅니다.
-            fetch(`/api/post/${postId}/like`, {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + jwtCookie,
-                    "Content-Type": "application/json"
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // 서버로부터 받은 응답에 대한 처리
-                    console.log(data);
-                    // 좋아요가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
-                    likeButton.classList.add("liked");
-                    likeButton.style.color = "red";
-                })
-                .catch(error => {
-                    // 에러 처리
-                    console.error("게시글 좋아요 요청 실패:", error);
-                });
+        if (isLiked === "true") {
+            // If the postId is already liked, update the button style
+            likeButton.classList.add("liked");
+            likeButton.style.color = "red";
+        } else if (isLiked === "false") {
+            // If the postId is not liked, update the button style
+            likeButton.classList.remove("liked");
+            likeButton.style.color = "";
         }
-    }
 
+        // Add a click event listener to the likeButton
+        likeButton.addEventListener("click", function () {
+            var isLiked = likeButton.classList.contains("liked");
 
-    function handleCommentLikeButton(commentId, likeButton) {
-        var jwtCookie = getCookieValueByName("jwt");
-
-        // 현재 버튼의 상태를 가져옵니다.
-        var isLiked = likeButton.classList.contains("liked");
-
-        // 좋아요 버튼이 눌린 상태라면 취소 요청을 보냅니다.
-        if (isLiked) {
-            fetch(`/api/comment/${commentId}/like`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": "Bearer " + jwtCookie,
-                    "Content-Type": "application/json"
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // 서버로부터 받은 응답에 대한 처리
-                    console.log(data);
-                    // 좋아요 취소가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
-                    likeButton.classList.remove("liked");
-                    likeButton.style.color = "gray";
-
-                    updateLikeCount(data.likeCount);
+            // If the postId is already liked and the button is clicked, send a delete request to unlike the post
+            if (isLiked) {
+                fetch(`/api/post/${postId}/like`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
+                    }
                 })
-                .catch(error => {
-                    // 에러 처리
-                    console.error("게시글 좋아요 취소 요청 실패:", error);
-                });
-        } else {
-            // 좋아요 버튼이 눌리지 않은 상태라면 추가 요청을 보냅니다.
-            fetch(`/api/comment/${commentId}/like`, {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + jwtCookie,
-                    "Content-Type": "application/json"
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // 서버로부터 받은 응답에 대한 처리
-                    console.log(data);
-                    // 좋아요가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
-                    likeButton.classList.add("liked");
-                    likeButton.style.color = "red";
-
-                    updateLikeCount(data.likeCount);
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        // Update the button style
+                        likeButton.classList.remove("liked");
+                        likeButton.style.color = "";
+                        // Update the cache (localStorage)
+                        localStorage.setItem(`post_${postId}_liked`, "false");
+                    })
+                    .catch(error => {
+                        console.error("게시글 좋아요 취소 요청 실패:", error);
+                    });
+            } else {
+                // If the postId is not liked and the button is clicked, send a post request to like the post
+                fetch(`/api/post/${postId}/like`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
+                    }
                 })
-                .catch(error => {
-                    // 에러 처리
-                    console.error("게시글 좋아요 요청 실패:", error);
-                });
-        }
-    }
-
-    function updateLikeCount(likeCount) {
-        var likeCountElement = document.getElementById("likeCount");
-        likeCountElement.innerText = likeCount + " like";
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        // Update the button style
+                        likeButton.classList.add("liked");
+                        likeButton.style.color = "red";
+                        // Update the cache (localStorage)
+                        localStorage.setItem(`post_${postId}_liked`, "true");
+                    })
+                    .catch(error => {
+                        console.error("게시글 좋아요 요청 실패:", error);
+                    });
+            }
+        });
     }
 
 
