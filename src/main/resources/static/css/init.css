@@ -43,3 +43,9 @@ a:hover {
 .hidden-post {
     display: none;
 }
+
+.btn.follow-btn {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+}
