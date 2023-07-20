@@ -1,23 +1,21 @@
 package com.example.tenthread.service;
 
 import com.example.tenthread.dto.*;
-import com.example.tenthread.entity.PrevPassword;
-import com.example.tenthread.entity.User;
-import com.example.tenthread.entity.UserRoleEnum;
+import com.example.tenthread.entity.*;
 import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.redis.RedisUtil;
+import com.example.tenthread.repository.CommentLikeRepository;
+import com.example.tenthread.repository.PostLikeRepository;
 import com.example.tenthread.repository.PrevPasswordRepository;
 import com.example.tenthread.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -28,14 +26,19 @@ public class UserService {
     private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
 
+    private final PostLikeRepository postLikeRepository;
+    private final CommentLikeRepository commentLikeRepository;
+
     private final PrevPasswordRepository prevPasswordRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PrevPasswordRepository prevPasswordRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PostLikeRepository postLikeRepository, CommentLikeRepository commentLikeRepository, PrevPasswordRepository prevPasswordRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisUtil = redisUtil;
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
+        this.postLikeRepository = postLikeRepository;
+        this.commentLikeRepository = commentLikeRepository;
         this.prevPasswordRepository = prevPasswordRepository;
     }
 
@@ -143,5 +146,13 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> {
             throw new IllegalArgumentException("존재하지 않는 유저입니다.");
         });
+    }
+
+    public List<Long> getPostLikesByUserId(Long userId) {
+        return postLikeRepository.findPostIdsByUserId(userId);
+    }
+
+    public List<Long> getCommentLikesByUserId(Long userId) {
+        return commentLikeRepository.findCommentIdsByUserId(userId);
     }
 }

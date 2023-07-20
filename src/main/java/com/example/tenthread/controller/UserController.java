@@ -1,8 +1,8 @@
 package com.example.tenthread.controller;
 
-import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.LoginRequestDto;
-import com.example.tenthread.dto.UserRequestDto;
+import com.example.tenthread.dto.*;
+import com.example.tenthread.entity.CommentLike;
+import com.example.tenthread.entity.PostLike;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
@@ -17,7 +17,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -66,5 +69,19 @@ public class UserController {
         String token = naverService.naverLogin(code);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         return ResponseEntity.ok().body(new ApiResponseDto("네이버 로그인 성공", HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/likes")
+    public ResponseEntity<LikeListResponseDto> getLikes(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.getUser().getId();
+
+        List<Long> postIds = userService.getPostLikesByUserId(userId);
+        List<Long> commentIds = userService.getCommentLikesByUserId(userId);
+
+        LikeListResponseDto result = new LikeListResponseDto();
+        result.setPostIds(postIds);
+        result.setCommentIds(commentIds);
+
+        return ResponseEntity.status(200).body(result);
     }
 }
