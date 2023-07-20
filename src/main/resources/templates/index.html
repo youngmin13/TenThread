@@ -85,7 +85,7 @@
                 <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
             </div>
             <div class="d-flex like-box">
-                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handleCommentLikeButton('commentId_2', this)"></button>
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handlePostLikeButton('postId_1', this)"></button>
                 <div class="text-start fs-5" style="color: #949494;">
                     <span>1 like</span>
                     <span>post</span>
@@ -111,7 +111,7 @@
                         <span class="fw-bold">유저이름</span>
                     </div>
                     <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
-                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handlePostLikeButton('postId_1', this)"></button>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handleCommentLikeButton('commentId_2', this)"></button>
                 </div>
                 <div class="text-end" style="color: #949494;">
                     <span>1 like</span>
@@ -311,6 +311,7 @@
         var likeCountElement = document.getElementById("likeCount");
         likeCountElement.innerText = likeCount + " like";
     }
+
 
 </script>
 
