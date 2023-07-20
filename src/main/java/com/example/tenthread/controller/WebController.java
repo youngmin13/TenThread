@@ -57,4 +57,9 @@ public class WebController {
     public String myPage() {
         return "myPage";
     }
+
+    @GetMapping("/myFollow")
+    public String myFollow() {
+        return "myFollow";
+    }
 }
