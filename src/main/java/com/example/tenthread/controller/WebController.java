@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/main")
@@ -49,5 +46,20 @@ public class WebController {
     public String adminNoticeOne(@PathVariable Long noticeId, Model model){
         model.addAttribute("noticeId",noticeId);
         return "backoffice/noticeOne";
+    }
+
+    @GetMapping("/profile")
+    public String getProfile() {
+        return "profile";
+    }
+
+    @GetMapping("/myPage")
+    public String myPage() {
+        return "myPage";
+    }
+
+    @GetMapping("/myFollow")
+    public String myFollow() {
+        return "myFollow";
     }
 }

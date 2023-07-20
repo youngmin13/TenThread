@@ -42,7 +42,7 @@ public class User {
     private boolean isBlocked;
 
     @Column(nullable = true)
-    private Long socialId;
+    private String socialId;
 
     @Column(nullable = true)
     private String social;
@@ -61,7 +61,7 @@ public class User {
         this.isBlocked = false;
     }
 
-    public User(String username, String password, String nickname, UserRoleEnum role, Long socialId, String social) {
+    public User(String username, String password, String nickname, UserRoleEnum role, String socialId, String social) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
@@ -82,7 +82,7 @@ public class User {
     public void setBlocked(boolean flag){
         this.isBlocked = flag;
     }
-    public User socialUpdate(Long socialId, String social) {
+    public User socialUpdate(String socialId, String social) {
         this.socialId = socialId;
         this.social = social;
         return this;

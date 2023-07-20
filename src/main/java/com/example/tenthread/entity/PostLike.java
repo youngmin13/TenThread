@@ -9,16 +9,15 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Table(name = "post_like")
+@IdClass(PostLikeId.class)
 public class PostLike {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
