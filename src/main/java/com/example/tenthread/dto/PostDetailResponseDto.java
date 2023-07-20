@@ -17,12 +17,14 @@ public class PostDetailResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private Integer likeCount;
+    private String nickname;
     private List<ImageResponseDto> imageList = new ArrayList<>();
     private List<CommentResponseDto> commentList = new ArrayList<>();
 
     public PostDetailResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
+        this.nickname = post.getUser().getNickname();
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();

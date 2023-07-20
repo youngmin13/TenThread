@@ -62,7 +62,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/back/notice/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/posts").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                         .requestMatchers("/main/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );

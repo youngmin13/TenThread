@@ -136,6 +136,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         updateLoginStatus();
+        getPosts();
     });
 
     function getCookieValueByName(name) {
@@ -200,6 +201,83 @@
             });
     }
 
+    function getPosts() {
+        const container = document.getElementById("base-box");
+        let htmlTemplate = ``;
+        let num = 0
+        fetch("/api/posts")
+            .then(response => response.json())
+            .then(data => {
+                for(let i = 0; i < data.postList.length; i++) {
+                    const postData = data.postList[i];
+                    let userHtml = `
+                        <div class="user-info-box">
+                            <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
+                            <span class="me-2">${postData.nickname}</span>
+                            <button onclick="" class="me-2 btn btn-primary">팔로우</button>
+                        </div>
+                          <div id="carouselExampleIndicators${num}" class="carousel slide mt-5" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="https://ten-thread.s3.ap-northeast-2.amazonaws.com/test2.png" class="d-block w-100 custom-carousel-image" alt="...">
+      </div>
+      <div class="carousel-item">
+        <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjlfOTAg%2FMDAxNjg1MzQzNzkyNzA0.CYGP8KZjczRF_zRFmrhuJKdwUnf_AcBSh-HT2D5qqmcg.hsIVWgTkB_Q88d66AxEOagR9ylJEimCl5GIXjJkZ7zYg.JPEG.pomm6e%2F5.JPG&type=a340" class="d-block w-100 custom-carousel-image" alt="...">
+      </div>
+      <div class="carousel-item">
+        <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjEwMjVfMzgg%2FMDAxNjY2NzA4NTgxNTk1.59n3KUvPDTrZliPUhmiTguFrTP4sv2Rj5-n16WomKPcg.7gfVZkPVedinfL4sco_nZJa617Rq_0OXLPTPf0Y9UUQg.PNG.mone1x0%2Fimage.png&type=a340" class="d-block w-100 custom-carousel-image" alt="...">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</div>
+                        `
+                    let commentHtml = `
+                    <div class="col-md-4" id="comment-base-box-1">
+                        <span class="fs-4">댓글 수 ${postData.commentList.length}</span>
+                        <div class="comment-box mt-3 d-flex ">
+                            <div class="col-md-3">
+                                <span class="fw-bold">유저이름</span>
+                            </div>
+                        <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
+                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:red"></button>
+                        </div>
+                        <div class="text-end" style="color: #949494;">
+                            <span>1 like</span>
+                            <span>comment</span>
+                        </div>
+                    </div>
+                    `
+                    let postHtml = `
+                    <div class="col-md-12 mt-3 fs-5">
+                        <p>${postData.content}</p>
+                    </div>
+                    <div class="d-flex like-box">
+                        <button onclick="" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red"></button>
+                        <div class="text-start fs-5" style="color: #949494;">
+                            <span>${postData.likeCount} like</span>
+                            <span>post</span>
+                        </div>
+                    </div>
+                    </div>
+                    `
+                    num++;
+                    let totalHtml = userHtml + commentHtml + postHtml;
+                    htmlTemplate += totalHtml;
+                }
+                container.innerHTML = htmlTemplate;
+            })
+            .catch(error => {
+                console.error("Fetch 에러:", error);
+            });
+    }
 </script>
 
 </body>
