@@ -28,18 +28,16 @@
 </head>
 <body>
     <header>
-    <h3 class="h3 m-3">십시일반조</h3>
-    <div class="d-flex justify-content-around mt-5">
-            <h1 class="hidden">hide</h1>
+        <div class="d-flex justify-content-between">
+            <h3 class="h3 m-3">십시일반조</h3>
+            <div class="m-3">
+                <button class="fa-solid fa-square-arrow-up-right fs-3 user-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
+                <button class="signup-button" onclick="location.href='/main/signup'">회원가입</button>
+                <button class="login-button" onclick="location.href='/main/login'">로그인</button>
+            </div>
+        </div>
+    <div class="d-flex justify-content-center mt-5">
             <a href="/main/home/" class="h1">텐스레드</a>
-                <button class="fa-solid fa-square-arrow-up-right fs-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
-                <div>
-                    <button class="signup-button" onclick="location.href='/main/signup'">회원가입</button>
-                    <button class="login-button" onclick="location.href='/main/login'">로그인</button>
-                    <button href="#" class="logout-button" style="display: none;">로그아웃</button>
-                    <button class="profile-button" onclick="location.href='/main/profile'">프로필</button>
-                    <button class="post-button" onclick="location.href='/main/createPost'">게시글 추가</button>
-                </div>
                 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                     <div class="offcanvas-header">
                         <h5 class="offcanvas-title mx-auto" id="userManagementOffcanvasLabel">유저이름</h5>
@@ -50,26 +48,32 @@
 
                         <ul>
                             <li><div>
+                                <button class="profile-button" onclick="location.href='/main/profile'">프로필</button>
+                            </div></li>
+                            <li><div>
                                 <button class="myPage-button" onclick="location.href='/main/myPage'">마이 페이지</button>
                             </div></li>
                             <li><div>
                                 <button class="myPage-button" onclick="location.href='/main/myFollow'">팔로우 페이지</button>
+                            </div></li>
+                            <li><div>
+                                <button class="post-button" onclick="location.href='/main/createPost'">게시글 추가</button>
                             </div></li>
 
                         </ul>
                     </div>
                     <div class="offcanvas-footer mt-auto">
                         <hr class="hr">
-                        <a href="/logout" class="fs-5 ms-2">로그아웃</a>
+                        <button href="#" class="logout-button" style="display: none;">로그아웃</button>
                     </div>
                 </div>
-            </div>
+    </div>
 
         <div class="swiper-container">
             <div class="swiper-wrapper">
             </div>
         </div>
-        </header>
+    </header>
     <div class="container" id="base-box">
 
         <!-- 여기부터 복사 -->
@@ -223,6 +227,8 @@
             document.querySelector('.logout-button').style.display = 'inline-block';
             document.querySelector('.profile-button').style.display = 'inline-block';
             document.querySelector('.post-button').style.display = 'inline-block';
+            document.querySelector('.user-button').style.display = 'inline-block';
+
 
             document.getElementsByName('follow-btn').forEach((btn) => {
                 btn.style.display='inline-block';
@@ -236,6 +242,7 @@
             document.querySelector('.logout-button').style.display = 'none';
             document.querySelector('.profile-button').style.display = 'none';
             document.querySelector('.post-button').style.display = 'none';
+            document.querySelector('.user-button').style.display = 'none';
             document.getElementsByName('follow-btn').forEach((btn) => {
                 btn.style.display='none';
             });
