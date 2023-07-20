@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,6 +91,8 @@ public class PostService {
         // if (postLikeRepository.findByUserAndPost(user, post).isPresent()) {
         if (postLikeRepository.existsByUserAndPost(user, post)) {
             throw new DuplicateRequestException("이미 좋아요 한 게시글 입니다.");
+        } else if (post.getUser().getId().equals(user.getId())) {
+            throw new RejectedExecutionException("자신이 쓴 글에는 좋아요를 누를 수 없습니다.");
         } else {
             PostLike postLike = new PostLike(user, post);
             postLikeRepository.save(postLike);
