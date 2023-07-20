@@ -399,8 +399,8 @@
                     }
 
                     let commentModalFooter = `<div class="modal-footer">
-                    <input type="text" placeholder="댓글을 입력하세요">
-                    <button type="button" class="btn btn-primary">등록</button>
+                    <input type="text" name="commentContent" id="commentContent" placeholder="댓글을 입력하세요">
+                    <button type="button" onclick="createComments('createComment-${postData.id}')" id="createComment-${postData.id}" value="${postData.id}" class="btn btn-primary">등록</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                     </div>
                     </div>
@@ -522,6 +522,30 @@
         if (link) {
             window.location.href = link;
         }
+    }
+    function createComments(elementId){
+        let jwtCookie = getCookieValueByName('jwt');
+        let postId = document.getElementById(elementId).value;
+        let bodyContent = document.getElementById('commentContent').value;
+        let formData = {
+            body : bodyContent
+        }
+        fetch(`/api/post/${postId}/comment`, {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + jwtCookie,
+                "Content-Type": "application/json"
+            },
+                body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.msg);
+                window.location.reload()
+            })
+            .catch(error => {
+                console.error("댓글 작성 실패:", error);
+            });
     }
 
 </script>
