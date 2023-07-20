@@ -109,7 +109,7 @@
       }
     });
 
-    const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3ZXIwNjA5OUBuYXZlci5jb20iLCJhdXRoIjoiVVNFUiIsImV4cCI6MTY4OTc2MTg3MywiaWF0IjoxNjg5NzU4MjczfQ.kXQmtEATugtDx97HO3V-4yl6XWRgaeG2-cYQg-_ompQ";
+    const token = document.cookie.replace("jwt=", "Bearer ");
 
     fetch("http://localhost:8080/api/post", {
       method: "POST",
@@ -120,10 +120,10 @@
     })
             .then(response => response.json())
             .then(data => {
-              // 필요한 경우 서버로부터 받은 데이터를 처리
-              alert("게시글이 생성되었습니다");
-              window.location.href = "/main/home"
-              console.log(data);
+              if(data.id) {
+                alert("게시글이 생성되었습니다");
+                window.location.href = "/main/"
+              }
             })
             .catch(error => {
               // 에러 처리
