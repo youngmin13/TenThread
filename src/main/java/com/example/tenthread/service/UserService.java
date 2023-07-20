@@ -5,12 +5,18 @@ import com.example.tenthread.entity.PrevPassword;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.redis.RedisUtil;
 import com.example.tenthread.repository.PrevPasswordRepository;
 import com.example.tenthread.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -18,14 +24,17 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final RedisUtil redisUtil;
+    private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
 
     private final PrevPasswordRepository prevPasswordRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, PrevPasswordRepository prevPasswordRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PrevPasswordRepository prevPasswordRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.redisUtil = redisUtil;
+        this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
         this.prevPasswordRepository = prevPasswordRepository;
     }
@@ -65,6 +74,17 @@ public class UserService {
         String token = jwtUtil.createToken(user.getUsername(), user.getRole());
         response.addHeader("Authorization", token);
     }
+
+    public void logout(HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request);
+        boolean isValidToken = jwtUtil.validateToken(token);
+
+        if (isValidToken) {
+            // Redis 블랙리스트에 토큰 추가
+            redisUtil.setBlackList(token, true);
+        }
+    }
+
 
     public UserResponseDto getMyProfile(User user) {
         User myProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(

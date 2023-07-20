@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/main")
 public class WebController {
 
-    @GetMapping("/")
+    @GetMapping("/home")
     public String home() {
         return "index";
     }
@@ -23,6 +23,7 @@ public class WebController {
     public String createPost() {
         return "createPost";
     }
+
     @GetMapping("/signup")
     public String signup() { return "signup"; }
 
