@@ -34,3 +34,18 @@ a:hover {
     height: 500px;
     object-fit: cover;
 }
+
+.col-md-4 {
+    width: 100px;
+    display: inline-block;
+}
+
+.hidden-post {
+    display: none;
+}
+
+.btn.follow-btn {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+}

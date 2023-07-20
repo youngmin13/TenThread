@@ -14,6 +14,7 @@ public class PostDetailResponseDto {
     private Long id;
     private String title;
     private String content;
+    private Long writerId;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private Integer likeCount;
@@ -24,6 +25,7 @@ public class PostDetailResponseDto {
     public PostDetailResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
+        this.writerId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();

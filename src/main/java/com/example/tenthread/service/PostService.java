@@ -138,4 +138,12 @@ public class PostService {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(requestDto, PostRequestDto.class);
     }
+
+    public PostListResponseDto getMyPosts(User user) {
+        List<PostDetailResponseDto> postList = postRepository.findAllByUserId(user.getId()).stream()
+                .map(PostDetailResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new PostListResponseDto(postList);
+    }
 }
