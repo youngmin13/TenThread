@@ -84,18 +84,4 @@ public class UserController {
         response.addCookie(jwtCookie);
         return new RedirectView("/main/home");
     }
-
-    @GetMapping("/likes")
-    public ResponseEntity<LikeListResponseDto> getLikes(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.getUser().getId();
-
-        List<Long> postIds = userService.getPostLikesByUserId(userId);
-        List<Long> commentIds = userService.getCommentLikesByUserId(userId);
-
-        LikeListResponseDto result = new LikeListResponseDto();
-        result.setPostIds(postIds);
-        result.setCommentIds(commentIds);
-
-        return ResponseEntity.status(200).body(result);
-    }
 }

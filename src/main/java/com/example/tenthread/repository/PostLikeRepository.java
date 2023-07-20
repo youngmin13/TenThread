@@ -14,6 +14,5 @@ import java.util.Optional;
 public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> {
     Optional<PostLike> findByUserAndPost(User user, Post post);
     Boolean existsByUserAndPost(User user, Post post);
-    @Query("SELECT pl.post.id FROM PostLike pl WHERE pl.user.id = :userId")
-    List<Long> findPostIdsByUserId(@Param("userId") Long userId);
+
 }

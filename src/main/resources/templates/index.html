@@ -301,6 +301,7 @@
             .then(data => {
                 for(let i = 0; i < data.postList.length; i++) {
                     const postData = data.postList[i];
+
                     let userHtml = `
                         <div class="user-info-box">
                             <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
@@ -364,7 +365,7 @@
                         <div class="text-end" style="color: #949494;">
                             <span>1 like</span>
                             <span>comment</span>
-                                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('1', this)"></button>
+                                <button onclick="handlePostLikeButton(${postData.id}, this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:#ccc" ></button>
                             </div>
                         </div>
                         `;
@@ -405,27 +406,18 @@
             });
     }
 
+    // 포스트 좋아요
     function handlePostLikeButton(postId, likeButton) {
         var jwtCookie = getCookieValueByName("jwt");
+        var isLiked = localStorage.getItem(`post_${postId}_liked`) === "true";
 
-        // Check if the postId is already liked in the cache (localStorage)
-        var isLiked = localStorage.getItem(`post_${postId}_liked`);
+        // 버튼의 상태를 업데이트합니다.
+        updateButtonState(likeButton, isLiked);
 
-        if (isLiked === "true") {
-            // If the postId is already liked, update the button style
-            likeButton.classList.add("liked");
-            likeButton.style.color = "red";
-        } else if (isLiked === "false") {
-            // If the postId is not liked, update the button style
-            likeButton.classList.remove("liked");
-            likeButton.style.color = "";
-        }
-
-        // Add a click event listener to the likeButton
         likeButton.addEventListener("click", function () {
+            // 클릭 시 버튼의 상태를 확인합니다.
             var isLiked = likeButton.classList.contains("liked");
 
-            // If the postId is already liked and the button is clicked, send a delete request to unlike the post
             if (isLiked) {
                 fetch(`/api/post/${postId}/like`, {
                     method: "DELETE",
@@ -437,17 +429,14 @@
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
-                        // Update the button style
-                        likeButton.classList.remove("liked");
-                        likeButton.style.color = "";
-                        // Update the cache (localStorage)
-                        localStorage.setItem(`post_${postId}_liked`, "false");
+                        // 서버 응답을 받아서 버튼의 상태를 업데이트합니다.
+                        updateButtonState(likeButton, false); // 버튼을 좋아요하지 않은 상태로 업데이트
+                        cacheButtonState(postId, false); // 로컬저장소에 버튼 상태를 저장합니다.
                     })
                     .catch(error => {
                         console.error("게시글 좋아요 취소 요청 실패:", error);
                     });
             } else {
-                // If the postId is not liked and the button is clicked, send a post request to like the post
                 fetch(`/api/post/${postId}/like`, {
                     method: "POST",
                     headers: {
@@ -458,11 +447,9 @@
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
-                        // Update the button style
-                        likeButton.classList.add("liked");
-                        likeButton.style.color = "red";
-                        // Update the cache (localStorage)
-                        localStorage.setItem(`post_${postId}_liked`, "true");
+                        // 서버 응답을 받아서 버튼의 상태를 업데이트합니다.
+                        updateButtonState(likeButton, true); // 버튼을 좋아요한 상태로 업데이트
+                        cacheButtonState(postId, true); // 로컬저장소에 버튼 상태를 저장합니다.
                     })
                     .catch(error => {
                         console.error("게시글 좋아요 요청 실패:", error);
@@ -470,6 +457,83 @@
             }
         });
     }
+
+
+    // 포스트 좋아요를 캐시로 저장
+    function cacheButtonState(postId, isLiked) {
+        localStorage.setItem(`post_${postId}_liked`, isLiked.toString());
+    }
+
+
+    // // 댓글 좋아요
+    // function handleCommentLikeButton(commentId, likeButton) {
+    //     var jwtCookie = getCookieValueByName("jwt");
+    //     var isLiked = localStorage.getItem(`comment_${commentId}_liked`) === "true";
+    //
+    //     updateButtonState(likeButton, isLiked);
+    //
+    //     likeButton.addEventListener("click", function () {
+    //         var isLiked = likeButton.classList.contains("liked");
+    //
+    //         if (isLiked) {
+    //             fetch(`/api/comment/${commentId}/like`, {
+    //                 method: "DELETE",
+    //                 headers: {
+    //                     "Authorization": "Bearer " + jwtCookie,
+    //                     "Content-Type": "application/json"
+    //                 }
+    //             })
+    //                 .then(response => response.json())
+    //                 .then(data => {
+    //                     console.log(data);
+    //                     updateButtonState(likeButton, false); // Set button state to not liked
+    //                     cacheButtonState(postId, false); // Cache button state
+    //                 })
+    //                 .catch(error => {
+    //                     console.error("댓글 좋아요 취소 요청 실패:", error);
+    //                 });
+    //         } else {
+    //             fetch(`/api/comment/${commentId}/like`, {
+    //                 method: "POST",
+    //                 headers: {
+    //                     "Authorization": "Bearer " + jwtCookie,
+    //                     "Content-Type": "application/json"
+    //                 }
+    //             })
+    //                 .then(response => response.json())
+    //                 .then(data => {
+    //                     console.log(data);
+    //                     updateButtonState(likeButton, true); // Set button state to liked
+    //                     cacheButtonState(commentId, true); // Cache button state
+    //                 })
+    //                 .catch(error => {
+    //                     console.error("댓글 좋아요 요청 실패:", error);
+    //                 });
+    //         }
+    //     });
+    // }
+
+    // // 댓글 좋아요를 캐시로 저장
+    // function cacheButtonState(commentId, isLiked) {
+    //     localStorage.setItem(`comment_${commentId}_liked`, isLiked.toString());
+    // }
+
+
+    // 좋아요 상태
+    function updateButtonState(likeButton, isLiked) {
+        if (isLiked) {
+            likeButton.classList.add("liked");
+            likeButton.style.color = "red";
+        } else {
+            likeButton.classList.remove("liked");
+            likeButton.style.color = "";
+        }
+    }
+
+
+
+
+
 
 
 </script>

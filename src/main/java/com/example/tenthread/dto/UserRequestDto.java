@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.example.tenthread.entity.UserRoleEnum.USER;
+
 @Getter
 @Setter
 public class UserRequestDto {
@@ -27,6 +29,6 @@ public class UserRequestDto {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
-        this.role = role;
+        this.role = USER;
     }
 }

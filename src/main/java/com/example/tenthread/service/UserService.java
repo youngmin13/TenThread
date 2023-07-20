@@ -147,12 +147,4 @@ public class UserService {
             throw new IllegalArgumentException("존재하지 않는 유저입니다.");
         });
     }
-
-    public List<Long> getPostLikesByUserId(Long userId) {
-        return postLikeRepository.findPostIdsByUserId(userId);
-    }
-
-    public List<Long> getCommentLikesByUserId(Long userId) {
-        return commentLikeRepository.findCommentIdsByUserId(userId);
-    }
 }
