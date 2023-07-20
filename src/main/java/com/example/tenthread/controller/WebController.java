@@ -51,6 +51,12 @@ public class WebController {
         return "backoffice/noticeOne";
     }
 
+    @GetMapping("/back/notice/{noticeId}/view")
+    public String NoticeView(@PathVariable Long noticeId, Model model){
+        model.addAttribute("noticeId",noticeId);
+        return "backoffice/noticeView";
+    }
+
     @GetMapping("/profile")
     public String getProfile() {
         return "profile";
