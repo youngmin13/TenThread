@@ -73,10 +73,10 @@
                         <span class="fw-bold">유저이름</span>
                     </div>
                     <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
-                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handleCommentLikeButton('1', this)"></button>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handleCommentLikeButton('commentId_1', this)"></button>
                 </div>
                 <div class="text-end" style="color: #949494;">
-                    <span>1 like</span>
+                    <span class="likeCount">1 like</span>
                     <span>comment</span>
                 </div>
                 <!-- 여기까지 복사 -->
@@ -85,7 +85,7 @@
                 <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
             </div>
             <div class="d-flex like-box">
-                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handleCommentLikeButton('2', this)"></button>
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handleCommentLikeButton('commentId_2', this)"></button>
                 <div class="text-start fs-5" style="color: #949494;">
                     <span>1 like</span>
                     <span>post</span>
@@ -111,7 +111,7 @@
                         <span class="fw-bold">유저이름</span>
                     </div>
                     <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
-                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('1', this)"></button>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handlePostLikeButton('postId_1', this)"></button>
                 </div>
                 <div class="text-end" style="color: #949494;">
                     <span>1 like</span>
@@ -123,7 +123,7 @@
                 <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
             </div>
             <div class="d-flex like-box">
-                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('2', this)"></button>
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handlePostLikeButton('postId_2', this)"></button>
                 <div class="text-start fs-5" style="color: #949494;">
                     <span>1 like</span>
                     <span>post</span>
@@ -200,53 +200,117 @@
             });
     }
 
-    function handlePostLikeButton(postId) {
+    function handlePostLikeButton(postId, likeButton) {
         var jwtCookie = getCookieValueByName("jwt");
 
-        // 코멘트의 좋아요 기능을 처리하는 fetch 요청을 보냄
-        fetch("/api/post/" + postId, {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + jwtCookie,
-                "Content-Type": "application/json"
-            }
-            // ... 기타 필요한 설정과 데이터 추가 ...
-        })
-            .then(response => response.json())
-            .then(data => {
-                // 서버로부터 받은 응답에 대한 처리
-                console.log(data);
+        // 현재 버튼의 상태를 가져옵니다.
+        var isLiked = likeButton.classList.contains("liked");
+
+        // 좋아요 버튼이 눌린 상태라면 취소 요청을 보냅니다.
+        if (isLiked) {
+            fetch(`/api/post/${postId}/like`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
             })
-            .catch(error => {
-                // 에러 처리
-                console.error("코멘트 좋아요 요청 실패:", error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    // 서버로부터 받은 응답에 대한 처리
+                    console.log(data);
+                    // 좋아요 취소가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
+                    likeButton.classList.remove("liked");
+                    likeButton.style.color = "gray";
+                })
+                .catch(error => {
+                    // 에러 처리
+                    console.error("게시글 좋아요 취소 요청 실패:", error);
+                });
+        } else {
+            // 좋아요 버튼이 눌리지 않은 상태라면 추가 요청을 보냅니다.
+            fetch(`/api/post/${postId}/like`, {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // 서버로부터 받은 응답에 대한 처리
+                    console.log(data);
+                    // 좋아요가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
+                    likeButton.classList.add("liked");
+                    likeButton.style.color = "red";
+                })
+                .catch(error => {
+                    // 에러 처리
+                    console.error("게시글 좋아요 요청 실패:", error);
+                });
+        }
     }
 
 
-    function handleCommentLikeButton(commentId) {
+    function handleCommentLikeButton(commentId, likeButton) {
         var jwtCookie = getCookieValueByName("jwt");
 
-        // 코멘트의 좋아요 기능을 처리하는 fetch 요청을 보냄
-        fetch("/api/comment/" + commentId, {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + jwtCookie,
-                "Content-Type": "application/json"
-            }
-            // ... 기타 필요한 설정과 데이터 추가 ...
-        })
-            .then(response => response.json())
-            .then(data => {
-                // 서버로부터 받은 응답에 대한 처리
-                console.log(data);
+        // 현재 버튼의 상태를 가져옵니다.
+        var isLiked = likeButton.classList.contains("liked");
+
+        // 좋아요 버튼이 눌린 상태라면 취소 요청을 보냅니다.
+        if (isLiked) {
+            fetch(`/api/comment/${commentId}/like`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
             })
-            .catch(error => {
-                // 에러 처리
-                console.error("코멘트 좋아요 요청 실패:", error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    // 서버로부터 받은 응답에 대한 처리
+                    console.log(data);
+                    // 좋아요 취소가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
+                    likeButton.classList.remove("liked");
+                    likeButton.style.color = "gray";
+
+                    updateLikeCount(data.likeCount);
+                })
+                .catch(error => {
+                    // 에러 처리
+                    console.error("게시글 좋아요 취소 요청 실패:", error);
+                });
+        } else {
+            // 좋아요 버튼이 눌리지 않은 상태라면 추가 요청을 보냅니다.
+            fetch(`/api/comment/${commentId}/like`, {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // 서버로부터 받은 응답에 대한 처리
+                    console.log(data);
+                    // 좋아요가 성공적으로 처리되었으므로 버튼 상태를 변경합니다.
+                    likeButton.classList.add("liked");
+                    likeButton.style.color = "red";
+
+                    updateLikeCount(data.likeCount);
+                })
+                .catch(error => {
+                    // 에러 처리
+                    console.error("게시글 좋아요 요청 실패:", error);
+                });
+        }
     }
 
+    function updateLikeCount(likeCount) {
+        var likeCountElement = document.getElementById("likeCount");
+        likeCountElement.innerText = likeCount + " like";
+    }
 
 </script>
 
