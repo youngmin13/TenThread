@@ -49,7 +49,9 @@ public class BackOfficeService {
                 if (changeRoleUser.getRole().equals(UserRoleEnum.ADMIN)) {
                     throw new IllegalArgumentException("이미 관리자인 회원입니다.");
                 } else if (changeRoleUser.getRole().equals(UserRoleEnum.USER)) {
-
+                    if (changeRoleUser.isBlocked()){
+                        throw new IllegalArgumentException("차단된 유저는 관리자로 변환할 수 없습니다.");
+                    }
                     changeRoleUser.updateRole();
                 }
             }

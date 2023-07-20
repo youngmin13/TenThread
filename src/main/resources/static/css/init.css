@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+*{font-family: 'Jua', sans-serif;}
+
+button {
+    border:none;
+    background-color: inherit;
+    width: 70px;
+}
+a {
+    text-decoration: none;
+    color: black;
+}
+@media (min-width: 992px) {
+    .container {
+        width: 940px;
+        top: 300px;
+    }
+}
+.container {
+    margin-top:80px;
+    border-radius: 25px;
+    padding: 50px 50px;
+}
+a:hover {
+    color : darkgoldenrod;
+    transition: 0.2s;
+}
+.hidden {
+    visibility:hidden;
+}
