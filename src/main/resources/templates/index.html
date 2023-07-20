@@ -159,6 +159,7 @@
         updateLoginStatus();
         getPosts();
         getNotices();
+        drawAdminCanvas();
     });
 
     function getCookieValueByName(name) {
@@ -361,9 +362,9 @@
                         </div>
                         `
                     let commentHtml = `
-                    <div class="d-flex justify-content-center align-items-center">
+                    <div class="d-flex justify-content-end  mt-2 ms-2 align-items-center">
                         <div class="col-md-4" id="comment-base-box-${id}">
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-${id}" class="fs-4">댓글 수 ${postData.commentList.length}</a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-${id}" class="fs-4"><i class="fa-regular fa-comment"></i> ${postData.commentList.length}</a>
                         </div>
                         <p class="postId hidden">${postData.id}</p>
                     </div>`
@@ -390,10 +391,16 @@
                             </div>
 <!--                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>-->
                         </div>
-                        <div class="text-end" style="color: #949494;">
-                            <span>1 like</span>
-                                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('1', this)"></button>
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="btn-box">
+                                <button class=" btn btn-primary me-2 d-none" onclick="updateComment(this)">수정</button>
+                                <button class="btn btn-secondary  me-2 d-none"  onclick="deleteComment(this)">삭제</button>
                             </div>
+                            <div class="text-end" style="color: #949494;">
+                                <span>1 like</span>
+                                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('1', this)"></button>
+                            </div>
+                        </div>
                         </div>
                         `;
                     }
@@ -548,6 +555,52 @@
             });
     }
 
+
+    function drawAdminCanvas(){
+        let jwtCookie = getCookieValueByName('jwt');
+        fetch("/api/profile", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + jwtCookie,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let loginUsername = data.username;
+                let loginNickname = data.nickname;
+                let loginRole = data.role;
+
+                if(loginRole === "ADMIN"){
+                    console.log("관리자입니다.");
+                    $('.offcanvas').empty();
+
+                    let temp_html = `
+                    <div class="offcanvas-header">
+                <h5 class="offcanvas-title mx-auto" id="userManagementOffcanvasLabel">${loginNickname}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
+
+                <!-- User and Notice Management content goes here -->
+                <ul class="mt-5">
+                    <li><a href="/main/back/notice" class="fs-5">공지글 관리</a></li>
+                    <li><a href="/main/back/user" class="fs-5">유저 관리</a></li>
+                    <!-- Add more management options here -->
+                </ul>
+            </div>
+            <div class="offcanvas-footer mt-auto">
+                <hr class="hr">
+                <button onclick="logout()" class="logout-button">로그아웃</button>
+            </div>`;
+                    $('.offcanvas').append(temp_html);
+                }
+            })
+            .catch(error => {
+                console.error("Fetch 에러:", error);
+            });
+    }
 </script>
 
 </body>
