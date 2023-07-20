@@ -14,3 +14,10 @@ spring:
   redis:
     host:localhost
     port:6379
+  devtools:
+    livereload:
+      enabled: true
+    thymeleaf:
+      cache: false
+    restart:
+      enabled: true
