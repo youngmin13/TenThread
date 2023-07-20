@@ -39,11 +39,6 @@
                     </div>
                     <div class="offcanvas-body">
                         <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
-                        <div>
-                            <button class="profile-button">
-                                회원 정보 수정
-                            </button>
-                        </div>
                     </div>
                     <div class="offcanvas-footer mt-auto">
                         <hr class="hr">
@@ -180,7 +175,7 @@
     });
 
     document.querySelector('.profile-button').addEventListener('click', function() {
-        window.location = "/main/profile"
+        window.location.href = "/main/profile"
     });
 
     // 로그아웃 요청 함수
