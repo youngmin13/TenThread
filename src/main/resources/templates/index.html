@@ -39,13 +39,11 @@
                     </div>
                     <div class="offcanvas-body">
                         <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
-
-                        <!-- User and Notice Management content goes here -->
-                        <ul class="mt-5">
-                            <li><a href="#" class="fs-5">~</a></li>
-                            <li><a href="#" class="fs-5">~</a></li>
-                            <!-- Add more management options here -->
-                        </ul>
+                        <div>
+                            <button class="profile-button">
+                                회원 정보 수정
+                            </button>
+                        </div>
                     </div>
                     <div class="offcanvas-footer mt-auto">
                         <hr class="hr">
@@ -179,6 +177,10 @@
 
     document.querySelector('.logout-button').addEventListener('click', function() {
         logout();
+    });
+
+    document.querySelector('.profile-button').addEventListener('click', function() {
+        window.location = "/main/profile"
     });
 
     // 로그아웃 요청 함수

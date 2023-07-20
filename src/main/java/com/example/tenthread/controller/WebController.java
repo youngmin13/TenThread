@@ -50,4 +50,9 @@ public class WebController {
         model.addAttribute("noticeId",noticeId);
         return "backoffice/noticeOne";
     }
+
+    @GetMapping("/profile")
+    public String getProfile() {
+        return "profile";
+    }
 }
