@@ -18,6 +18,16 @@
     <link href="/css/init.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .card {
+            transition: transform 0.3s ease;
+        }
+
+        /* Apply the scaling effect on hover */
+        .card:hover {
+            transform: scale(1.2);
+        }
+    </style>
 </head>
 <body>
 <header>
@@ -103,13 +113,13 @@
                             let postsContainer = $("#cards-box");
                             let html = "";
                             data.postList.forEach(function (post) {
-                                html += "<div class='col-md-3 p-3 border border-1 rounded'>" +
-                                    "<a href='#' class='card-body-link'>" +
-                                    "<div className='card  h-100'>" +
-                                    "<h5 class='card-title'>" + post.title + "</h5>" +
-                                    "<div class='card-body'>" +
-                                    "<p class='card-content'>" + post.content + "</p>" +
-                                    "</div>" +
+                                html += "<div class='col-md-3 mb-3'>" +
+                                    "<a href='#' class='card-body-link m-2 border border-1 rounded'>" +
+                                    "<div class='card'>" +
+                                    "<h5 class='card-title p-3'>" + post.title + "</h5>" +
+                                    // "<div class='card-body'>" +
+                                    // "<p class='card-content'>" + post.content + "</p>" +
+                                    // "</div>" +
                                     "</div>" +
                                     "</a>" +
                                     "</div>";
