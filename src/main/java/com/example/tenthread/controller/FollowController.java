@@ -16,7 +16,7 @@ public class FollowController {
 
     private final FollowService followService;
 
-    @GetMapping()
+    @GetMapping("/")
     public ResponseEntity<FollowResponseDto> getFollow(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         FollowResponseDto result = followService.getFollow(userDetails.getUser());
         return ResponseEntity.status(200).body(result);
