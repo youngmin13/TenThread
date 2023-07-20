@@ -92,7 +92,18 @@
         </div>
     </div>
     <h3>내가 작성한 게시글</h3>
-    <div id="posts-container"></div>
+    <div class="mycards">
+        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+            <div class='col'>
+                <div class='card h-100'>
+                    <h5 class='card-title'></h5>
+                    <div class='card-body'>
+                        <p class='card-content'></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </header>
 <script>
     $(document).ready(function () {
@@ -100,38 +111,39 @@
     });
 
     function fetchMyPosts() {
-        $.ajax({
-            url: "http://localhost:8080/api/myPosts",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                if (data && data.postList && data.postList.length > 0) {
-                    let postsContainer = $("#posts-container");
-                    let html = "";
-
-                    data.postList.forEach(function (post) {
-                        html += "<div class='post'>" +
-                            "<h2>" + post.title + "</h2>" +
-                            "<p>" + post.content + "</p>" +
-                            "</div>";
-                    });
-                    postsContainer.html(html);
-                }
+        fetch('/api/myPosts', {
+            method: 'GET',
+            headers: {
+                Authorization: prefix + getCookieValueByName('jwt'),
+                'Content-Type': 'application/json'
             },
-            error: function (error) {
-                console.error("Failed to fetch posts:", error);
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(function (data) {
+                    throw new Error(data);
+                });
             }
+        }).then(function (data) {
+            if (data && data.postList && data.postList.length > 0) {
+                            let postsContainer = $("#cards-box");
+                            let html = "";
+
+                            data.postList.forEach(function (post) {
+                                html += "<div class='col'>" + "<div className='card h-100'>" +
+                                    "<h5 class='card-title'>" + post.title + "</h5>" + "<div class='card-body'>" +
+                                    "<p class='card-content'>" + post.content + "</p>" +
+                                    "</div>" + "</div>" + "</div>";
+                            });
+                            postsContainer.html(html);
+                        }
+        }).catch(function (error) {
+            console.error(error);
+            alert(error);
         });
     }
-
-
-    function open_box() {
-        let url = "http://127.0.0.1:5000/menu/input";
-        let title = "popup test";
-        let option = "width = 1200, height = 700"
-        window.open(url, title, option);
-    }
-
 
     let prefix = "Bearer ";
 
