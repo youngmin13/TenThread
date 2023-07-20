@@ -31,7 +31,7 @@ public class Post extends TimeStamped {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.ALL,CascadeType.REMOVE})
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.ALL,CascadeType.REMOVE}, fetch = FetchType.EAGER)
     private List<PostImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)

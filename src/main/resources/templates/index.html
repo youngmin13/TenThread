@@ -47,6 +47,8 @@
                     </div>
                     <div class="offcanvas-body">
                         <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
+                        <button class="myPage-button" onclick="location.href='/main/myPage'">마이 페이지</button>
+                        <button class="myPage-button" onclick="location.href='/main/myFollow'">팔로우 페이지</button>
                     </div>
                     <div class="offcanvas-footer mt-auto">
                         <hr class="hr">
@@ -66,7 +68,7 @@
         <div class="user-info-box">
             <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
             <span class="me-2">유저이름</span>
-            <button onclick="" class="me-2 btn btn-primary">팔로우</button>
+            <button onclick="" class="me-2 btn btn-primary" name="follow-btn">팔로우</button>
         </div>
         <div class="row mt-5">
             <div class="col-md-8">
@@ -167,6 +169,44 @@
         return !!jwtCookie; // JWT 쿠키가 존재하면 true, 그렇지 않으면 false 반환
     }
 
+    function disableOrActivateBtns() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        fetch('/api/follow/', {
+            headers: {
+                "Authorization": `${token}`
+            }
+        }).then(response => response.json())
+            .then(data => {
+                let followList = data.followingList;
+                document.getElementsByName('follow-btn').forEach((btn) => {
+                    const nickname = btn.dataset.nickname;
+
+                    if (nickname === data.nickname) {
+                        btn.style.display = 'none';
+                    }
+                });
+                if (followList.length >= 1) {
+                    for (let i = 0; i < followList.length; i++) {
+                        let nickname = followList[i].nickname;
+                        $('.follow-btn').each(function(index, element) {
+                            const btnNickname = $(element).data('nickname');
+
+                            if (btnNickname == nickname) {
+                                // 해당 버튼의 텍스트를 언팔로우로 변경합니다.
+                                $(element).text('unfollow');
+                                // 해당 버튼의 색상을 회색으로 변경합니다.
+                                $(element).removeClass('btn-primary').addClass('btn-secondary');
+                            }
+                        });
+                    }
+                }
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
     function updateLoginStatus() {
         if (isLoggedIn()) {
             // JWT 값을 추출하여 로그인 상태로 인식합니다.
@@ -175,6 +215,12 @@
             document.querySelector('.logout-button').style.display = 'inline-block';
             document.querySelector('.profile-button').style.display = 'inline-block';
             document.querySelector('.post-button').style.display = 'inline-block';
+
+            document.getElementsByName('follow-btn').forEach((btn) => {
+                btn.style.display='inline-block';
+            });
+
+            disableOrActivateBtns();
         } else {
             // JWT 값이 없으면 비로그인 상태로 인식합니다.
             document.querySelector('.login-button').style.display = 'inline-block';
@@ -182,6 +228,9 @@
             document.querySelector('.logout-button').style.display = 'none';
             document.querySelector('.profile-button').style.display = 'none';
             document.querySelector('.post-button').style.display = 'none';
+            document.getElementsByName('follow-btn').forEach((btn) => {
+                btn.style.display='none';
+            });
         }
     }
 
@@ -214,10 +263,54 @@
             });
     }
 
+    function followAndUnFollow(btn) {
+        const button = $(btn);
+
+        const userId = button.data('user-id');
+
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        if (button.text() == "unfollow") {
+            fetch(`/api/follow/${userId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `${token}`
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if(data.statusCode == 200) {
+                        alert("팔로우가 취소되었습니다");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error("에러:", err);
+                })
+        } else {
+            fetch(`/api/follow/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `${token}`
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if(data.statusCode == 201) {
+                        alert("팔로우가 추가되었습니다");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error("에러:", err);
+                })
+        }
+
+    }
+
     function getPosts() {
         const container = document.getElementById("base-box");
         let htmlTemplate = ``;
-        let num = 0
+        let num = 0;
+        let id = 0;
         fetch("/api/posts")
             .then(response => response.json())
             .then(data => {
@@ -227,37 +320,58 @@
                         <div class="user-info-box">
                             <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
                             <span class="me-2">${postData.nickname}</span>
-                            <button onclick="" class="me-2 btn btn-primary">팔로우</button>
+                            <button onclick="followAndUnFollow(this)" class="me-2 btn btn-primary follow-btn" name="follow-btn" data-nickname="${postData.nickname}" data-user-id="${postData.writerId}">follow</button>
                         </div>
                           <div id="carouselExampleIndicators${num}" class="carousel slide mt-5" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img src="https://ten-thread.s3.ap-northeast-2.amazonaws.com/test2.png" class="d-block w-100 custom-carousel-image" alt="...">
-      </div>
-      <div class="carousel-item">
-        <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjlfOTAg%2FMDAxNjg1MzQzNzkyNzA0.CYGP8KZjczRF_zRFmrhuJKdwUnf_AcBSh-HT2D5qqmcg.hsIVWgTkB_Q88d66AxEOagR9ylJEimCl5GIXjJkZ7zYg.JPEG.pomm6e%2F5.JPG&type=a340" class="d-block w-100 custom-carousel-image" alt="...">
-      </div>
-      <div class="carousel-item">
-        <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjEwMjVfMzgg%2FMDAxNjY2NzA4NTgxNTk1.59n3KUvPDTrZliPUhmiTguFrTP4sv2Rj5-n16WomKPcg.7gfVZkPVedinfL4sco_nZJa617Rq_0OXLPTPf0Y9UUQg.PNG.mone1x0%2Fimage.png&type=a340" class="d-block w-100 custom-carousel-image" alt="...">
-      </div>
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-</div>
+                        <div class="carousel-inner">
+                        <div class="carousel-item active">
+                        <img src="https://ten-thread.s3.ap-northeast-2.amazonaws.com/test2.png" class="d-block w-100 custom-carousel-image" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                        <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjlfOTAg%2FMDAxNjg1MzQzNzkyNzA0.CYGP8KZjczRF_zRFmrhuJKdwUnf_AcBSh-HT2D5qqmcg.hsIVWgTkB_Q88d66AxEOagR9ylJEimCl5GIXjJkZ7zYg.JPEG.pomm6e%2F5.JPG&type=a340" class="d-block w-100 custom-carousel-image" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                        <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjEwMjVfMzgg%2FMDAxNjY2NzA4NTgxNTk1.59n3KUvPDTrZliPUhmiTguFrTP4sv2Rj5-n16WomKPcg.7gfVZkPVedinfL4sco_nZJa617Rq_0OXLPTPf0Y9UUQg.PNG.mone1x0%2Fimage.png&type=a340" class="d-block w-100 custom-carousel-image" alt="...">
+                        </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                        </button>
+                        </div>
+                        </div>
                         `
                     let commentHtml = `
-                    <div class="col-md-4" id="comment-base-box-1">
-                        <span class="fs-4">댓글 수 ${postData.commentList.length}</span>
-                        <div class="comment-box mt-3 d-flex ">
-                            <div class="col-md-3">
-                                <span class="fw-bold">유저이름</span>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="col-md-4" id="comment-base-box-${id}">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-${id}" class="fs-4">댓글 수 ${postData.commentList.length}</a>
+                        </div>
+                        <p class="postId hidden">${postData.id}</p>
+                    </div>`
+
+                    let commentModal = `
+                    <div class="modal fade" id="exampleModal-${id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">댓글</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>`
+
+                    let commentModalBody = ``;
+                    for (let j = 0; j < postData.commentList.length; j++) {
+                        commentModalBody += `
+                        <div class="modal-body">
+                            <div class="comment-box mt-3 d-flex">
+                                <div class="col-md-3">
+                                    <span class="fw-bold">${postData.commentList[j].nickname}</span>
+                                </div>
+                            <div class="col-md-8">
+                                <span>${postData.commentList[j].content}</span>
                             </div>
                         <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
                             <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>
@@ -265,7 +379,19 @@
                         <div class="text-end" style="color: #949494;">
                             <span>1 like</span>
                             <span>comment</span>
+                                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:red" onclick="handlePostLikeButton('1', this)"></button>
+                            </div>
                         </div>
+                        `;
+                    }
+
+                    let commentModalFooter = `<div class="modal-footer">
+                    <input type="text" placeholder="댓글을 입력하세요">
+                    <button type="button" class="btn btn-primary">등록</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+                    </div>
+                    </div>
                     </div>
                     `
                     let postHtml = `
@@ -282,10 +408,12 @@
                     </div>
                     `
                     num++;
-                    let totalHtml = userHtml + commentHtml + postHtml;
+                    id++;
+                    let totalHtml = userHtml + commentHtml + commentModal + commentModalBody + commentModalFooter + postHtml;
                     htmlTemplate += totalHtml;
                 }
                 container.innerHTML = htmlTemplate;
+                    updateLoginStatus();
             })
             .catch(error => {
                 console.error("Fetch 에러:", error);
