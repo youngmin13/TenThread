@@ -2,10 +2,7 @@ package com.example.tenthread.service;
 
 
 import com.example.tenthread.dto.*;
-import com.example.tenthread.entity.Post;
-import com.example.tenthread.entity.PostImage;
-import com.example.tenthread.entity.PostLike;
-import com.example.tenthread.entity.User;
+import com.example.tenthread.entity.*;
 import com.example.tenthread.repository.PostLikeRepository;
 import com.example.tenthread.repository.PostRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -151,17 +148,15 @@ public class PostService {
         return new PostListResponseDto(postList);
     }
 
-    public PostLikeResponseDto getPostLikes(User user) {
+    public PostLikeListDto getPostLikes(User user) {
         List<PostLike> postLikes = postLikeRepository.findByUser(user);
 
         List<PostLikeDto> postLikeList = new ArrayList<>();
         for (PostLike postLike : postLikes) {
-            PostLikeDto postLikeDto = new PostLikeDto();
-            postLikeDto.setPostId(postLike.getPost().getId());
-            postLikeDto.setLiked(postLike.isLiked());
+            PostLikeDto postLikeDto = new PostLikeDto(postLike.getPost().getId(), postLike.isLiked());
             postLikeList.add(postLikeDto);
         }
 
-        return new PostLikeResponseDto(postLikeList);
+        return new PostLikeListDto(postLikeList);
     }
 }

@@ -7,9 +7,7 @@ import com.example.tenthread.repository.CommentRepository;
 import com.example.tenthread.repository.PostRepository;
 import com.example.tenthread.repository.UserRepository;
 import com.sun.jdi.request.DuplicateRequestException;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,17 +118,15 @@ public class CommentService {
         );
     }
 
-    public CommentLikeResponseDto getCommentLikes(User user) {
+    public CommentLikeListDto getCommentLikes(User user) {
         List<CommentLike> commentLikes = commentLikeRepository.findByUser(user);
 
         List<CommentLikeDto> commentLikeList = new ArrayList<>();
         for (CommentLike commentLike : commentLikes) {
-            CommentLikeDto commentLikeDto = new CommentLikeDto();
-            commentLikeDto.setCommentId(commentLike.getComment().getId());
-            commentLikeDto.setLiked(commentLike.isLiked());
+            CommentLikeDto commentLikeDto = new CommentLikeDto(commentLike.getComment().getId(), commentLike.isLiked());
             commentLikeList.add(commentLikeDto);
         }
 
-        return new CommentLikeResponseDto(commentLikeList);
+        return new CommentLikeListDto(commentLikeList);
     }
 }

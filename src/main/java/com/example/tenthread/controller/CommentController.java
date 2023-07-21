@@ -1,13 +1,11 @@
 package com.example.tenthread.controller;
 
 import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.CommentLikeResponseDto;
+import com.example.tenthread.dto.CommentLikeDto;
+import com.example.tenthread.dto.CommentLikeListDto;
 import com.example.tenthread.dto.CommentRequestDto;
-import com.example.tenthread.dto.PostLikeResponseDto;
-import com.example.tenthread.entity.Post;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.CommentService;
-import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -60,9 +58,9 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("댓글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
     }
 
-    @GetMapping("/comment")
-    public ResponseEntity<CommentLikeResponseDto> getCommentLikes(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CommentLikeResponseDto result = commentService.getCommentLikes(userDetails.getUser());
+    @GetMapping("/comment/")
+    public ResponseEntity<CommentLikeListDto> getCommentLikes(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CommentLikeListDto result = commentService.getCommentLikes(userDetails.getUser());
         return ResponseEntity.status(200).body(result);
     }
 }
