@@ -4,6 +4,7 @@ import com.example.tenthread.dto.SocialUserInfoDto;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,6 +34,7 @@ public class NaverService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     public String[] naverLogin(String code) throws JsonProcessingException {
         // 여기까지는 들어옴
@@ -47,7 +49,14 @@ public class NaverService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(naverUser.getUsername(), naverUser.getRole());
-        String createRefresh = jwtUtil.createRefreshToken(naverUser.getUsername());
+        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], naverUser.getUsername());
+
+        // 기존의 토큰이 있다면 삭제
+        redisRefreshTokenRepository.findByUsername(naverUser.getUsername())
+                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+
+        // 새로운 토큰 저장
+        redisRefreshTokenRepository.saveRefreshToken(createRefresh, naverUser.getUsername());
 
         String[] creatTokens = new String[]{createToken, createRefresh};
 

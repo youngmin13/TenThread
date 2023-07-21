@@ -3,6 +3,7 @@ package com.example.tenthread.service;
 import com.example.tenthread.dto.SocialUserInfoDto;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,6 +33,7 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     public String[] kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -45,7 +47,14 @@ public class KakaoService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-        String createRefresh = jwtUtil.createRefreshToken(kakaoUser.getUsername());
+        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], kakaoUser.getUsername());
+
+        // 기존의 토큰이 있다면 삭제
+        redisRefreshTokenRepository.findByUsername(kakaoUser.getUsername())
+                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+
+        // 새로운 토큰 저장
+        redisRefreshTokenRepository.saveRefreshToken(createRefresh, kakaoUser.getUsername());
 
         String[] creatTokens = new String[]{createToken, createRefresh};
 
