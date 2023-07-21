@@ -40,12 +40,21 @@ public class WebController {
     public String adminNotice(){
         return "backoffice/notice";
     }
-
+    @GetMapping("/back/notice/create")
+    public String createNotice(){
+        return "backoffice/createNotice";
+    }
 
     @GetMapping("/back/notice/{noticeId}")
     public String adminNoticeOne(@PathVariable Long noticeId, Model model){
         model.addAttribute("noticeId",noticeId);
         return "backoffice/noticeOne";
+    }
+
+    @GetMapping("/back/notice/{noticeId}/view")
+    public String NoticeView(@PathVariable Long noticeId, Model model){
+        model.addAttribute("noticeId",noticeId);
+        return "backoffice/noticeView";
     }
 
     @GetMapping("/profile")

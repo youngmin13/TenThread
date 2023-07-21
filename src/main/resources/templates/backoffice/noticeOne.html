@@ -14,7 +14,98 @@
     <link href="/css/init.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
     <script>
-        let noticeId = /*[[${noticeId}]]*/ {};
+        let jwtCookie = getCookieValueByName('jwt');
+        function getCookieValueByName(name) {
+            let cookie = document.cookie;
+            let cookiePairs = cookie.split(';');
+            for (let i = 0; i < cookiePairs.length; i++) {
+                let pair = cookiePairs[i].trim();
+                if (pair.startsWith(name + '=')) {
+                    return pair.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
+         let noticeId = [[${noticeId}]];
+
+        window.onload = function() {
+            getNoticeData();
+        }
+        function getNoticeData(){
+            fetch('/api/back/notice/'+noticeId, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtCookie}`
+                },
+            })
+                .then(response => {
+                    if (response.status === 400) {
+                        alert('요청이 실패했습니다.');
+                    }
+                    return response.json(); // JSON 형태의 응답 데이터 파싱
+                })
+                .then(data => {
+                    let title = data.title;
+                    let content =  data.content;
+                    let titleElement = document.getElementById('title');
+                    let contentElement = document.getElementById('content');
+                    titleElement.value = title;
+                    contentElement.textContent = content;
+                })
+                .catch(error => {
+                    // 오류 처리 로직을 작성합니다.
+                    console.error(error);
+                });
+        }
+        function updateNotice(){
+            console.log("updateNotice");
+            let updateTitle = document.getElementById('title').value;
+            let updateContent = document.getElementById('content').value;
+
+            console.log(updateContent);
+            let updateData = {
+                title: updateTitle,
+                content: updateContent
+            }
+            fetch('/api/back/notice/'+noticeId, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwtCookie}`
+                },
+                body: JSON.stringify(updateData)
+            })
+                .then(response => {
+                    return response.json(); // JSON 형태의 응답 데이터 파싱
+                })
+                .then(data => {
+                    alert(data.msg);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    // 오류 처리 로직을 작성합니다.
+                    console.error(error);
+                });
+        }
+        function deleteNotice(){
+            fetch('/api/back/notice/'+noticeId, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${jwtCookie}`
+                },
+            })
+                .then(response => {
+                    return response.json(); // JSON 형태의 응답 데이터 파싱
+                })
+                .then(data => {
+                    alert(data.msg);
+                    window.location.href = "/main/back/notice";
+                })
+                .catch(error => {
+                    // 오류 처리 로직을 작성합니다.
+                    console.error(error);
+                });
+        }
     </script>
 </head>
 <body>
@@ -22,7 +113,7 @@
     <h3 class="h3 m-3">십시일반조</h3>
     <div class="d-flex justify-content-around mt-5">
         <h1 class="hidden">hide</h1>
-        <h1 class="h1">텐스레드</h1>
+        <a href="/main/" class="h1">텐스레드</a>
         <button class="fa-solid fa-square-arrow-up-right fs-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
 
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -56,8 +147,15 @@
                 <label for="content" class="mt-3">공지글 내용</label>
                 <textarea class="form-control mt-2" id="content" name="content" rows="20" ></textarea>
             </div>
-            <button onclick="updateNotice()" class="btn btn-warning">수정완료</button>
-            <a href="/main/back/notice" class="btn btn-outline-warning">뒤로가기</a>
+            <div class="d-flex justify-content-between">
+                <div class="mt-3">
+                    <button onclick="updateNotice()" class="btn btn-warning">수정완료</button>
+                    <a href="/main/back/notice" class="btn btn-outline-warning">뒤로가기</a>
+                </div>
+                <div class="mt-3">
+                    <button onclick="deleteNotice()" class="btn btn-danger">삭제하기</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
