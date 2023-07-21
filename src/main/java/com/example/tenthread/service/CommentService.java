@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.concurrent.RejectedExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +94,9 @@ public class CommentService {
 
         if (commentLikeRepository.existsByUserAndComment(user, comment)) {
             throw new DuplicateRequestException("이미 좋아요 한 댓글 입니다.");
-        } else {
+        } else if (comment.getUser().getId().equals(user.getId())) {
+            throw new RejectedExecutionException("자신이 남긴 댓글에는 좋아요를 누를 수 없습니다.");
+        }else {
             CommentLike commentLike = new CommentLike(user, comment);
             commentLikeRepository.save(commentLike);
         }

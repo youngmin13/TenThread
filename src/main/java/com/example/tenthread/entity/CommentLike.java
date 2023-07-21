@@ -21,8 +21,12 @@ public class CommentLike {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
+    @Column
+    boolean isLiked;
+
     public CommentLike(User user, Comment comment) {
         this.user = user;
         this.comment = comment;
+        this.isLiked = true;
     }
 }
