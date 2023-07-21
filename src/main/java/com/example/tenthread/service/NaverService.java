@@ -34,24 +34,27 @@ public class NaverService {
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
 
-    public String naverLogin(String code) throws JsonProcessingException {
+    public String[] naverLogin(String code) throws JsonProcessingException {
         // 여기까지는 들어옴
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getToken(code);
+        String[] tokens = getToken(code);
 
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
-        SocialUserInfoDto naverUserInfo = getNaverUserInfo(accessToken);
+        SocialUserInfoDto naverUserInfo = getNaverUserInfo(tokens[0]);
 
         // 3. 필요시에 회원 가입
-        User kakaoUser = registerNaverUserIfNeeded(naverUserInfo);
+        User naverUser = registerNaverUserIfNeeded(naverUserInfo);
 
         // 4. JWT 토큰 반환
-        String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
+        String createToken = jwtUtil.createToken(naverUser.getUsername(), naverUser.getRole());
+        String createRefresh = jwtUtil.createRefreshToken(naverUser.getUsername());
 
-        return createToken;
+        String[] creatTokens = new String[]{createToken, createRefresh};
+
+        return creatTokens;
     }
 
-    private String getToken(String code) throws JsonProcessingException {
+    private String[] getToken(String code) throws JsonProcessingException {
         // 요청 URL 만들기
         URI uri = UriComponentsBuilder
                 .fromUriString("https://nid.naver.com")
@@ -87,9 +90,10 @@ public class NaverService {
 
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
-        System.out.println("NaverService.getToken");
-        System.out.println(jsonNode);
-        return jsonNode.get("access_token").asText();
+        String[] res = new String[2];
+        res[0] = jsonNode.get("access_token").asText();
+        res[1] = jsonNode.get("refresh_token").asText();
+        return res;
     }
 
     private SocialUserInfoDto getNaverUserInfo(String accessToken) throws JsonProcessingException {
