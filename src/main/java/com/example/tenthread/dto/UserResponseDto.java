@@ -16,9 +16,10 @@ public class UserResponseDto {
     private UserRoleEnum role;
     private boolean isBlocked;
 
-    public UserResponseDto(String username, String nickname) {
+    public UserResponseDto(String username, String nickname, UserRoleEnum role) {
         this.username = username;
         this.nickname = nickname;
+        this.role = role;
     }
 
     public UserResponseDto(User user) {

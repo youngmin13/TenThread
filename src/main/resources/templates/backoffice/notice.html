@@ -31,11 +31,15 @@
 </head>
 <body>
 <header>
-    <h3 class="h3 m-3">십시일반조</h3>
-    <div class="d-flex justify-content-around mt-5">
-        <h1 class="hidden">hide</h1>
-        <h1 class="h1">텐스레드</h1>
-        <button class="fa-solid fa-square-arrow-up-right fs-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
+    <div class="d-flex justify-content-between">
+        <h3 class="h3 m-3">십시일반조</h3>
+        <div class="m-3">
+            <button class="fa-solid fa-square-arrow-up-right fs-3 user-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-5">
+        <a href="/main/home" class="h1">텐스레드</a>
+
 
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
             <div class="offcanvas-header">
@@ -61,6 +65,9 @@
 </header>
 <div class="container" id="base-box">
     <h1>공지글 전체 조회</h1>
+    <div class="text-end">
+        <a href="/main/back/notice/create" class="btn btn-warning">공지등록</a>
+    </div>
     <div class="row mt-3" id="notice-container">
         <!-- Notices will be dynamically added here -->
     </div>
@@ -124,7 +131,7 @@
 
     function createNoticeCard(notice) {
         const cardDiv = document.createElement('div');
-        cardDiv.classList.add('col-md-4', 'mb-3');
+        cardDiv.classList.add('col-md-3', 'mb-3');
 
         // Replace the <div> with an <a> tag
         const cardLink = document.createElement('a');

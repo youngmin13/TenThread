@@ -91,7 +91,7 @@ public class UserService {
                 () -> new IllegalArgumentException("올바르지 않은 회원정보입니다.")
         );
 
-        return new UserResponseDto(myProfile.getUsername(), myProfile.getNickname());
+        return new UserResponseDto(myProfile.getUsername(), myProfile.getNickname(), myProfile.getRole());
     }
 
 

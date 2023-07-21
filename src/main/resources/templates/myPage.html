@@ -15,123 +15,122 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
             crossorigin="anonymous"></script>
-    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/init.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-
-        * {
-            font-family: 'Jua', sans-serif;
+        .card {
+            transition: transform 0.3s ease;
         }
 
-        button {
-            border: none;
-            background-color: inherit;
+        /* Apply the scaling effect on hover */
+        .card:hover {
+            transform: scale(1.2);
         }
-
-        @media (min-width: 992px) {
-            .container {
-                width: 940px;
-                top: 300px;
-            }
-        }
-
-        .container {
-            margin-top: 80px;
-            border-radius: 25px;
-            padding: 50px 50px;
-        }
-
-        a {
-            text-decoration: none;
-            color: black;
-        }
-
-        .hidden {
-            visibility: hidden;
-        }
-
     </style>
 </head>
 <body>
 <header>
-    <h3 class="h3 m-3">십시일반조</h3>
-    <div class="d-flex justify-content-around mt-5">
-        <h1 class="hidden">hide</h1>
-        <h1 class="h1">텐스레드</h1>
-        <button class="fa-solid fa-square-arrow-up-right fs-3" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
-
+    <div class="d-flex justify-content-between">
+        <h3 class="h3 m-3">십시일반조</h3>
+        <div class="m-3">
+            <button class="fa-solid fa-square-arrow-up-right fs-3 user-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-5">
+        <a href="/main/home/" class="h1">텐스레드</a>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasRightLabel">
-                    <button id="home-btn" onclick="location.href='/'">
-                        홈페이지
-                    </button>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <h5 class="offcanvas-title mx-auto" id="userManagementOffcanvasLabel">유저이름</h5>
             </div>
             <div class="offcanvas-body">
-                <div>
-                    <button id="mypage-btn" onclick="location.href='/'">
-                        마이 페이지
-                    </button>
-                </div>
-                <div>
-                    <button id="following-btn" onclick="location.href='/'">
-                        팔로잉 페이지
-                    </button>
-                </div>
-                <div>
-                    <button id="profile-btn" onclick="location.href='/'">
-                        회원 정보 수정
-                    </button>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
+
+                <ul>
+                    <li><div>
+                        <button class="profile-button" onclick="location.href='/main/profile'">프로필</button>
+                    </div></li>
+                    <li><div>
+                        <button class="myPage-button" onclick="location.href='/main/myPage'">마이 페이지</button>
+                    </div></li>
+                    <li><div>
+                        <button class="myPage-button" onclick="location.href='/main/myFollow'">팔로우 페이지</button>
+                    </div></li>
+                    <li><div>
+                        <button class="post-button" onclick="location.href='/main/createPost'">게시글 추가</button>
+                    </div></li>
+
+                </ul>
+            </div>
+            <div class="offcanvas-footer mt-auto">
+                <hr class="hr">
+                <button href="#" class="logout-button">로그아웃</button>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="container">
+    <div class="row">
+        <h3>내가 작성한 게시글</h3>
+        <div class="mycards">
+            <div class="row" id="cards-box">
+                <div class='col-md-3 mb-3 p-3'>
+                    <div class='card h-100'>
+                        <h5 class='card-title'></h5>
+                        <div class='card-body'>
+                            <p class='card-content'></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <h3>내가 작성한 게시글</h3>
-    <div id="posts-container"></div>
-</header>
+</div>
 <script>
     $(document).ready(function () {
         fetchMyPosts();
     });
 
     function fetchMyPosts() {
-        $.ajax({
-            url: "http://localhost:8080/api/myPosts",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                if (data && data.postList && data.postList.length > 0) {
-                    let postsContainer = $("#posts-container");
-                    let html = "";
-
-                    data.postList.forEach(function (post) {
-                        html += "<div class='post'>" +
-                            "<h2>" + post.title + "</h2>" +
-                            "<p>" + post.content + "</p>" +
-                            "</div>";
-                    });
-                    postsContainer.html(html);
-                }
+        fetch('/api/myPosts', {
+            method: 'GET',
+            headers: {
+                Authorization: prefix + getCookieValueByName('jwt'),
+                'Content-Type': 'application/json'
             },
-            error: function (error) {
-                console.error("Failed to fetch posts:", error);
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(function (data) {
+                    throw new Error(data);
+                });
             }
+        }).then(function (data) {
+            if (data && data.postList && data.postList.length > 0) {
+                            let postsContainer = $("#cards-box");
+                            let html = "";
+                            data.postList.forEach(function (post) {
+                                html += "<div class='col-md-3 mb-3'>" +
+                                    "<a href='#' class='card-body-link m-2 border border-1 rounded'>" +
+                                    "<div class='card'>" +
+                                    "<h5 class='card-title p-3'>" + post.title + "</h5>" +
+                                    // "<div class='card-body'>" +
+                                    // "<p class='card-content'>" + post.content + "</p>" +
+                                    // "</div>" +
+                                    "</div>" +
+                                    "</a>" +
+                                    "</div>";
+                            });
+                            postsContainer.html(html);
+                        }
+        }).catch(function (error) {
+            console.error(error);
+            alert(error);
         });
     }
-
-
-    function open_box() {
-        let url = "http://127.0.0.1:5000/menu/input";
-        let title = "popup test";
-        let option = "width = 1200, height = 700"
-        window.open(url, title, option);
-    }
-
 
     let prefix = "Bearer ";
 
