@@ -75,10 +75,18 @@ a:hover {
     padding-bottom: 40px;
 }
 
-.postLike-btn {
-    color: red;
+/* 클릭 스타일 추가 */
+button:focus {
+    outline: none;
 }
 
-.commentLike-btn {
-    color: red;
+.heart-button {
+    background-color: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+button:active {
+    transform: scale(0.95);
 }
