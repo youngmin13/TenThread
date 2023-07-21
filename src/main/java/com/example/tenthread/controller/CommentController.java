@@ -1,7 +1,9 @@
 package com.example.tenthread.controller;
 
 import com.example.tenthread.dto.ApiResponseDto;
+import com.example.tenthread.dto.CommentLikeResponseDto;
 import com.example.tenthread.dto.CommentRequestDto;
+import com.example.tenthread.dto.PostLikeResponseDto;
 import com.example.tenthread.entity.Post;
 import com.example.tenthread.security.UserDetailsImpl;
 import com.example.tenthread.service.CommentService;
@@ -56,5 +58,11 @@ public class CommentController {
     public ResponseEntity<ApiResponseDto> deleteLikeComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         commentService.deleteLikeComment(commentId, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("댓글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
+    }
+
+    @GetMapping("/comment")
+    public ResponseEntity<CommentLikeResponseDto> getCommentLikes(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CommentLikeResponseDto result = commentService.getCommentLikes(userDetails.getUser());
+        return ResponseEntity.status(200).body(result);
     }
 }

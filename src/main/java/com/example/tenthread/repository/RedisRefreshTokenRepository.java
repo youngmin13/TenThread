@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,30 @@ public class RedisRefreshTokenRepository {
         redisTemplate.opsForValue().set(refreshToken, username, expirationTimeSeconds, TimeUnit.SECONDS);
         return refreshToken;
     }
+
+    public Optional<String> findValidRefreshTokenByUsername(String username) {
+        // Use keys() to get all the keys (refreshTokens) in Redis
+        Set<String> refreshTokenKeys = redisTemplate.keys("*");
+
+        // Loop through all the refreshTokens to find the one with the matching username
+        for (String refreshToken : refreshTokenKeys) {
+            // Get the refreshToken value (username) from Redis
+            String storedUsername = redisTemplate.opsForValue().get(refreshToken);
+
+            // Check if the storedUsername matches the provided username
+            if (storedUsername != null && storedUsername.equals(username)) {
+                // Check if the refreshToken is still valid (not expired)
+                if (isRefreshTokenValid(refreshToken)) {
+                    return Optional.ofNullable(refreshToken);
+                } else {
+                    // If the refreshToken is expired, remove it from Redis
+                    deleteRefreshToken(refreshToken);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
 
     public boolean isRefreshTokenValid(String refreshToken) {
         return redisTemplate.hasKey(refreshToken);

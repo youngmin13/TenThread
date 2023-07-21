@@ -68,4 +68,10 @@ public class PostController {
         PostListResponseDto postListResponseDto = postService.getMyPosts(userDetails.getUser());
         return ResponseEntity.ok().body(postListResponseDto);
     }
+
+    @GetMapping("/post")
+    public ResponseEntity<PostLikeResponseDto> getPostLikes(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostLikeResponseDto result = postService.getPostLikes(userDetails.getUser());
+        return ResponseEntity.status(200).body(result);
+    }
 }
