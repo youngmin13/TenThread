@@ -3,6 +3,7 @@ package com.example.tenthread.service;
 import com.example.tenthread.dto.SocialUserInfoDto;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,6 +33,7 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     public String[] kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -45,9 +47,12 @@ public class KakaoService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-        String createRefresh = jwtUtil.createRefreshToken(kakaoUser.getUsername());
 
-        String[] creatTokens = new String[]{createToken, createRefresh};
+        // 5. 카카오 refreshToken 저장
+        String kakaoRefreshToken = tokens[1];
+        redisRefreshTokenRepository.saveRefreshToken(kakaoUser.getUsername(), kakaoRefreshToken);
+
+        String[] creatTokens = new String[]{createToken, kakaoRefreshToken};
 
         return creatTokens;
     }

@@ -1,5 +1,6 @@
 package com.example.tenthread.repository;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +14,9 @@ public class RedisRefreshTokenRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private final long expirationTimeSeconds; // refreshToken 만료 시간
 
-    public RedisRefreshTokenRepository(RedisTemplate<String, String> redisTemplate, long expirationTimeSeconds) {
+    public RedisRefreshTokenRepository(
+            RedisTemplate<String, String> redisTemplate,
+            @Value("${refresh.token.expiration.seconds}") long expirationTimeSeconds) {
         this.redisTemplate = redisTemplate;
         this.expirationTimeSeconds = expirationTimeSeconds;
     }

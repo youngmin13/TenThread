@@ -4,6 +4,7 @@ import com.example.tenthread.dto.SocialUserInfoDto;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,6 +34,7 @@ public class NaverService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     public String[] naverLogin(String code) throws JsonProcessingException {
         // 여기까지는 들어옴
@@ -47,9 +49,12 @@ public class NaverService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(naverUser.getUsername(), naverUser.getRole());
-        String createRefresh = jwtUtil.createRefreshToken(naverUser.getUsername());
 
-        String[] creatTokens = new String[]{createToken, createRefresh};
+        // 5. 네이버 refreshToken 저장
+        String naverRefreshToken = tokens[1];
+        redisRefreshTokenRepository.saveRefreshToken(naverUser.getUsername(), naverRefreshToken);
+
+        String[] creatTokens = new String[]{createToken, naverRefreshToken};
 
         return creatTokens;
     }
