@@ -2,6 +2,7 @@ package com.example.tenthread.jwt;
 
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.entity.UserRoleEnum;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -27,12 +28,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper, RedisRefreshTokenRepository redisRefreshTokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.objectMapper = objectMapper;
+        this.redisRefreshTokenRepository = redisRefreshTokenRepository;
     }
 
     @Override
@@ -47,10 +50,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 setAuthentication(info.getSubject());
             }
             // accessToken 만료되었으나 refreshToken 존재
-            else if (refreshToken != null) {
-                boolean isRefreshToken = jwtUtil.validateRefreshToken(refreshToken);
-                if (isRefreshToken) {
-                    String username = jwtUtil.getUsernameFromToken(refreshToken);
+            else if (refreshToken != null && redisRefreshTokenRepository.isRefreshTokenValid(refreshToken)) {
+                String username = jwtUtil.getUsernameFromToken(refreshToken);
+                if (username != null) {
                     UserRoleEnum role = jwtUtil.getUserRoleFromToken(refreshToken);
                     String newAccessToken = jwtUtil.createToken(username, role);
                     response.addHeader("Authorization", newAccessToken);

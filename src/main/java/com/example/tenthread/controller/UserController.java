@@ -59,12 +59,16 @@ public class UserController {
 
     @GetMapping("/kakao/callback")
     public RedirectView kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        String token = kakaoService.kakaoLogin(code);
+        String[] tokens = kakaoService.kakaoLogin(code);
 
         // Set the JWT token as a cookie in the response
-        Cookie jwtCookie = new Cookie("jwt", token.substring(7));
+        Cookie jwtCookie = new Cookie("jwt", tokens[0].substring(7));
         jwtCookie.setMaxAge(3600); // Cookie expiration time in seconds (1 hour in this example)
         jwtCookie.setPath("/"); // Cookie path, set to root so it applies to all paths
+
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokens[0]);
+
+
 
         // Add the cookie to the response
         response.addCookie(jwtCookie);
@@ -73,12 +77,14 @@ public class UserController {
 
     @GetMapping("/naver/callback")
     public RedirectView naverLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        String token = naverService.naverLogin(code);
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        String[] tokens = naverService.naverLogin(code);
+
         // Set the JWT token as a cookie in the response
-        Cookie jwtCookie = new Cookie("jwt", token.substring(7));
+        Cookie jwtCookie = new Cookie("jwt", tokens[0].substring(7));
         jwtCookie.setMaxAge(3600); // Cookie expiration time in seconds (1 hour in this example)
         jwtCookie.setPath("/"); // Cookie path, set to root so it applies to all paths
+
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokens[0]);
 
         // Add the cookie to the response
         response.addCookie(jwtCookie);

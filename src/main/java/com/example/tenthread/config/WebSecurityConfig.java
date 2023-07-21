@@ -3,6 +3,7 @@ package com.example.tenthread.config;
 import com.example.tenthread.jwt.JwtAuthorizationFilter;
 import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.redis.TokenLogoutHandler;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class WebSecurityConfig {
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final TokenLogoutHandler tokenLogoutHandler;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,7 +48,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper, redisRefreshTokenRepository);
     }
 
     @Bean

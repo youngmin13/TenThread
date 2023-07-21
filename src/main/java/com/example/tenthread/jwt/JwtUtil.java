@@ -1,16 +1,14 @@
 package com.example.tenthread.jwt;
 
-import com.example.tenthread.entity.RefreshToken;
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
+import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.redis.RedisUtil;
-import com.example.tenthread.repository.RefreshTokenRepository;
 import com.example.tenthread.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +18,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
-import java.util.*;
-
-import static org.hibernate.internal.CoreLogging.logger;
+import java.util.Base64;
+import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
 
     private final RedisUtil redisUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
     private final UserRepository userRepository;
     // Header KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -86,17 +83,6 @@ public class JwtUtil {
         return token;
     }
 
-    public String createRefreshToken(String username) {
-        Date date = new Date();
-        long TOKEN_TIME = 2 * 60 * 1000L;
-        return Jwts.builder()
-                .setSubject(username) // 사용자 식별자값(ID)
-                .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
-                .setIssuedAt(date) // 발급일
-                .signWith(key, signatureAlgorithm) // 암호화 알고리즘
-                .compact();
-    }
-
     // 토큰 검증
     public boolean validateToken(String token) {
         try {
@@ -117,17 +103,6 @@ public class JwtUtil {
             logger.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
         return false;
-    }
-
-    public boolean validateRefreshToken(String token) {
-        // 1차 토큰 검증
-        if (!validateToken(token)) return false;
-
-        String username = getUsernameFromToken(token);
-
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUsername(getUsernameFromToken(token));
-
-        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken());
     }
 
     // 토큰에서 사용자 정보 가져오기
