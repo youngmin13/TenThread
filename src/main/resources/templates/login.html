@@ -63,12 +63,12 @@
     <div class="form-group">
       <input type="submit" value="로그인">
     </div>
-    <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=ae7708e065de7e86cbeadd427359aa6c&redirect_uri=http://localhost:8080/api/auth/kakao/callback&response_type=code'">
-      카카오로 로그인하기
-    </button>
-    <button id="login-naver-btn" onclick="location.href='https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=XmNSzEFig_bVI5wTlG3V&state=test&redirect_uri=http://localhost:8080/api/auth/naver/callback'">
-      네이버로 로그인하기
-    </button>
+    <a href="https://kauth.kakao.com/oauth/authorize?client_id=ae7708e065de7e86cbeadd427359aa6c&redirect_uri=http://localhost:8080/api/auth/kakao/callback&response_type=code">
+      <img src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg" width="49%" height="50px">
+    </a>
+    <a href="https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=XmNSzEFig_bVI5wTlG3V&state=test&redirect_uri=http://localhost:8080/api/auth/naver/callback">
+      <img src="http://static.nid.naver.com/oauth/small_g_in.PNG" width="49%" height="50px">
+    </a>
   </form>
 </div>
 </body>
@@ -111,9 +111,9 @@
                 });
               }
             }).catch(function(error) {
-                console.error(error);
-                alert(error);
-            });
+      console.error(error);
+      alert(error);
+    });
   });
 
 
