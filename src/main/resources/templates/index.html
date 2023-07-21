@@ -160,6 +160,7 @@
         getPosts();
         getNotices();
         drawAdminCanvas();
+        disableOrActivatePostLikeBtns();
     });
 
     function getCookieValueByName(name) {
@@ -489,15 +490,17 @@
 
         const token = document.cookie.replace("jwt=", "Bearer ");
 
-        if (currentColor === "red") {
-            fetch(`/api/post/${postId}/like`, {
+        if (currentColor === "rgb(255, 0, 0)") {
+            button.css('color', "rgb(204, 204, 204)");
+            fetch(`/api/post/${postId}/disLike`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `${token}`
                 }
             }).then(response => response.json())
                 .then(data => {
-                    if(data.statusCode == 200) {
+                    if(data.statusCode === 200) {
+                        localStorage.setItem(`likeStatus_${postId}`, false);
                         location.reload();
                     }
                 })
@@ -505,6 +508,7 @@
                     console.error("에러:", err);
                 })
         } else {
+            button.css('color', "rgb(255, 0, 0)");
             fetch(`/api/post/${postId}/like`, {
                 method: "POST",
                 headers: {
@@ -512,7 +516,9 @@
                 }
             }).then(response => response.json())
                 .then(data => {
-                    if(data.statusCode == 201) {
+                    console.log(data);
+                    if(data.statusCode === 202) {
+                        localStorage.setItem(`likeStatus_${postId}`, true);
                         location.reload();
                     }
                 })
@@ -526,7 +532,7 @@
         const token = document.cookie.replace("jwt=", "Bearer ");
 
         fetch('/api/post/', {
-            method: 'Get',
+            method: 'GET',
             headers: {
                 "Authorization": `${token}`
             }
@@ -536,17 +542,20 @@
 
                 if (postLikeList.length >= 1) {
                     for (let i = 0; i < postLikeList.length; i++) {
-                        let isLiked = postLikeList[i].isLiked;
+                        let isLiked = Boolean(postLikeList[i].liked);
                         $('.postLike-btn').each(function (index, element) {
-                            const likeStatus = $(element).data('isLiked');
-                            if (postLikeList[i].isLiked === true) {
-                                // 해당 버튼의 색상을 red로 변경합니다.
-                                $(element).removeClass('btn-primary').addClass('btn-secondary');
-                            } else {
-                                $(element).removeClass('btn-secondary').addClass('btn-primary');
+                            const currentPostId = $(element).data('post-id');
+                            const likeStatus = localStorage.getItem(`likeStatus_${currentPostId}`);
+                            if (isLiked === true && likeStatus === 'true') {
+                                $(element).css('color', "rgb(255, 0, 0)");
+                            } else if (isLiked === false && likeStatus === 'false') {
+                                $(element).css('color', "rgb(204, 204, 204)");
                             }
                         });
                     }
+                } else {
+                    // 서버로부터 데이터가 없을 경우 버튼의 상태를 초기화합니다.
+                    $('.postLike-btn').css('color', "rgb(204, 204, 204)");
                 }
             })
             .catch(err => {
