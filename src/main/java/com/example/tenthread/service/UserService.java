@@ -1,23 +1,18 @@
 package com.example.tenthread.service;
 
 import com.example.tenthread.dto.*;
-import com.example.tenthread.entity.PrevPassword;
-import com.example.tenthread.entity.User;
-import com.example.tenthread.entity.UserRoleEnum;
+import com.example.tenthread.entity.*;
 import com.example.tenthread.jwt.JwtUtil;
 import com.example.tenthread.redis.RedisUtil;
-import com.example.tenthread.repository.PrevPasswordRepository;
-import com.example.tenthread.repository.UserRepository;
+import com.example.tenthread.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -27,15 +22,21 @@ public class UserService {
     private final RedisUtil redisUtil;
     private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     private final PrevPasswordRepository prevPasswordRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PrevPasswordRepository prevPasswordRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, PostLikeRepository postLikeRepository, CommentLikeRepository commentLikeRepository, PrevPasswordRepository prevPasswordRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisUtil = redisUtil;
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.postLikeRepository = postLikeRepository;
+        this.commentLikeRepository = commentLikeRepository;
         this.prevPasswordRepository = prevPasswordRepository;
     }
 
@@ -71,8 +72,24 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtUtil.createToken(user.getUsername(), user.getRole());
-        response.addHeader("Authorization", token);
+        String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole());
+
+        // 아이디 정보로 RefreshToken 생성
+        String refreshTokenValue = jwtUtil.createRefreshToken(user.getUsername());
+
+        // refreshToken이 있는지 확인
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUsername(username);
+
+        // 있다면 기존의 토큰 재발행, 없다면 새로운 토큰 발행
+        if (refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(refreshTokenValue));
+        } else {
+            RefreshToken newToken = new RefreshToken(refreshTokenValue, user.getUsername());
+            refreshTokenRepository.save(newToken);
+        }
+
+        response.addHeader("Authorization", accessToken);
+        response.addHeader("Refresh_Token", refreshTokenValue);
     }
 
     public void logout(HttpServletRequest request) {
