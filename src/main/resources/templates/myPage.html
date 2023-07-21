@@ -113,16 +113,18 @@
                             let postsContainer = $("#cards-box");
                             let html = "";
                             data.postList.forEach(function (post) {
+                                const imageUrl = post.imageList[0].image.split(',')[0];
+                                const commentSize = post.commentList.length;
                                 html += "<div class='col-md-3 mb-3'>" +
                                     "<a href='#' class='card-body-link m-2 border border-1 rounded'>" +
                                     "<div class='card'>" +
-                                    "<h5 class='card-title p-3'>" + post.title + "</h5>" +
-                                    // "<div class='card-body'>" +
-                                    // "<p class='card-content'>" + post.content + "</p>" +
-                                    // "</div>" +
+                                    `<img src='${imageUrl}' alt='First Image' />` +
+                                    "<h5 class='card-content p-3'>" + post.content + "</h5>" +
+                                    "<pre>  좋아요 " + post.likeCount + " 댓글수 " + `${commentSize}` + "</pre>" +
                                     "</div>" +
                                     "</a>" +
                                     "</div>";
+                                console.log(commentSize);
                             });
                             postsContainer.html(html);
                         }
