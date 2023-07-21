@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.RejectedExecutionException;
@@ -149,5 +149,19 @@ public class PostService {
                 .collect(Collectors.toList());
 
         return new PostListResponseDto(postList);
+    }
+
+    public PostLikeResponseDto getPostLikes(User user) {
+        List<PostLike> postLikes = postLikeRepository.findByUser(user);
+
+        List<PostLikeDto> postLikeList = new ArrayList<>();
+        for (PostLike postLike : postLikes) {
+            PostLikeDto postLikeDto = new PostLikeDto();
+            postLikeDto.setPostId(postLike.getPost().getId());
+            postLikeDto.setLiked(postLike.isLiked());
+            postLikeList.add(postLikeDto);
+        }
+
+        return new PostLikeResponseDto(postLikeList);
     }
 }

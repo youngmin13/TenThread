@@ -21,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -41,34 +42,32 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = jwtUtil.resolveToken(request);
-        String refreshToken = jwtUtil.getRefreshTokenFromHeader(request, "Refresh");
 
         if (accessToken != null) {
             // accessToken 유효
             if (jwtUtil.validateToken(accessToken)) {
                 Claims info = jwtUtil.getUserInfoFromToken(accessToken);
                 setAuthentication(info.getSubject());
-            }
-            // accessToken 만료되었으나 refreshToken 존재
-            else if (refreshToken != null && redisRefreshTokenRepository.isRefreshTokenValid(refreshToken)) {
-                String username = jwtUtil.getUsernameFromToken(refreshToken);
+            } else {
+                // accessToken 만료되었으나 refreshToken 존재
+                String username = jwtUtil.getUsernameFromToken(accessToken);
                 if (username != null) {
-                    UserRoleEnum role = jwtUtil.getUserRoleFromToken(refreshToken);
-                    String newAccessToken = jwtUtil.createToken(username, role);
-                    response.addHeader("Authorization", newAccessToken);
-                    Claims info = jwtUtil.getUserInfoFromToken(newAccessToken);
-                    setAuthentication(info.getSubject());
-                }
-                // refreshToken도 없음
-                else {
-                    jwtExceptionHandler(response, "RefreshToken Expired", HttpStatus.BAD_REQUEST);
+                    Optional<String> validRefreshToken = redisRefreshTokenRepository.findValidRefreshTokenByUsername(username);
+
+                    if (validRefreshToken.isPresent()) {
+                        UserRoleEnum role = jwtUtil.getUserRoleFromToken(String.valueOf(validRefreshToken));
+                        String newAccessToken = jwtUtil.createToken(username, role);
+                        response.addHeader("Authorization", newAccessToken);
+                        Claims info = jwtUtil.getUserInfoFromToken(newAccessToken);
+                        setAuthentication(info.getSubject());
+                    } else {
+                        jwtExceptionHandler(response, "RefreshToken Expired or Invalid", HttpStatus.BAD_REQUEST);
+                        return;
+                    }
+                } else {
+                    jwtExceptionHandler(response, "AccessToken Invalid and Username Not Found", HttpStatus.BAD_REQUEST);
                     return;
                 }
-            }
-            // accessToken 유효하지 않고 refreshToken도 없는 경우
-            else {
-                jwtExceptionHandler(response, "AccessToken Expired", HttpStatus.BAD_REQUEST);
-                return;
             }
         }
 

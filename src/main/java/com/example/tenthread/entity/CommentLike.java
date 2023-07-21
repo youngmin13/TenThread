@@ -24,6 +24,9 @@ public class CommentLike {
     @Column
     boolean isLiked;
 
+    @Transient
+    private Long commentId;
+
     public CommentLike(User user, Comment comment) {
         this.user = user;
         this.comment = comment;

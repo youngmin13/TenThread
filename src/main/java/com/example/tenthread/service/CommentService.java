@@ -1,7 +1,6 @@
 package com.example.tenthread.service;
 
-import com.example.tenthread.dto.ApiResponseDto;
-import com.example.tenthread.dto.CommentRequestDto;
+import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.*;
 import com.example.tenthread.repository.CommentLikeRepository;
 import com.example.tenthread.repository.CommentRepository;
@@ -14,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -117,5 +118,19 @@ public class CommentService {
         return commentRepository.findById(commentId).orElseThrow(() ->
                 new IllegalArgumentException("선택한 댓글은 존재하지 않습니다.")
         );
+    }
+
+    public CommentLikeResponseDto getCommentLikes(User user) {
+        List<CommentLike> commentLikes = commentLikeRepository.findByUser(user);
+
+        List<CommentLikeDto> commentLikeList = new ArrayList<>();
+        for (CommentLike commentLike : commentLikes) {
+            CommentLikeDto commentLikeDto = new CommentLikeDto();
+            commentLikeDto.setCommentId(commentLike.getComment().getId());
+            commentLikeDto.setLiked(commentLike.isLiked());
+            commentLikeList.add(commentLikeDto);
+        }
+
+        return new CommentLikeResponseDto(commentLikeList);
     }
 }
