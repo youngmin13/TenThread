@@ -68,6 +68,8 @@ public class UserController {
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokens[0]);
 
+
+
         // Add the cookie to the response
         response.addCookie(jwtCookie);
         return new RedirectView("/main/home");

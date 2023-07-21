@@ -27,6 +27,11 @@ public class RedisRefreshTokenRepository {
         return refreshToken;
     }
 
+    public String generateRefreshTokenInSocial(String refreshToken, String username) {
+        redisTemplate.opsForValue().set(refreshToken, username, expirationTimeSeconds, TimeUnit.SECONDS);
+        return refreshToken;
+    }
+
     public boolean isRefreshTokenValid(String refreshToken) {
         return redisTemplate.hasKey(refreshToken);
     }
