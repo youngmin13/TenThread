@@ -155,11 +155,12 @@
     </div>
 <script>
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
         updateLoginStatus();
         getPosts();
         getNotices();
         drawAdminCanvas();
+        await updateLikeButtons()
     });
 
     function getCookieValueByName(name) {
@@ -596,12 +597,12 @@
             // 좋아요 상태를 캐시 데이터에 업데이트합니다.
             likeStatusCache[postId] = responseData.isLiked;
 
-            // 버튼 상태를 업데이트합니다.
-            updateLikeButtonState(postId, responseData.isLiked);
+            updateLikeButtons();
 
             console.log("좋아요 정보가 업데이트되었습니다.");
         } catch (error) {
             console.error("좋아요 정보 업데이트 에러:", error);
+            updateLikeButtons()
         }
     }
 
