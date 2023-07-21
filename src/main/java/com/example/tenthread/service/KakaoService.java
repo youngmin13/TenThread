@@ -47,16 +47,20 @@ public class KakaoService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], kakaoUser.getUsername());
+//        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], kakaoUser.getUsername());
+//
+//        // 기존의 토큰이 있다면 삭제
+//        redisRefreshTokenRepository.findByUsername(kakaoUser.getUsername())
+//                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+//
+//        // 새로운 토큰 저장
+//        redisRefreshTokenRepository.saveRefreshToken(createRefresh, kakaoUser.getUsername());
 
-        // 기존의 토큰이 있다면 삭제
-        redisRefreshTokenRepository.findByUsername(kakaoUser.getUsername())
-                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+        // 5. 카카오 refreshToken 저장
+        String kakaoRefreshToken = tokens[1];
+        redisRefreshTokenRepository.saveRefreshToken(kakaoUser.getUsername(), kakaoRefreshToken);
 
-        // 새로운 토큰 저장
-        redisRefreshTokenRepository.saveRefreshToken(createRefresh, kakaoUser.getUsername());
-
-        String[] creatTokens = new String[]{createToken, createRefresh};
+        String[] creatTokens = new String[]{createToken, kakaoRefreshToken};
 
         return creatTokens;
     }

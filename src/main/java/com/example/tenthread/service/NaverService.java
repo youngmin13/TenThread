@@ -49,16 +49,20 @@ public class NaverService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(naverUser.getUsername(), naverUser.getRole());
-        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], naverUser.getUsername());
+//        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], naverUser.getUsername());
+//
+//        // 기존의 토큰이 있다면 삭제
+//        redisRefreshTokenRepository.findByUsername(naverUser.getUsername())
+//                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+//
+//        // 새로운 토큰 저장
+//        redisRefreshTokenRepository.saveRefreshToken(createRefresh, naverUser.getUsername());
 
-        // 기존의 토큰이 있다면 삭제
-        redisRefreshTokenRepository.findByUsername(naverUser.getUsername())
-                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+        // 5. 네이버 refreshToken 저장
+        String naverRefreshToken = tokens[1];
+        redisRefreshTokenRepository.saveRefreshToken(naverUser.getUsername(), naverRefreshToken);
 
-        // 새로운 토큰 저장
-        redisRefreshTokenRepository.saveRefreshToken(createRefresh, naverUser.getUsername());
-
-        String[] creatTokens = new String[]{createToken, createRefresh};
+        String[] creatTokens = new String[]{createToken, naverRefreshToken};
 
         return creatTokens;
     }
