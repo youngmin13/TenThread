@@ -28,6 +28,9 @@
             transform: scale(1.2);
         }
 
+        li {
+            padding-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -66,17 +69,18 @@
             </div>
             <div class="offcanvas-footer mt-auto">
                 <hr class="hr">
-                <button href="#" class="logout-button">로그아웃</button>
+                <button onclick="logout()" class="logout-button">로그아웃</button>
             </div>
         </div>
     </div>
 </header>
 <div class="container">
     <div class="row">
-        <h3>내가 작성한 게시글</h3>
+        <h3>팔로잉이 작성한 게시글</h3>
+        <p style="cursor: pointer;" onclick="openFollowingModal()">팔로잉 (<span id="followingCount">0</span>)</p>
         <div class="mycards">
-            <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-                <div class='col'>
+            <div class="row" id="cards-box">
+                <div class='col-md-3 mb-3 p-3'>
                     <div class='card h-100'>
                         <h5 class='card-title'></h5>
                         <div class='card-body'>
@@ -88,19 +92,35 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 모달 내용을 여기에 추가 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     $(document).ready(function () {
         fetchMyPosts();
+        getFollowing();
     });
 
     function fetchMyPosts() {
-        fetch('/api/myFollow', {
+        fetch('/api/follow/', {
             method: 'GET',
             headers: {
                 Authorization: prefix + getCookieValueByName('jwt'),
                 'Content-Type': 'application/json'
             },
-            credentials: 'include'
         }).then(function (response) {
             if (response.ok) {
                 return response.json();
@@ -110,29 +130,49 @@
                 });
             }
         }).then(function (data) {
-            if (data && data.postList && data.postList.length > 0) {
-                let postsContainer = $("#cards-box");
-                let html = "";
+            let follow = data.followingList;
+            let postsContainer = $("#cards-box");
+            let html = "";
 
-                data.postList.forEach(function (post) {
-                    html += "<div class='col-md-3 mb-3'>" +
-                        "<a href='#' class='card-body-link m-2 border border-1 rounded'>" +
-                        "<div class='card'>" +
-                        "<h5 class='card-title p-3'>" + post.title + "</h5>" +
-                        // "<div class='card-body'>" +
-                        // "<p class='card-content'>" + post.content + "</p>" +
-                        // "</div>" +
-                        "</div>" +
-                        "</a>" +
-                        "</div>";
-                });
-                postsContainer.html(html);
+            // Loop through the follow list
+            for (let i = 0; i < follow.length; i++) {
+                const postList = follow[i].postList;
+                const nickname = follow[i].nickname;
+                html += `
+                <div class="user-info-box">
+                            <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
+                            <span class="me-2">${nickname}</span>
+                        </div>
+                `
+                if (postList && postList.length > 0) {
+                    // Loop through the user's posts
+                    postList.forEach(function (post) {
+                        const imageUrl = post.imageList[0].image.split(',')[0];
+                        const commentSize = post.commentLen;
+                        html += `
+<div class='col-md-3 mb-3' style="padding-top: 30px">
+                        <div class='card h-100'>
+                            <!-- 첫 번째 card-body -->
+                            <div class='card-body'>
+                                <!-- 사진 크기 조정 -->
+                                <img src='${imageUrl}' alt='First Image' style="max-width: 100%; max-height: 200px;">
+                                <!-- 게시글 내용 -->
+                                <h5 class='card-content p-3'>${post.content}</h5>
+                                <!-- 좋아요와 댓글수 위치 변경 -->
+                                <pre style="padding-bottom: 20px">  좋아요 ${post.likeCount} 댓글수 ${commentSize}</pre>
+                            </div>
+                        </div>
+                    </div>`;
+                    });
+                }
             }
+            postsContainer.html(html);
         }).catch(function (error) {
             console.error(error);
             alert(error);
         });
     }
+
 
     let prefix = "Bearer ";
 
@@ -148,7 +188,106 @@
         return null;
     }
 
+    function getFollowing() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
 
+        fetch("/api/follow/", {
+            headers: {
+                "Authorization": `${token}`,
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let len = data.followingList.length;
+                document.getElementById('followingCount').textContent = len;
+            })
+            .catch(error => {
+                // 에러 처리
+                console.error("에러:", error);
+            });
+    }
+
+    function openFollowingModal() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        const modalBody = $('.modal-body');
+        modalBody.empty();
+
+        fetch("/api/follow/", {
+            headers: {
+                "Authorization": `${token}`,
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let follow = data.followingList;
+
+                const ul = $('<ul>'); // 팔로잉 목록을 보여줄 리스트 요소
+                for (let i = 0; i < follow.length; i++) {
+                    const li = $('<li>').css('display', 'flex').css('justify-content', 'space-between').css('margin-bottom', '10px');
+
+                    // 사용자의 닉네임을 보여줄 요소
+                    const usernameDiv = $('<div>').text('닉네임: ' + follow[i].nickname);
+                    li.append(usernameDiv);
+
+                    // 버튼을 보여줄 요소
+                    const button = $('<button>').text('unfollow').addClass('btn btn-secondary');
+                    button.on('click', function() {
+                        unfollowUser(follow[i].id); // Call the unfollowUser function passing the user's id
+                    });
+                    li.append(button);
+
+                    ul.append(li);
+                }
+
+                modalBody.append(ul);
+
+                // 모달을 보이도록 트리거합니다.
+                $('#exampleModal').modal('show');
+            })
+            .catch(error => {
+                // 에러 처리
+                console.error("에러:", error);
+            });
+    }
+
+    function unfollowUser(followerId) {
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        fetch(`/api/follow/${followerId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `${token}`
+            }
+        }).then(response => response.json())
+            .then(data => {
+                if(data.statusCode == 200) {
+                    alert("팔로우가 취소되었습니다");
+                    location.reload();
+                }
+            })
+            .catch(err => {
+                console.error("에러:", err);
+            })
+    }
+    function logout() {
+        // 로그아웃 요청을 보내는 코드를 작성합니다.
+        fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.msg); // 로그아웃 성공 메시지
+                localStorage.clear();
+                window.location.href = '/main/home'; // 홈페이지로 리다이렉트
+            })
+            .catch(error => {
+                console.error('로그아웃 요청 실패:', error);
+            });
+    }
 </script>
 </body>
 </html>
