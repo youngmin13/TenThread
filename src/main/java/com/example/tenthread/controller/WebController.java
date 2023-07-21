@@ -21,6 +21,15 @@ public class WebController {
         return "createPost";
     }
 
+    @GetMapping("/updatePost")
+    public String updatePost(Model model, @RequestParam("postId") int postId,@RequestParam("title") String title, @RequestParam("content") String content) {
+        model.addAttribute("postId", postId);
+        model.addAttribute("title", title);
+        model.addAttribute("content", content);
+
+        return "updatePost";
+    }
+
     @GetMapping("/signup")
     public String signup() { return "signup"; }
 
