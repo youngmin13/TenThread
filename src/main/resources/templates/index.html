@@ -329,7 +329,7 @@
         let id = 0;
         fetch("/api/posts")
             .then(response => response.json())
-            .then(data => {
+            .then(async data => {
                 for(let i = 0; i < data.postList.length; i++) {
                     const postData = data.postList[i];
                     const postImage = postData.imageList[0].image;
@@ -397,7 +397,9 @@
                     </div>`
 
                     let commentModalBody = ``;
+                    const loggedInUserId = await getLoginNickname();
                     for (let j = 0; j < postData.commentList.length; j++) {
+                        const isCurrentUserCommentAuthor = loggedInUserId === postData.commentList[j].nickname;
                         commentModalBody += `
                         <div class="modal-body">
                             <div class="comment-box mt-3 d-flex">
@@ -405,14 +407,22 @@
                                     <span class="fw-bold">${postData.commentList[j].nickname}</span>
                                 </div>
                             <div class="col-md-8">
-                                <span>${postData.commentList[j].content}</span>
+                                <span id="comment-content-${postData.commentList[j].id}">${postData.commentList[j].content}</span>
+                                <input type="text" id="comment-input-${postData.commentList[j].id}" style="display: none" value="${postData.commentList[j].content}">
                             </div>
 <!--                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>-->
                         </div>
                         <div class="d-flex justify-content-between mt-2">
                             <div class="btn-box">
-                                <button class=" btn btn-primary me-2 d-none" onclick="updateComment(this)">수정</button>
-                                <button class="btn btn-secondary  me-2 d-none"  onclick="deleteComment(this)">삭제</button>
+                                <!-- 수정 버튼 -->
+                                <button class="btn btn-primary me-2 comment-btn" onclick="toggleUpdateComment('comment-content-${postData.commentList[j].id}','comment-input-${postData.commentList[j].id}','comment-update-btn-${postData.commentList[j].id}')" value="${postData.commentList[j].id}" style="display: ${
+                            isCurrentUserCommentAuthor ? 'inline-block' : 'none'
+                        }">수정</button>
+                                <!-- 삭제 버튼 -->
+                                <button class="btn btn-secondary me-2 comment-btn" onclick="deleteComment(this)" value="${postData.commentList[j].id}" style="display: ${
+                            isCurrentUserCommentAuthor ? 'inline-block' : 'none'
+                        }">삭제</button>
+                                <button class="btn btn-warning me-2" style="display: none" id="comment-update-btn-${postData.commentList[j].id}" onclick="updateComment('comment-input-${postData.commentList[j].id}',this)" value="${postData.commentList[j].id}">완료</button>
                             </div>
                             <div class="text-end" style="color: #949494;">
                                 <span>1 like</span>
@@ -577,7 +587,7 @@
             likeButton.style.color = "red";
         } else {
             likeButton.classList.remove("liked");
-            likeButton.style.color = "";
+            likeButton.style.color = "#ccc";
         }
     }
     function getNotices(){
@@ -675,6 +685,98 @@
             .catch(error => {
                 console.error("Fetch 에러:", error);
             });
+    }
+    async function getLoginNickname() {
+        try {
+            let jwtCookie = getCookieValueByName('jwt');
+            let response = await fetch("/api/profile", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+            let data = await response.json();
+            let loginNickname = data.nickname;
+            return loginNickname;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+    function deleteComment(element){
+        let jwtCookie = getCookieValueByName("jwt");
+        let commentId = element.getAttribute('value');
+
+        fetch('/api/comment/'+commentId, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${jwtCookie}`
+            },
+        })
+            .then(response => {
+                return response.json(); // JSON 형태의 응답 데이터 파싱
+            })
+            .then(data => {
+                alert(data.msg);
+                window.location.reload();
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
+    function updateComment(nextElementId,element){
+        let nextValue = document.getElementById(nextElementId).value
+        let jwtCookie = getCookieValueByName("jwt");
+        let commentId = element.getAttribute('value');
+
+        let formData ={
+            body : nextValue
+        }
+        fetch('/api/comment/'+commentId, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${jwtCookie}`,
+                'Content-Type' : 'application/json'
+            },
+            body : JSON.stringify(formData)
+        })
+            .then(response => {
+                return response.json(); // JSON 형태의 응답 데이터 파싱
+            })
+            .then(data => {
+                alert(data.msg);
+                window.location.reload();
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
+
+
+
+
+    let state = true
+    function toggleUpdateComment(prevElementId,nextElementId,completeBtn){
+        console.log(prevElementId,nextElementId,completeBtn)
+
+        let prev = document.getElementById(prevElementId);
+        let next = document.getElementById(nextElementId);
+        let btn = document.getElementById(completeBtn);
+
+        if(state){
+            prev.style.display = 'none';
+            next.style.display = 'inline';
+            btn.style.display = 'inline';
+            state = false
+        }else{
+            prev.style.display = 'inline';
+            next.style.display = 'none';
+            btn.style.display = 'none';
+            state = true
+        }
     }
 </script>
 
