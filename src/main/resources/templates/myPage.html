@@ -115,15 +115,31 @@
                             data.postList.forEach(function (post) {
                                 const imageUrl = post.imageList[0].image.split(',')[0];
                                 const commentSize = post.commentList.length;
-                                html += "<div class='col-md-3 mb-3'>" +
-                                    "<a href='#' class='card-body-link m-2 border border-1 rounded'>" +
-                                    "<div class='card'>" +
-                                    `<img src='${imageUrl}' alt='First Image' />` +
-                                    "<h5 class='card-content p-3'>" + post.content + "</h5>" +
-                                    "<pre>  좋아요 " + post.likeCount + " 댓글수 " + `${commentSize}` + "</pre>" +
-                                    "</div>" +
-                                    "</a>" +
-                                    "</div>";
+                                html += `<div class='col-md-3 mb-3' style="padding-top: 30px">
+    <div class='card h-100'>
+        <!-- 첫 번째 card-body -->
+        <div class='card-body'>
+            <!-- 사진 크기 조정 -->
+            <img src='${imageUrl}' alt='First Image' style="max-width: 100%; max-height: 200px;">
+            <!-- 게시글 내용 -->
+            <h5 class='card-content p-3'>${post.content}</h5>
+            <!-- 좋아요와 댓글수 위치 변경 -->
+            <pre style="padding-bottom: 20px">  좋아요 ${post.likeCount} 댓글수 ${commentSize}</pre>
+        </div>
+        <!-- 수정된 버튼 위치 -->
+        <div class="btn-group" style="position: absolute; bottom: 10px; right: 10px;">
+            <button type="button" class="btn btn-danger" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/main/updatePost?postId=${post.id}&title=${post.title}&content=${post.content}">수정</a></li>
+                <li><a class="dropdown-item" href="#" onclick="deletePost(${post.id})">삭제</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+ `;
                                 console.log(commentSize);
                             });
                             postsContainer.html(html);
@@ -148,6 +164,27 @@
         return null;
     }
 
+    function deletePost(postId) {
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        fetch("http://localhost:8080/api/post/"+postId, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `${token}`,
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.statusCode == 200) {
+                    alert("게시글 삭제 되었습니다");
+                    window.location.href = "/main/myPage"
+                }
+            })
+            .catch(error => {
+                // 에러 처리
+                console.error("에러:", error);
+            });
+    }
 
 </script>
 </body>

@@ -32,7 +32,7 @@ a:hover {
 .custom-carousel-image {
     width: 300px;
     height: 500px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .col-md-4 {
@@ -69,4 +69,8 @@ a:hover {
 .swiper-slide:hover {
     color : darkgoldenrod;
     transition: 0.2s;
+}
+
+.like-box {
+    padding-bottom: 40px;
 }
