@@ -18,6 +18,7 @@
     <link href="/css/init.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/static/js/slide.js"></script>
     <style>
         .card {
             transition: transform 0.3s ease;
@@ -69,7 +70,7 @@
             </div>
             <div class="offcanvas-footer mt-auto">
                 <hr class="hr">
-                <button href="#" class="logout-button">로그아웃</button>
+                <button onclick="logout()" class="logout-button">로그아웃</button>
             </div>
         </div>
     </div>
@@ -77,7 +78,6 @@
 <div class="container">
     <div class="row">
         <h3>내가 작성한 게시글</h3>
-        <p style="cursor: pointer;" onclick="openFollowingModal()">팔로잉 (<span id="followingCount">0</span>)</p>
         <div class="mycards">
             <div class="row" id="cards-box">
                 <div class='col-md-3 mb-3 p-3'>
@@ -92,27 +92,9 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- 모달 내용을 여기에 추가 -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
     $(document).ready(function () {
         fetchMyPosts();
-        getFollowing();
     });
 
     function fetchMyPosts() {
@@ -209,89 +191,24 @@
             });
     }
 
-    function getFollowing() {
-        const token = document.cookie.replace("jwt=", "Bearer ");
-
-        fetch("/api/follow/", {
+    function logout() {
+        // 로그아웃 요청을 보내는 코드를 작성합니다.
+        fetch('/api/auth/logout', {
+            method: 'POST',
             headers: {
-                "Authorization": `${token}`,
-            }
+                'Content-Type': 'application/json'
+            },
         })
             .then(response => response.json())
             .then(data => {
-                let len = data.followingList.length;
-                document.getElementById('followingCount').textContent = len;
+                alert(data.msg); // 로그아웃 성공 메시지
+                localStorage.clear();
+                window.location.href = '/main/home'; // 홈페이지로 리다이렉트
             })
             .catch(error => {
-                // 에러 처리
-                console.error("에러:", error);
+                console.error('로그아웃 요청 실패:', error);
             });
     }
-
-    function openFollowingModal() {
-        const token = document.cookie.replace("jwt=", "Bearer ");
-
-        const modalBody = $('.modal-body');
-        modalBody.empty();
-
-        fetch("/api/follow/", {
-            headers: {
-                "Authorization": `${token}`,
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                let follow = data.followingList;
-
-                const ul = $('<ul>'); // 팔로잉 목록을 보여줄 리스트 요소
-                for (let i = 0; i < follow.length; i++) {
-                    const li = $('<li>').css('display', 'flex').css('justify-content', 'space-between').css('margin-bottom', '10px');
-
-                    // 사용자의 닉네임을 보여줄 요소
-                    const usernameDiv = $('<div>').text('닉네임: ' + follow[i].nickname);
-                    li.append(usernameDiv);
-
-                    // 버튼을 보여줄 요소
-                    const button = $('<button>').text('unfollow').addClass('btn btn-secondary');
-                    button.on('click', function() {
-                        unfollowUser(follow[i].id); // Call the unfollowUser function passing the user's id
-                    });
-                    li.append(button);
-
-                    ul.append(li);
-                }
-
-                modalBody.append(ul);
-
-                // 모달을 보이도록 트리거합니다.
-                $('#exampleModal').modal('show');
-            })
-            .catch(error => {
-                // 에러 처리
-                console.error("에러:", error);
-            });
-    }
-
-    function unfollowUser(followerId) {
-        const token = document.cookie.replace("jwt=", "Bearer ");
-
-        fetch(`/api/follow/${followerId}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": `${token}`
-            }
-        }).then(response => response.json())
-            .then(data => {
-                if(data.statusCode == 200) {
-                    alert("팔로우가 취소되었습니다");
-                    location.reload();
-                }
-            })
-            .catch(err => {
-                console.error("에러:", err);
-            })
-    }
-
 </script>
 </body>
 </html>

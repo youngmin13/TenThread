@@ -21,7 +21,7 @@ public class PostResponseDto {
     private LocalDateTime modifiedAt;
     private Integer likeCount;
     private List<ImageResponseDto> imageList = new ArrayList<>();
-
+    private Integer commentLen;
     public PostResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
@@ -34,5 +34,6 @@ public class PostResponseDto {
                 imageList.add(new ImageResponseDto(image));
             }
         }
+        this.commentLen = post.getComments().size();
     }
 }
