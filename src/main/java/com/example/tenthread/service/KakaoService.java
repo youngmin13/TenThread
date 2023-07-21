@@ -33,23 +33,26 @@ public class KakaoService {
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
 
-    public String kakaoLogin(String code) throws JsonProcessingException {
+    public String[] kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getToken(code);
+        String[] tokens = getToken(code);
 
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
-        SocialUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
+        SocialUserInfoDto kakaoUserInfo = getKakaoUserInfo(tokens[0]);
 
         // 3. 필요시에 회원 가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
+        String createRefresh = jwtUtil.createRefreshToken(kakaoUser.getUsername());
 
-        return createToken;
+        String[] creatTokens = new String[]{createToken, createRefresh};
+
+        return creatTokens;
     }
 
-    private String getToken(String code) throws JsonProcessingException {
+    private String[] getToken(String code) throws JsonProcessingException {
         // 요청 URL 만들기
         URI uri = UriComponentsBuilder
                 .fromUriString("https://kauth.kakao.com")
@@ -82,7 +85,10 @@ public class KakaoService {
 
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
-        return jsonNode.get("access_token").asText();
+        String[] res = new String[2];
+        res[0] = jsonNode.get("access_token").asText();
+        res[1] = jsonNode.get("refresh_token").asText();
+        return res;
     }
 
     private SocialUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
