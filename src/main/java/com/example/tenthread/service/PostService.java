@@ -99,9 +99,9 @@ public class PostService {
     @Transactional
     public void deleteLikePost(Long postId, User user) {
         Post post = findPost(postId);
-        Optional<PostLike> postLikeOptional = postLikeRepository.findByUserAndPost(user, post);
-        if (postLikeOptional.isPresent()) {
-            postLikeRepository.delete(postLikeOptional.get());
+        PostLike postLikeOptional = postLikeRepository.findByUserAndPost(user, post);
+        if (postLikeOptional != null) {
+            postLikeRepository.delete(postLikeOptional);
         } else {
             throw new IllegalArgumentException("해당 게시글에 취소할 좋아요가 없습니다.");
         }
