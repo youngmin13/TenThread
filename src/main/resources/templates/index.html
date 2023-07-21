@@ -424,7 +424,7 @@
                                 <span id="comment-content-${postData.commentList[j].id}">${postData.commentList[j].content}</span>
                                 <input type="text" id="comment-input-${postData.commentList[j].id}" style="display: none" value="${postData.commentList[j].content}">
                             </div>
-<!--                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>-->
+                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>
                         </div>
                         <div class="d-flex justify-content-between mt-2">
                             <div class="btn-box">
@@ -439,8 +439,8 @@
                                 <button class="btn btn-warning me-2" style="display: none" id="comment-update-btn-${postData.commentList[j].id}" onclick="updateComment('comment-input-${postData.commentList[j].id}',this)" value="${postData.commentList[j].id}">완료</button>
                             </div>
                             <div class="text-end" style="color: #949494;">
-                                <span>1 like</span>
-                                    <button onclick="handleCommentLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2 btn-primary commentLike-btn" name="commentLike-btn" style="color:#ccc" data-nickname="${postData.nickname}" data-comment-id=""}></button>
+                                <span>${postData.commentList[j].likeCount} like</span>
+                                    <button onclick="handleCommentLikeButton(this)" class="btn-primary commentLike-btn d-inline-block fa-solid fa-heart fs-5 me-2" name="commentLike-btn" style="color:#ccc" data-nickname="${postData.nickname}" data-comment-id=""}></button>
                             </div>
                         </div>
                         </div>
@@ -460,7 +460,7 @@
                     <div class="col-md-12 mt-3 fs-5">
                         <p>${postData.content}</p>
                     <div class="d-flex like-box">
-                        <button onclick="handlePostLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2 btn-primary postLike-btn" name="postLike-btn" style="color:#ccc" data-nickname="${postData.nickname}" data-post-id="${postData.id}"></button>
+                        <button onclick="handlePostLikeButton(this)" class="btn-primary postLike-btn d-inline-block fa-solid fa-heart fs-5 me-2" name="postLike-btn" style="color:#ccc" data-nickname="${postData.nickname}" data-post-id="${postData.id}"></button>
                         <div class="text-start fs-5" style="color: #949494;">
                             <span>${postData.likeCount} like</span>
                             <span>post</span>
@@ -526,26 +526,29 @@
         const token = document.cookie.replace("jwt=", "Bearer ");
 
         fetch('/api/post/', {
+            method: 'Get',
             headers: {
                 "Authorization": `${token}`
             }
         }).then(response => response.json())
             .then(data => {
-                let postLikeList = data.postLikeList;
+                let postLikeList = data.postLikeList; // 올바른 변수명으로 수정
+
                 if (postLikeList.length >= 1) {
                     for (let i = 0; i < postLikeList.length; i++) {
                         let isLiked = postLikeList[i].isLiked;
-                        $('.postLike-btn').each(function(index, element) {
+                        $('.postLike-btn').each(function (index, element) {
                             const likeStatus = $(element).data('isLiked');
                             if (postLikeList[i].isLiked === true) {
                                 // 해당 버튼의 색상을 red로 변경합니다.
+                                $(element).removeClass('btn-primary').addClass('btn-secondary');
+                            } else {
                                 $(element).removeClass('btn-secondary').addClass('btn-primary');
                             }
                         });
                     }
                 }
             })
-
             .catch(err => {
                 console.log(err);
             })
@@ -597,12 +600,14 @@
         const token = document.cookie.replace("jwt=", "Bearer ");
 
         fetch('/api/comment/', {
+            method: 'Get',
             headers: {
                 "Authorization": `${token}`
             }
         }).then(response => response.json())
             .then(data => {
-                let commentLikeList = data.commentLikeList;
+                let commentLikeList = data.commentLikeList; // 올바른 변수명으로 수정
+
                 if (commentLikeList.length >= 1) {
                     for (let i = 0; i < commentLikeList.length; i++) {
                         let isLiked = commentLikeList[i].isLiked;
@@ -610,13 +615,14 @@
                             const likeStatus = $(element).data('isLiked');
                             if (commentLikeList[i].isLiked === true) {
                                 // 해당 버튼의 색상을 red로 변경합니다.
+                                $(element).removeClass('btn-primary').addClass('btn-secondary');
+                            } else {
                                 $(element).removeClass('btn-secondary').addClass('btn-primary');
                             }
                         });
                     }
                 }
             })
-
             .catch(err => {
                 console.log(err);
             })

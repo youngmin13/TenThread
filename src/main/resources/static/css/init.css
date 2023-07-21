@@ -74,3 +74,11 @@ a:hover {
 .like-box {
     padding-bottom: 40px;
 }
+
+.postLike-btn {
+    color: red;
+}
+
+.commentLike-btn {
+    color: red;
+}

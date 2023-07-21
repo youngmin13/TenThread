@@ -24,9 +24,6 @@ public class PostLike {
     @Column
     boolean isLiked;
 
-    @Transient
-    private Long postId;
-
     public PostLike(User user, Post post) {
         this.user = user;
         this.post = post;

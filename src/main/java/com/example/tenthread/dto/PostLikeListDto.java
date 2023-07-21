@@ -5,11 +5,12 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
 @Setter
-public class PostLikeResponseDto {
+@Getter
+public class PostLikeListDto {
     private List<PostLikeDto> postLikeList;
-    public PostLikeResponseDto(List<PostLikeDto> postLikeList) {
+
+    public PostLikeListDto(List<PostLikeDto> postLikeList) {
         this.postLikeList = postLikeList;
     }
 }

@@ -31,9 +31,10 @@ public class RedisUtil {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    public void setBlackList(String key, Object o) {
-        redisBlackListTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(o.getClass()));
-        redisBlackListTemplate.opsForValue().set(key, o);
+    // 토큰을 블랙리스트에 추가하는 메서드
+    public void setBlackList(String token, boolean isValid) {
+        // 토큰을 블랙리스트에 추가하고 만료 시간 설정 (예: 1시간)
+        redisBlackListTemplate.opsForValue().set(token, isValid, 1, TimeUnit.HOURS);
     }
 
     public Object getBlackList(String key) {
