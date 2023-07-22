@@ -2,7 +2,6 @@ package com.example.tenthread.jwt;
 
 import com.example.tenthread.entity.User;
 import com.example.tenthread.entity.UserRoleEnum;
-import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.redis.RedisUtil;
 import com.example.tenthread.repository.UserRepository;
 import io.jsonwebtoken.*;
@@ -26,13 +25,11 @@ import java.util.Date;
 public class JwtUtil {
 
     private final RedisUtil redisUtil;
-    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
     private final UserRepository userRepository;
     // Header KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";
     // 사용자 권한 키값. 사용자 권한도 토큰안에 넣어주기 때문에 그때 사용하는 키값
     public static final String AUTHORIZATION_KEY = "auth";
-    public static final String REFRESH_TOKEN = "Refresh_Token";
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer ";
 
@@ -60,11 +57,6 @@ public class JwtUtil {
         return null;
     }
 
-    // Header에서 refreshToken 가져옴
-    public String getRefreshTokenFromHeader(HttpServletRequest request, String type) {
-        return request.getHeader(REFRESH_TOKEN);
-    }
-
     // 토큰 생성
     public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
@@ -89,7 +81,7 @@ public class JwtUtil {
             // 토큰의 위변조, 만료 체크
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             if(redisUtil.hasKeyBlackList(token)){
-                logger.error("로그아웃하여 블랙리스트로 처리된 토큰입니다.");
+                logger.info("로그아웃하여 블랙리스트로 처리된 토큰입니다.");
                 return false;
             }
             return true;

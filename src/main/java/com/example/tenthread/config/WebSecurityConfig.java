@@ -2,15 +2,14 @@ package com.example.tenthread.config;
 
 import com.example.tenthread.jwt.JwtAuthorizationFilter;
 import com.example.tenthread.jwt.JwtUtil;
+import com.example.tenthread.redis.RedisUtil;
 import com.example.tenthread.redis.TokenLogoutHandler;
-import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,8 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -34,7 +31,7 @@ public class WebSecurityConfig {
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final TokenLogoutHandler tokenLogoutHandler;
-    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
+    private final RedisUtil redisUtil;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -48,7 +45,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper, redisRefreshTokenRepository);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper, redisUtil);
     }
 
     @Bean

@@ -30,8 +30,15 @@ public class TokenLogoutHandler implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String token = extractTokenFromCookie(request);
-        boolean isValidToken = jwtUtil.validateToken(token);
 
+        // 블랙리스트에 등록된 토큰인지 확인
+        boolean isBlacklistedToken = redisUtil.hasKeyBlackList(token);
+        if (isBlacklistedToken) {
+            return;
+        }
+
+        // 토큰의 유효성 검사
+        boolean isValidToken = jwtUtil.validateToken(token);
         if (!isValidToken) {
             // 유효하지 않은 토큰인 경우
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -40,15 +47,15 @@ public class TokenLogoutHandler implements LogoutHandler {
             return;
         }
 
-        // Redis 블랙리스트에 토큰 추가
+        // 토큰을 블랙리스트에 추가하여 로그아웃 처리
         redisUtil.setBlackList(token, true);
 
-        // 로그아웃 성공 코드
+        // 로그아웃 성공적으로 처리되었음을 알리는 응답 반환
         response.setStatus(HttpServletResponse.SC_OK);
-        ApiResponseDto responseDto = new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value());
+        ApiResponseDto responseDto = new ApiResponseDto("로그아웃 성공.", HttpStatus.OK.value());
         writeJsonResponse(response, responseDto);
-
     }
+
 
     private void writeJsonResponse(HttpServletResponse response, ApiResponseDto responseDto) {
         response.setContentType("application/json");

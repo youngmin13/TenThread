@@ -160,7 +160,8 @@
         getPosts();
         getNotices();
         drawAdminCanvas();
-        disableOrActivatePostLikeBtns();
+        updatePostLikeButtons();
+        updateCommentLikeButtons();
     });
 
     function getCookieValueByName(name) {
@@ -243,8 +244,7 @@
             });
 
             disableOrActivateBtns();
-            disableOrActivatePostLikeBtns();
-            disableOrActivateCommentLikeBtns();
+
         } else {
             // JWT 값이 없으면 비로그인 상태로 인식합니다.
             document.querySelector('.login-button').style.display = 'inline-block';
@@ -276,17 +276,17 @@
 
     // 로그아웃 요청 함수
     function logout() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
         // 로그아웃 요청을 보내는 코드를 작성합니다.
         fetch('/api/auth/logout', {
-            method: 'POST',
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             },
         })
             .then(response => response.json())
             .then(data => {
                 alert(data.msg); // 로그아웃 성공 메시지
-                localStorage.clear();
                 window.location.href = '/main/home'; // 홈페이지로 리다이렉트
             })
             .catch(error => {
@@ -425,7 +425,6 @@
                                 <span id="comment-content-${postData.commentList[j].id}">${postData.commentList[j].content}</span>
                                 <input type="text" id="comment-input-${postData.commentList[j].id}" style="display: none" value="${postData.commentList[j].content}">
                             </div>
-                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>
                         </div>
                         <div class="d-flex justify-content-between mt-2">
                             <div class="btn-box">
@@ -440,8 +439,8 @@
                                 <button class="btn btn-warning me-2" style="display: none" id="comment-update-btn-${postData.commentList[j].id}" onclick="updateComment('comment-input-${postData.commentList[j].id}',this)" value="${postData.commentList[j].id}">완료</button>
                             </div>
                             <div class="text-end" style="color: #949494;">
+                             <button onclick="handleCommentLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color: red" data-comment-id="${postData.commentList[j].id}"></button>
                                 <span>${postData.commentList[j].likeCount} like</span>
-                                    <button onclick="handleCommentLikeButton(this)" class="btn-primary commentLike-btn d-inline-block fa-solid fa-heart fs-5 me-2" name="commentLike-btn" style="color:#ccc" data-nickname="${postData.nickname}" data-comment-id=""}></button>
                             </div>
                         </div>
                         </div>
@@ -461,7 +460,7 @@
                     <div class="col-md-12 mt-3 fs-5">
                         <p>${postData.content}</p>
                     <div class="d-flex like-box">
-                        <button onclick="handlePostLikeButton(this)" class="btn-primary postLike-btn d-inline-block fa-solid fa-heart fs-5 me-2" name="postLike-btn" style="color:#ccc" data-nickname="${postData.nickname}" data-post-id="${postData.id}"></button>
+                        <button onclick="handlePostLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color: red" data-postid="${postData.id}"></button>
                         <div class="text-start fs-5" style="color: #949494;">
                             <span>${postData.likeCount} like</span>
                             <span>post</span>
@@ -475,166 +474,217 @@
                     htmlTemplate += totalHtml;
                 }
                 container.innerHTML = htmlTemplate;
-                    updateLoginStatus();
+                updateLoginStatus();
+
             })
             .catch(error => {
                 console.error("Fetch 에러:", error);
             });
     }
 
-    function handlePostLikeButton(btn) {
-        const button = $(btn);
-        const currentColor = button.css('color');
 
-        const postId = button.data('post-id');
 
-        const token = document.cookie.replace("jwt=", "Bearer ");
 
-        if (currentColor === "rgb(255, 0, 0)") {
-            button.css('color', "rgb(204, 204, 204)");
-            fetch(`/api/post/${postId}/disLike`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `${token}`
-                }
-            }).then(response => response.json())
-                .then(data => {
-                    if(data.statusCode === 200) {
-                        localStorage.setItem(`likeStatus_${postId}`, false);
-                        location.reload();
+    // 게시물의 좋아요 상태를 서버로부터 받아와 게시물의 좋아요 버튼을 업데이트하는 함수
+    async function updatePostLikeButtons() {
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (isLoggedInUser) {
+            // 로그인 상태라면 서버로부터 좋아요 정보를 요청합니다.
+            try {
+                const response = await fetch("/api/post/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
                     }
-                })
-                .catch(err => {
-                    console.error("에러:", err);
-                })
-        } else {
-            button.css('color', "rgb(255, 0, 0)");
-            fetch(`/api/post/${postId}/like`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `${token}`
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버에서 좋아요 정보를 받아오는데 실패하였습니다.");
                 }
-            }).then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if(data.statusCode === 202) {
-                        localStorage.setItem(`likeStatus_${postId}`, true);
-                        location.reload();
-                    }
-                })
-                .catch(err => {
-                    console.error("에러:", err);
-                })
+
+
+                const postLikeListDto = await response.json();
+
+
+                if (!Array.isArray(postLikeListDto) || postLikeListDto.length === 0) {
+                    // 좋아요 정보가 없는 경우, 모든 버튼을 초기화합니다.
+                    const likeButtons = document.querySelectorAll(".fa-heart");
+                    likeButtons.forEach(button => {
+                        button.classList.remove("fa-heart");
+                        button.classList.add("fa-heart-o");
+                        button.style.color = "#ccc";
+                    });
+                } else {
+                    // 좋아요 정보가 있는 경우, 각 게시물의 좋아요 상태를 업데이트합니다.
+                    postLikeListDto.forEach((postLike) => {
+                        const postId = postLike.postId;
+                        const isLiked = postLike.isLiked;
+
+                        // postId에 해당하는 게시물의 좋아요 버튼을 가져옵니다.
+                        const likeButton = document.querySelector(`[data-postid="${postId}"]`);
+
+                        if (likeButton) {
+                            // isLiked 상태에 따라 버튼 아이콘을 업데이트합니다.
+                            if (isLiked) {
+                                likeButton.classList.add("fa-heart");
+                                likeButton.classList.remove("fa-heart-o");
+                                likeButton.style.color = "red";
+                            } else {
+                                likeButton.classList.remove("fa-heart");
+                                likeButton.classList.add("fa-heart-o");
+                                likeButton.style.color = "#ccc";
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("좋아요 정보 업데이트 에러:", error);
+            }
         }
     }
 
-    function disableOrActivatePostLikeBtns() {
-        const token = document.cookie.replace("jwt=", "Bearer ");
+    // 게시물 좋아요 버튼을 클릭할 때 실행되는 함수
+    async function handlePostLikeButton(button) {
+        const postId = button.dataset.postid;
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
 
-        fetch('/api/post/', {
-            method: 'GET',
-            headers: {
-                "Authorization": `${token}`
+        if (!isLoggedInUser) {
+            // 로그인 상태가 아니라면 로그인 페이지로 이동하거나, 로그인을 유도하는 메시지를 보여줍니다.
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        try {
+            // 현재 좋아요 상태를 확인합니다.
+            const isLiked = button.classList.contains("fa-heart");
+
+            // 서버로 좋아요 정보를 보냅니다.
+            const response = await fetch(`/api/post/${postId}/like`, {
+                method: isLiked ? "DELETE" : "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버에 좋아요 정보를 보내는데 실패하였습니다.");
             }
-        }).then(response => response.json())
-            .then(data => {
-                let postLikeList = data.postLikeList; // 올바른 변수명으로 수정
 
-                if (postLikeList.length >= 1) {
-                    for (let i = 0; i < postLikeList.length; i++) {
-                        let isLiked = Boolean(postLikeList[i].liked);
-                        $('.postLike-btn').each(function (index, element) {
-                            const currentPostId = $(element).data('post-id');
-                            const likeStatus = localStorage.getItem(`likeStatus_${currentPostId}`);
-                            if (isLiked === true && likeStatus === 'true') {
-                                $(element).css('color', "rgb(255, 0, 0)");
-                            } else if (isLiked === false && likeStatus === 'false') {
-                                $(element).css('color', "rgb(204, 204, 204)");
-                            }
-                        });
+            console.log("좋아요 정보가 업데이트되었습니다.");
+
+
+        } catch (error) {
+            console.error(error);
+            alert("서버와의 통신에 실패하였습니다.");
+
+        }
+    }
+
+
+
+    // 댓글 좋아요 받아오기
+    async function updateCommentLikeButtons() {
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (isLoggedInUser) {
+            // 로그인 상태라면 서버로부터 좋아요 정보를 요청합니다.
+            try {
+                const response = await fetch("/api/post/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
                     }
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버에서 좋아요 정보를 받아오는데 실패하였습니다.");
+                }
+
+
+                const commentLikeListDto = await response.json();
+
+
+                if (!Array.isArray(commentLikeListDto) || commentLikeListDto.length === 0) {
+                    // 좋아요 정보가 없는 경우, 모든 버튼을 초기화합니다.
+                    const likeButtons = document.querySelectorAll(".fa-heart");
+                    likeButtons.forEach(button => {
+                        button.classList.remove("fa-heart");
+                        button.classList.add("fa-heart-o");
+                        button.style.color = "#ccc";
+                    });
                 } else {
-                    // 서버로부터 데이터가 없을 경우 버튼의 상태를 초기화합니다.
-                    $('.postLike-btn').css('color', "rgb(204, 204, 204)");
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
-    }
+                    // 좋아요 정보가 있는 경우, 각 게시물의 좋아요 상태를 업데이트합니다.
+                    commentLikeListDto.forEach((postLike) => {
+                        const commentId = commentLike.commentId;
+                        const isLiked = commentLike.isLiked;
 
+                        // postId에 해당하는 게시물의 좋아요 버튼을 가져옵니다.
+                        const likeButton = document.querySelector(`[data-commentid="${commentId}"]`);
 
-    // 댓글 좋아요
-    function handleCommentLikeButton(commentId, likeButton) {
-        var jwtCookie = getCookieValueByName("jwt");
-
-        likeButton.addEventListener("click", function () {
-            var isLiked = likeButton.classList.contains("liked");
-
-            if (isLiked) {
-                fetch(`/api/comment/${commentId}/like`, {
-                    method: "DELETE",
-                    headers: {
-                        "Authorization": "Bearer " + jwtCookie,
-                        "Content-Type": "application/json"
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        console.error("댓글 좋아요 취소 요청 실패:", error);
-                    });
-            } else {
-                fetch(`/api/comment/${commentId}/like`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer " + jwtCookie,
-                        "Content-Type": "application/json"
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        console.error("댓글 좋아요 요청 실패:", error);
-                    });
-            }
-        });
-    }
-
-    function disableOrActivateCommentLikeBtns() {
-        const token = document.cookie.replace("jwt=", "Bearer ");
-
-        fetch('/api/comment/', {
-            method: 'Get',
-            headers: {
-                "Authorization": `${token}`
-            }
-        }).then(response => response.json())
-            .then(data => {
-                let commentLikeList = data.commentLikeList; // 올바른 변수명으로 수정
-
-                if (commentLikeList.length >= 1) {
-                    for (let i = 0; i < commentLikeList.length; i++) {
-                        let isLiked = commentLikeList[i].isLiked;
-                        $('.commentLike-btn').each(function(index, element) {
-                            const likeStatus = $(element).data('isLiked');
-                            if (commentLikeList[i].isLiked === true) {
-                                // 해당 버튼의 색상을 red로 변경합니다.
-                                $(element).removeClass('btn-primary').addClass('btn-secondary');
+                        if (likeButton) {
+                            // isLiked 상태에 따라 버튼 아이콘을 업데이트합니다.
+                            if (isLiked) {
+                                likeButton.classList.add("fa-heart");
+                                likeButton.classList.remove("fa-heart-o");
+                                likeButton.style.color = "red";
                             } else {
-                                $(element).removeClass('btn-secondary').addClass('btn-primary');
+                                likeButton.classList.remove("fa-heart");
+                                likeButton.classList.add("fa-heart-o");
+                                likeButton.style.color = "#ccc";
                             }
-                        });
-                    }
+                        }
+                    });
                 }
-            })
-            .catch(err => {
-                console.log(err);
-            })
+            } catch (error) {
+                console.error("좋아요 정보 업데이트 에러:", error);
+            }
+        }
+    }
+
+    // 댓글 좋아요 버튼을 클릭할 때 실행되는 함수
+    async function handleCommentLikeButton(button) {
+        const commentId = button.dataset.commentid;
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (!isLoggedInUser) {
+            // 로그인 상태가 아니라면 로그인 페이지로 이동하거나, 로그인을 유도하는 메시지를 보여줍니다.
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        try {
+            // 현재 좋아요 상태를 확인합니다.
+            const isLiked = button.classList.contains("fa-heart");
+
+            // 서버로 좋아요 정보를 보냅니다.
+            const response = await fetch(`/api/comment/${postData.commentList[j].id}/like`, {
+                method: isLiked ? "DELETE" : "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버에 좋아요 정보를 보내는데 실패하였습니다.");
+            }
+
+            console.log("좋아요 정보가 업데이트되었습니다.");
+
+
+        } catch (error) {
+            console.error(error);
+            alert("서버와의 통신에 실패하였습니다.");
+
+        }
     }
 
 
@@ -727,7 +777,7 @@
             </div>
             <div class="offcanvas-footer mt-auto">
                 <hr class="hr">
-                <button onclick="logout()" class="logout-button">로그아웃</button>
+                <button onclick="#" class="logout-button">로그아웃</button>
             </div>`;
                     $('.offcanvas').append(temp_html);
                 }

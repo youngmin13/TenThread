@@ -102,6 +102,18 @@
                 expirationDate.setDate(expirationDate.getDate() + 7);
                 document.cookie = 'jwt=' + jwt + '; expires=' + expirationDate.toUTCString() + '; path=/';
 
+                // RefreshToken 추출
+                var refreshTokenHeader = response.headers.get('Refresh_Token');
+                var refreshToken = null;
+
+                if (refreshTokenHeader) {
+                  refreshToken = refreshTokenHeader;
+                }
+
+                var refreshTokenExpirationDate = new Date();
+                refreshTokenExpirationDate.setDate(refreshTokenExpirationDate.getDate() + 14);
+                document.cookie = 'refreshToken=' + refreshToken + '; expires= ' + refreshTokenExpirationDate.toUTCString() + '; path=/; HttpOnly';
+
                 // 로그인 성공 처리
                 alert('로그인 성공');
                 window.location.href = '/main/home'; // 로그인 성공 시 이동할 페이지 경로

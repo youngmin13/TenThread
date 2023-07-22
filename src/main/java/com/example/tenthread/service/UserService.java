@@ -3,7 +3,6 @@ package com.example.tenthread.service;
 import com.example.tenthread.dto.*;
 import com.example.tenthread.entity.*;
 import com.example.tenthread.jwt.JwtUtil;
-import com.example.tenthread.repository.RedisRefreshTokenRepository;
 import com.example.tenthread.redis.RedisUtil;
 import com.example.tenthread.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,19 +21,17 @@ public class UserService {
     private final RedisUtil redisUtil;
     private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
-    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
     private final PostLikeRepository postLikeRepository;
     private final CommentLikeRepository commentLikeRepository;
 
     private final PrevPasswordRepository prevPasswordRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, RedisRefreshTokenRepository redisRefreshTokenRepository, PostLikeRepository postLikeRepository, CommentLikeRepository commentLikeRepository, PrevPasswordRepository prevPasswordRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PostLikeRepository postLikeRepository, CommentLikeRepository commentLikeRepository, PrevPasswordRepository prevPasswordRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisUtil = redisUtil;
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
-        this.redisRefreshTokenRepository = redisRefreshTokenRepository;
         this.postLikeRepository = postLikeRepository;
         this.commentLikeRepository = commentLikeRepository;
         this.prevPasswordRepository = prevPasswordRepository;
@@ -75,14 +72,14 @@ public class UserService {
         String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole());
 
         // 아이디 정보로 RefreshToken 생성
-        String refreshToken = redisRefreshTokenRepository.generateRefreshToken(username);
+        String refreshToken = redisUtil.generateAndSetRefreshTokenForUser(user.getUsername());
 
         // 기존의 토큰이 있다면 삭제
-        redisRefreshTokenRepository.findByUsername(username)
-                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
+        redisUtil.findByUsername(username)
+                .ifPresent(redisUtil::deleteRefreshToken);
 
         // 새로운 토큰 저장
-        redisRefreshTokenRepository.saveRefreshToken(refreshToken, username);
+        redisUtil.saveRefreshToken(refreshToken, username);
 
         response.addHeader("Authorization", accessToken);
         response.addHeader("Refresh_Token", refreshToken);
