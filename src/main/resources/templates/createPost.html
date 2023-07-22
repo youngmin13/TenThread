@@ -176,12 +176,17 @@
     })
             .then(response => response.json())
             .then(data => {
+              if (data.statusCode === 400) {
+                alert("사진의 크기가 너무 큽니다!");
+                location.reload();
+              }
               if(data.id) {
                 alert("게시글이 생성되었습니다");
                 window.location.href = "/main/"
               }
             })
             .catch(error => {
+
               // 에러 처리
               console.error("에러:", error);
             });

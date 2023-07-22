@@ -1,6 +1,7 @@
 package com.example.tenthread.exception;
 
 import com.example.tenthread.dto.ApiResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sun.jdi.request.DuplicateRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,5 +66,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 new ApiResponseDto(msg, HttpStatus.BAD_REQUEST.value()),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({JsonProcessingException.class})
+    public ResponseEntity<ApiResponseDto> handleException(JsonProcessingException ex) {
+        ApiResponseDto restApiException = new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                restApiException,
+                HttpStatus.BAD_REQUEST
+        );
     }
 }
