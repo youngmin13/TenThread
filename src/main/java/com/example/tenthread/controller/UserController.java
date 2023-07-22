@@ -49,11 +49,6 @@ public class UserController {
 
 
 
-    @PostMapping("/logout")
-    public void logout(HttpServletRequest request) {
-        userService.logout(request);
-    }
-
     @GetMapping("/kakao/callback")
     public RedirectView kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         String token = kakaoService.kakaoLogin(code);
