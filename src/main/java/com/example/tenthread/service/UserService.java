@@ -85,16 +85,6 @@ public class UserService {
         response.addHeader("Refresh_Token", refreshToken);
     }
 
-    public void logout(HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-        boolean isValidToken = jwtUtil.validateToken(token);
-
-        if (isValidToken) {
-            // Redis 블랙리스트에 토큰 추가
-            redisUtil.setBlackList(token, true);
-        }
-    }
-
 
     public UserResponseDto getMyProfile(User user) {
         User myProfile = userRepository.findByUsername(user.getUsername()).orElseThrow(
