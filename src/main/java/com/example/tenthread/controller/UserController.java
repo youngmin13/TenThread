@@ -47,28 +47,38 @@ public class UserController {
         return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
     }
 
-//    @PostMapping("/logout")
-//    public void logout(HttpServletRequest request) {
-//        userService.logout(request);
-//    }
+
+
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request) {
+        userService.logout(request);
+    }
 
     @GetMapping("/kakao/callback")
-    public ResponseEntity<ApiResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        String[] tokens = kakaoService.kakaoLogin(code, response);
+    public RedirectView kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        String token = kakaoService.kakaoLogin(code);
 
-        response.addHeader("Authorization", "Bearer " + tokens[0]);
-        response.addHeader("Refresh_Token", tokens[1]);
+        // Set the JWT token as a cookie in the response
+        Cookie jwtCookie = new Cookie("jwt", token.substring(7));
+        jwtCookie.setMaxAge(3600); // Cookie expiration time in seconds (1 hour in this example)
+        jwtCookie.setPath("/"); // Cookie path, set to root so it applies to all paths
 
-        return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
+        // Add the cookie to the response
+        response.addCookie(jwtCookie);
+        return new RedirectView("/main/home");
     }
 
     @GetMapping("/naver/callback")
-    public ResponseEntity<ApiResponseDto> naverLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        String[] tokens = naverService.naverLogin(code, response);
+    public RedirectView naverLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        String token = naverService.naverLogin(code);
+//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        // Set the JWT token as a cookie in the response
+        Cookie jwtCookie = new Cookie("jwt", token.substring(7));
+        jwtCookie.setMaxAge(3600); // Cookie expiration time in seconds (1 hour in this example)
+        jwtCookie.setPath("/"); // Cookie path, set to root so it applies to all paths
 
-        response.addHeader("Authorization", "Bearer " + tokens[0]);
-        response.addHeader("Refresh_Token", tokens[1]);
-
-        return ResponseEntity.ok().body(new ApiResponseDto("로그인 성공", HttpStatus.CREATED.value()));
+        // Add the cookie to the response
+        response.addCookie(jwtCookie);
+        return new RedirectView("/main/home");
     }
 }

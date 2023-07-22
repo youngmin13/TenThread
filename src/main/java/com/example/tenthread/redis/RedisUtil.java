@@ -51,6 +51,12 @@ public class RedisUtil {
         return refreshToken;
     }
 
+    public String generateAndSetRefreshTokenForSocialUser(String token, String username) {
+        String refreshToken = generateRandomRefreshToken();
+        set(refreshToken, username, (int) (expirationTimeSeconds / 60)); // Convert to minutes
+        return refreshToken;
+    }
+
     public void set(String key, Object o, int minutes) {
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(o.getClass()));
         redisTemplate.opsForValue().set(key, o, minutes, TimeUnit.MINUTES);
