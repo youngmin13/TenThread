@@ -155,12 +155,13 @@
     </div>
 <script>
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    document.addEventListener('DOMContentLoaded', function() {
         updateLoginStatus();
         getPosts();
         getNotices();
         drawAdminCanvas();
-        await updateLikeButtons()
+        updatePostLikeButtons();
+        updateCommentLikeButtons();
     });
 
     function getCookieValueByName(name) {
@@ -424,7 +425,6 @@
                                 <span id="comment-content-${postData.commentList[j].id}">${postData.commentList[j].content}</span>
                                 <input type="text" id="comment-input-${postData.commentList[j].id}" style="display: none" value="${postData.commentList[j].content}">
                             </div>
-                            <button onclick="" class="d-flex fa-solid fa-heart align-item-start mt-1" style="color:#ccc" ></button>
                         </div>
                         <div class="d-flex justify-content-between mt-2">
                             <div class="btn-box">
@@ -439,8 +439,8 @@
                                 <button class="btn btn-warning me-2" style="display: none" id="comment-update-btn-${postData.commentList[j].id}" onclick="updateComment('comment-input-${postData.commentList[j].id}',this)" value="${postData.commentList[j].id}">완료</button>
                             </div>
                             <div class="text-end" style="color: #949494;">
+                             <button onclick="handleCommentLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color: red" data-comment-id="${postData.commentList[j].id}"></button>
                                 <span>${postData.commentList[j].likeCount} like</span>
-                                    <button onclick="handleCommentLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color: red" data-comment-id="${postData.commentList[j].id}"></button>
                             </div>
                         </div>
                         </div>
@@ -474,7 +474,7 @@
                     htmlTemplate += totalHtml;
                 }
                 container.innerHTML = htmlTemplate;
-                    updateLoginStatus();
+                updateLoginStatus();
 
             })
             .catch(error => {
@@ -486,7 +486,7 @@
 
 
     // 게시물의 좋아요 상태를 서버로부터 받아와 게시물의 좋아요 버튼을 업데이트하는 함수
-    async function updateLikeButtons() {
+    async function updatePostLikeButtons() {
         const isLoggedInUser = isLoggedIn();
         const jwtCookie = getCookieValueByName('jwt');
 
@@ -576,89 +576,115 @@
             }
 
             console.log("좋아요 정보가 업데이트되었습니다.");
-            updateLikeButtons();
+
 
         } catch (error) {
             console.error(error);
             alert("서버와의 통신에 실패하였습니다.");
-            updateLikeButtons();
+
         }
     }
 
 
 
-    // 댓글 좋아요
-    function handleCommentLikeButton(btn) {
-        const button = $(btn);
-        const isLiked = button.hasClass('fa-heart'); // Check if the button has the class 'fa-heart'.
+    // 댓글 좋아요 받아오기
+    async function updateCommentLikeButtons() {
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
 
-        const commentId = button.data('comment-id');
-
-        const token = document.cookie.replace("jwt=", "Bearer ");
-
-        if (isLiked) {
-            fetch(`/api/comment/${commentId}/like`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `${token}`
-                }
-            }).then(response => response.json())
-                .then(data => {
-                    if(data.statusCode == 200) {
-                        location.reload();
+        if (isLoggedInUser) {
+            // 로그인 상태라면 서버로부터 좋아요 정보를 요청합니다.
+            try {
+                const response = await fetch("/api/post/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
                     }
-                })
-                .catch(err => {
-                    console.error("에러:", err);
-                })
-        } else {
-            fetch(`/api/comment/${commentId}/like`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `${token}`
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버에서 좋아요 정보를 받아오는데 실패하였습니다.");
                 }
-            }).then(response => response.json())
-                .then(data => {
-                    if(data.statusCode == 201) {
-                        location.reload();
-                    }
-                })
-                .catch(err => {
-                    console.error("에러:", err);
-                })
-        }
-    }
 
-    function disableOrActivateCommentLikeBtns() {
-        const token = document.cookie.replace("jwt=", "Bearer ");
 
-        fetch('/api/comment/', {
-            headers: {
-                "Authorization": `${token}`
-            }
-        }).then(response => response.json())
-            .then(data => {
-                let commentLikeList = data.commentLikeList; // 올바른 변수명으로 수정
+                const commentLikeListDto = await response.json();
 
-                if (commentLikeList.length >= 1) {
-                    for (let i = 0; i < commentLikeList.length; i++) {
-                        let isLiked = commentLikeList[i].isLiked;
-                        $('.commentLike-btn').each(function(index, element) {
-                            const likeStatus = $(element).data('isLiked');
-                            if (commentLikeList[i].isLiked === true) {
-                                $(button).data('isLiked', false);
-                                $(button).removeClass('fa-heart').addClass('fa-heart-o');
+
+                if (!Array.isArray(commentLikeListDto) || commentLikeListDto.length === 0) {
+                    // 좋아요 정보가 없는 경우, 모든 버튼을 초기화합니다.
+                    const likeButtons = document.querySelectorAll(".fa-heart");
+                    likeButtons.forEach(button => {
+                        button.classList.remove("fa-heart");
+                        button.classList.add("fa-heart-o");
+                        button.style.color = "#ccc";
+                    });
+                } else {
+                    // 좋아요 정보가 있는 경우, 각 게시물의 좋아요 상태를 업데이트합니다.
+                    commentLikeListDto.forEach((postLike) => {
+                        const commentId = commentLike.commentId;
+                        const isLiked = commentLike.isLiked;
+
+                        // postId에 해당하는 게시물의 좋아요 버튼을 가져옵니다.
+                        const likeButton = document.querySelector(`[data-commentid="${commentId}"]`);
+
+                        if (likeButton) {
+                            // isLiked 상태에 따라 버튼 아이콘을 업데이트합니다.
+                            if (isLiked) {
+                                likeButton.classList.add("fa-heart");
+                                likeButton.classList.remove("fa-heart-o");
+                                likeButton.style.color = "red";
                             } else {
-                                $(button).data('isLiked', true);
-                                $(button).removeClass('fa-heart-o').addClass('fa-heart');
+                                likeButton.classList.remove("fa-heart");
+                                likeButton.classList.add("fa-heart-o");
+                                likeButton.style.color = "#ccc";
                             }
-                        });
-                    }
+                        }
+                    });
                 }
-            })
-            .catch(err => {
-                console.log(err);
-            })
+            } catch (error) {
+                console.error("좋아요 정보 업데이트 에러:", error);
+            }
+        }
+    }
+
+    // 댓글 좋아요 버튼을 클릭할 때 실행되는 함수
+    async function handleCommentLikeButton(button) {
+        const commentId = button.dataset.commentid;
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (!isLoggedInUser) {
+            // 로그인 상태가 아니라면 로그인 페이지로 이동하거나, 로그인을 유도하는 메시지를 보여줍니다.
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        try {
+            // 현재 좋아요 상태를 확인합니다.
+            const isLiked = button.classList.contains("fa-heart");
+
+            // 서버로 좋아요 정보를 보냅니다.
+            const response = await fetch(`/api/comment/${postData.commentList[j].id}/like`, {
+                method: isLiked ? "DELETE" : "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버에 좋아요 정보를 보내는데 실패하였습니다.");
+            }
+
+            console.log("좋아요 정보가 업데이트되었습니다.");
+
+
+        } catch (error) {
+            console.error(error);
+            alert("서버와의 통신에 실패하였습니다.");
+
+        }
     }
 
 

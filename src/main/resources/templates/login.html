@@ -99,7 +99,7 @@
 
                 // JWT 값을 쿠키에 설정 (예시: 7일 동안 유효한 쿠키로 설정)
                 var expirationDate = new Date();
-                expirationDate.setDate(expirationDate.getMinutes() + 30);
+                expirationDate.setDate(expirationDate.getDate() + 7);
                 document.cookie = 'jwt=' + jwt + '; expires=' + expirationDate.toUTCString() + '; path=/';
 
                 // RefreshToken 추출
