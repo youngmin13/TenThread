@@ -64,7 +64,7 @@
                     </div>
                     <div class="offcanvas-footer mt-auto">
                         <hr class="hr">
-                        <button href="#" class="logout-button" style="display: none;">로그아웃</button>
+                        <button onclick="logout()" class="logout-button" style="display: none;">로그아웃</button>
                     </div>
                 </div>
     </div>
@@ -275,17 +275,17 @@
 
     // 로그아웃 요청 함수
     function logout() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
         // 로그아웃 요청을 보내는 코드를 작성합니다.
         fetch('/api/auth/logout', {
-            method: 'POST',
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             },
         })
             .then(response => response.json())
             .then(data => {
                 alert(data.msg); // 로그아웃 성공 메시지
-                localStorage.clear();
                 window.location.href = '/main/home'; // 홈페이지로 리다이렉트
             })
             .catch(error => {
@@ -482,24 +482,7 @@
             });
     }
 
-    // 좋아요 상태를 저장할 객체
-    const likeStatusCache = {};
 
-    // 게시물의 좋아요 버튼을 업데이트하는 함수
-    function updateLikeButtonState(postId, isLiked) {
-        const likeButton = document.querySelector(`[data-postid="${postId}"]`);
-        if (likeButton) {
-            if (isLiked) {
-                likeButton.classList.add("fa-heart");
-                likeButton.classList.remove("fa-heart-o");
-                likeButton.style.color = "red";
-            } else {
-                likeButton.classList.remove("fa-heart");
-                likeButton.classList.add("fa-heart-o");
-                likeButton.style.color = "#ccc";
-            }
-        }
-    }
 
 
     // 게시물의 좋아요 상태를 서버로부터 받아와 게시물의 좋아요 버튼을 업데이트하는 함수
@@ -571,7 +554,7 @@
 
         if (!isLoggedInUser) {
             // 로그인 상태가 아니라면 로그인 페이지로 이동하거나, 로그인을 유도하는 메시지를 보여줍니다.
-            console.log("로그인이 필요합니다.");
+            alert("로그인이 필요합니다.");
             return;
         }
 
@@ -592,17 +575,13 @@
                 throw new Error("서버에 좋아요 정보를 보내는데 실패하였습니다.");
             }
 
-            const responseData = await response.json();
-
-            // 좋아요 상태를 캐시 데이터에 업데이트합니다.
-            likeStatusCache[postId] = responseData.isLiked;
-
+            console.log("좋아요 정보가 업데이트되었습니다.");
             updateLikeButtons();
 
-            console.log("좋아요 정보가 업데이트되었습니다.");
         } catch (error) {
-            console.error("좋아요 정보 업데이트 에러:", error);
-            updateLikeButtons()
+            console.error(error);
+            alert("서버와의 통신에 실패하였습니다.");
+            updateLikeButtons();
         }
     }
 
@@ -772,7 +751,7 @@
             </div>
             <div class="offcanvas-footer mt-auto">
                 <hr class="hr">
-                <button onclick="logout()" class="logout-button">로그아웃</button>
+                <button onclick="#" class="logout-button">로그아웃</button>
             </div>`;
                     $('.offcanvas').append(temp_html);
                 }

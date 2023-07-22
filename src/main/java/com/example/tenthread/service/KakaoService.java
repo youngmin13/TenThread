@@ -3,11 +3,12 @@ package com.example.tenthread.service;
 import com.example.tenthread.dto.SocialUserInfoDto;
 import com.example.tenthread.entity.UserRoleEnum;
 import com.example.tenthread.jwt.JwtUtil;
-import com.example.tenthread.repository.RedisRefreshTokenRepository;
+import com.example.tenthread.redis.RedisUtil;
 import com.example.tenthread.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -33,9 +34,9 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
-    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
+    private final RedisUtil redisUtil;
 
-    public String[] kakaoLogin(String code) throws JsonProcessingException {
+    public String[] kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String[] tokens = getToken(code);
 
@@ -47,22 +48,12 @@ public class KakaoService {
 
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-//        String createRefresh = redisRefreshTokenRepository.generateRefreshTokenInSocial(tokens[1], kakaoUser.getUsername());
-//
-//        // 기존의 토큰이 있다면 삭제
-//        redisRefreshTokenRepository.findByUsername(kakaoUser.getUsername())
-//                .ifPresent(redisRefreshTokenRepository::deleteRefreshToken);
-//
-//        // 새로운 토큰 저장
-//        redisRefreshTokenRepository.saveRefreshToken(createRefresh, kakaoUser.getUsername());
 
         // 5. 카카오 refreshToken 저장
         String kakaoRefreshToken = tokens[1];
-        redisRefreshTokenRepository.saveRefreshToken(kakaoUser.getUsername(), kakaoRefreshToken);
+        redisUtil.saveRefreshToken(kakaoUser.getUsername(), kakaoRefreshToken);
 
-        String[] creatTokens = new String[]{createToken, kakaoRefreshToken};
-
-        return creatTokens;
+        return new String[]{createToken, kakaoRefreshToken};
     }
 
     private String[] getToken(String code) throws JsonProcessingException {

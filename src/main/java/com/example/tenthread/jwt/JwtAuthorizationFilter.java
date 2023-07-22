@@ -2,7 +2,7 @@ package com.example.tenthread.jwt;
 
 import com.example.tenthread.dto.ApiResponseDto;
 import com.example.tenthread.entity.UserRoleEnum;
-import com.example.tenthread.repository.RedisRefreshTokenRepository;
+import com.example.tenthread.redis.RedisUtil;
 import com.example.tenthread.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -20,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j(topic = "JWT 검증 및 인가")
@@ -29,14 +28,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
-    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
+    private final RedisUtil redisUtil;
 
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper, RedisRefreshTokenRepository redisRefreshTokenRepository) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper, RedisUtil redisUtil) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.objectMapper = objectMapper;
-        this.redisRefreshTokenRepository = redisRefreshTokenRepository;
+        this.redisUtil = redisUtil;
     }
 
     @Override
@@ -44,20 +43,20 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String accessToken = jwtUtil.resolveToken(request);
 
         if (accessToken != null) {
-            // accessToken 유효
+            // Access Token이 유효한지 확인
             if (jwtUtil.validateToken(accessToken)) {
                 Claims info = jwtUtil.getUserInfoFromToken(accessToken);
                 setAuthentication(info.getSubject());
             } else {
-                // accessToken 만료되었으나 refreshToken 존재
-                String username = jwtUtil.getUsernameFromToken(accessToken);
-                if (username != null) {
-                    Optional<String> validRefreshToken = redisRefreshTokenRepository.findValidRefreshTokenByUsername(username);
+                // Access Token 만료, Refresh Token을 사용하여 새로운 Access Token 발급
+                String refreshToken = request.getHeader("Refresh-Token");
+                if (refreshToken != null) {
+                    Optional<String> validRefreshToken = redisUtil.findValidRefreshTokenByUsername(jwtUtil.getUsernameFromToken(refreshToken));
 
-                    if (validRefreshToken.isPresent()) {
-                        UserRoleEnum role = jwtUtil.getUserRoleFromToken(String.valueOf(validRefreshToken));
-                        String newAccessToken = jwtUtil.createToken(username, role);
-                        response.addHeader("Authorization", newAccessToken);
+                    if (validRefreshToken.isPresent() && validRefreshToken.get().equals(refreshToken)) {
+                        UserRoleEnum role = jwtUtil.getUserRoleFromToken(refreshToken);
+                        String newAccessToken = jwtUtil.createToken(jwtUtil.getUsernameFromToken(refreshToken), role);
+                        response.addHeader("Authorization", "Bearer " + newAccessToken);
                         Claims info = jwtUtil.getUserInfoFromToken(newAccessToken);
                         setAuthentication(info.getSubject());
                     } else {
@@ -65,7 +64,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return;
                     }
                 } else {
-                    jwtExceptionHandler(response, "AccessToken Invalid and Username Not Found", HttpStatus.BAD_REQUEST);
+                    jwtExceptionHandler(response, "AccessToken Invalid and RefreshToken Not Found", HttpStatus.BAD_REQUEST);
                     return;
                 }
             }
@@ -73,6 +72,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 
     // 인증 처리
     public void setAuthentication(String username) {
