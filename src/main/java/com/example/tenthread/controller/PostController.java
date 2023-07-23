@@ -57,7 +57,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공", HttpStatus.ACCEPTED.value()));
     }
 
-    @DeleteMapping("/post/{postId}/disLike")
+    @DeleteMapping("/post/{postId}/like")
     public ResponseEntity<ApiResponseDto> deleteLikePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         postService.deleteLikePost(postId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("게시글 좋아요 취소 성공", HttpStatus.OK.value()));
