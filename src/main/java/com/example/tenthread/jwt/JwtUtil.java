@@ -25,7 +25,6 @@ import java.util.Date;
 public class JwtUtil {
 
     private final RedisUtil redisUtil;
-    private final UserRepository userRepository;
     // Header KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";
     // 사용자 권한 키값. 사용자 권한도 토큰안에 넣어주기 때문에 그때 사용하는 키값
@@ -50,8 +49,8 @@ public class JwtUtil {
 
     // header 토큰을 가져오기
     public String resolveToken(HttpServletRequest request) {
-        String bearerToken= request.getHeader(AUTHORIZATION_HEADER);
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
         return null;
@@ -80,7 +79,7 @@ public class JwtUtil {
         try {
             // 토큰의 위변조, 만료 체크
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            if(redisUtil.hasKeyBlackList(token)){
+            if (redisUtil.hasKeyBlackList(token)) {
                 logger.info("로그아웃하여 블랙리스트로 처리된 토큰입니다.");
                 return false;
             }
@@ -100,18 +99,5 @@ public class JwtUtil {
     // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    }
-
-    public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public UserRoleEnum getUserRoleFromToken(String token) {
-        String username = getUsernameFromToken(token);
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Not Found " + username));
-
-        return user.getRole();
     }
 }
