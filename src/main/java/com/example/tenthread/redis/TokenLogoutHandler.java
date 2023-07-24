@@ -31,12 +31,6 @@ public class TokenLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String token = extractTokenFromCookie(request);
 
-        // 블랙리스트에 등록된 토큰인지 확인
-        boolean isBlacklistedToken = redisUtil.hasKeyBlackList(token);
-        if (isBlacklistedToken) {
-            return;
-        }
-
         // 토큰의 유효성 검사
         boolean isValidToken = jwtUtil.validateToken(token);
         if (!isValidToken) {

@@ -21,23 +21,17 @@ public class UserService {
     private final RedisUtil redisUtil;
     private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
-    private final PostLikeRepository postLikeRepository;
-    private final CommentLikeRepository commentLikeRepository;
 
     private final PrevPasswordRepository prevPasswordRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PostLikeRepository postLikeRepository, CommentLikeRepository commentLikeRepository, PrevPasswordRepository prevPasswordRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisUtil redisUtil, ObjectMapper objectMapper, JwtUtil jwtUtil, PrevPasswordRepository prevPasswordRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisUtil = redisUtil;
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
-        this.postLikeRepository = postLikeRepository;
-        this.commentLikeRepository = commentLikeRepository;
         this.prevPasswordRepository = prevPasswordRepository;
     }
-
-    private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     public void signup(UserRequestDto requestDto) {
         String username = requestDto.getUsername();
@@ -71,18 +65,18 @@ public class UserService {
 
         String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole());
 
-        // 아이디 정보로 RefreshToken 생성
-        String refreshToken = redisUtil.generateAndSetRefreshTokenForUser(user.getUsername());
-
-        // 기존의 토큰이 있다면 삭제
-        redisUtil.findByUsername(username)
-                .ifPresent(redisUtil::deleteRefreshToken);
-
-        // 새로운 토큰 저장
-        redisUtil.saveRefreshToken(refreshToken, username);
+//        // 아이디 정보로 RefreshToken 생성
+//        String refreshToken = redisUtil.generateAndSetRefreshTokenForUser(user.getUsername());
+//
+//        // 기존의 토큰이 있다면 삭제
+//        redisUtil.findByUsername(username)
+//                .ifPresent(redisUtil::deleteRefreshToken);
+//
+//        // 새로운 토큰 저장
+//        redisUtil.saveRefreshToken(refreshToken, username);
 
         response.addHeader("Authorization", accessToken);
-        response.addHeader("Refresh_Token", refreshToken);
+//        response.addHeader("Refresh_Token", refreshToken);
     }
 
 

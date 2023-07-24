@@ -40,38 +40,55 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = jwtUtil.resolveToken(request);
-
-        if (accessToken != null) {
-            // Access Token이 유효한지 확인
-            if (jwtUtil.validateToken(accessToken)) {
-                Claims info = jwtUtil.getUserInfoFromToken(accessToken);
-                setAuthentication(info.getSubject());
-            } else {
-                // Access Token 만료, Refresh Token을 사용하여 새로운 Access Token 발급
-                String refreshToken = request.getHeader("Refresh-Token");
-                if (refreshToken != null) {
-                    Optional<String> validRefreshToken = redisUtil.findValidRefreshTokenByUsername(jwtUtil.getUsernameFromToken(refreshToken));
-
-                    if (validRefreshToken.isPresent() && validRefreshToken.get().equals(refreshToken)) {
-                        UserRoleEnum role = jwtUtil.getUserRoleFromToken(refreshToken);
-                        String newAccessToken = jwtUtil.createToken(jwtUtil.getUsernameFromToken(refreshToken), role);
-                        response.addHeader("Authorization", "Bearer " + newAccessToken);
-                        Claims info = jwtUtil.getUserInfoFromToken(newAccessToken);
-                        setAuthentication(info.getSubject());
-                    } else {
-                        jwtExceptionHandler(response, "RefreshToken Expired or Invalid", HttpStatus.BAD_REQUEST);
-                        return;
-                    }
-                } else {
-                    jwtExceptionHandler(response, "AccessToken Invalid and RefreshToken Not Found", HttpStatus.BAD_REQUEST);
-                    return;
-                }
+        String token = jwtUtil.resolveToken(request);
+        if (token != null) {
+            if (!jwtUtil.validateToken(token)) {
+                ApiResponseDto responseDto = new ApiResponseDto("토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST.value());
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setContentType("application/json; charset=UTF-8");
+                response.getWriter().write(objectMapper.writeValueAsString(responseDto));
+                return;
             }
+            Claims info = jwtUtil.getUserInfoFromToken(token);
+            setAuthentication(info.getSubject());
         }
-
         filterChain.doFilter(request, response);
     }
+
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//        String accessToken = jwtUtil.resolveToken(request);
+//
+//        if (accessToken != null) {
+//            // Access Token이 유효한지 확인
+//            if (jwtUtil.validateToken(accessToken)) {
+//                Claims info = jwtUtil.getUserInfoFromToken(accessToken);
+//                setAuthentication(info.getSubject());
+//            } else {
+//                // Access Token 만료, Refresh Token을 사용하여 새로운 Access Token 발급
+//                String refreshToken = request.getHeader("Refresh-Token");
+//                if (refreshToken != null) {
+//                    Optional<String> validRefreshToken = redisUtil.findValidRefreshTokenByUsername(jwtUtil.getUsernameFromToken(refreshToken));
+//
+//                    if (validRefreshToken.isPresent() && validRefreshToken.get().equals(refreshToken)) {
+//                        UserRoleEnum role = jwtUtil.getUserRoleFromToken(refreshToken);
+//                        String newAccessToken = jwtUtil.createToken(jwtUtil.getUsernameFromToken(refreshToken), role);
+//                        response.addHeader("Authorization", "Bearer " + newAccessToken);
+//                        Claims info = jwtUtil.getUserInfoFromToken(newAccessToken);
+//                        setAuthentication(info.getSubject());
+//                    } else {
+//                        jwtExceptionHandler(response, "RefreshToken Expired or Invalid", HttpStatus.BAD_REQUEST);
+//                        return;
+//                    }
+//                } else {
+//                    jwtExceptionHandler(response, "AccessToken Invalid and RefreshToken Not Found", HttpStatus.BAD_REQUEST);
+//                    return;
+//                }
+//            }
+//        }
+//
+//        filterChain.doFilter(request, response);
+//    }
 
 
     // 인증 처리
