@@ -5,7 +5,7 @@
 - [About ERD](#about-erd)
 - [About API](#about-api)
 - [Collaborators](#collaborators)
-- [Getting-Started](#getting-started)
+
 
 ## About TenThread
 <!--Write one paragraph of project description -->  
@@ -15,7 +15,7 @@ This project's purpose is to create a social media site likes Threads
 
 ## Overview
 <!-- Write Overview about this project -->
-**If you use this template, you can use this function**
+**If you use this application, you can use this function**
 - user authentication (includes signup and login) + social login (includes Kakao & Naver)
 - Profile management
 - Posts CRUD
