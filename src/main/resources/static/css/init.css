@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+*{font-family: 'Jua', sans-serif;}
+
+button {
+    border:none;
+    background-color: inherit;
+
+}
+a {
+    text-decoration: none;
+    color: black;
+}
+@media (min-width: 992px) {
+    .container {
+        width: 940px;
+        top: 300px;
+    }
+}
+.container {
+    margin-top:80px;
+    border-radius: 25px;
+    padding: 50px 50px;
+}
+a:hover {
+    color : darkgoldenrod;
+    transition: 0.2s;
+}
+.hidden {
+    visibility:hidden;
+}
+
+.custom-carousel-image {
+    width: 300px;
+    height: 500px;
+    object-fit: contain;
+}
+
+.col-md-4 {
+    width: 100px;
+    display: inline-block;
+}
+
+.hidden-post {
+    display: none;
+}
+
+.btn.follow-btn {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+}
+
+
+.swiper-container {
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 30px;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.swiper-slide:hover {
+    color : darkgoldenrod;
+    transition: 0.2s;
+}
+
+.like-box {
+    padding-bottom: 40px;
+}
+
+/* 클릭 스타일 추가 */
+button:focus {
+    outline: none;
+}
+
+.heart-button {
+    background-color: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+button:active {
+    transform: scale(0.95);
+}

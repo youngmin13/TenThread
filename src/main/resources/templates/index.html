@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>메인 화면</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <link href="/css/init.css" rel="stylesheet">
+    <!--swiper 라이브러리 -->
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/swiper/swiper-bundle.min.css"
+    />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <script defer src="/js/slide.js"></script>
+    <script src="https://kit.fontawesome.com/5547fa07a6.js" crossorigin="anonymous"></script>
+
+</head>
+<body>
+    <header>
+        <div class="d-flex justify-content-between">
+            <h3 class="h3 m-3">십시일반조</h3>
+            <div class="m-3">
+                <button class="fa-solid fa-square-arrow-up-right fs-3 user-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></button>
+                <button class="signup-button" onclick="location.href='/main/signup'">회원가입</button>
+                <button class="login-button" onclick="location.href='/main/login'">로그인</button>
+            </div>
+        </div>
+    <div class="d-flex justify-content-center mt-5">
+            <a href="/main/home/" class="h1">텐스레드</a>
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title mx-auto" id="userManagementOffcanvasLabel">유저이름</h5>
+                    </div>
+                    <div class="offcanvas-body">
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                        <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
+
+                        <ul>
+                            <li><div>
+                                <button class="profile-button" onclick="location.href='/main/profile'">프로필</button>
+                            </div></li>
+                            <li><div>
+                                <button class="myPage-button" onclick="location.href='/main/myPage'">마이 페이지</button>
+                            </div></li>
+                            <li><div>
+                                <button class="myPage-button" onclick="location.href='/main/myFollow'">팔로우 페이지</button>
+                            </div></li>
+                            <li><div>
+                                <button class="post-button" onclick="location.href='/main/createPost'">게시글 추가</button>
+                            </div></li>
+
+                        </ul>
+                    </div>
+                    <div class="offcanvas-footer mt-auto">
+                        <hr class="hr">
+                        <button href="#" class="logout-button" style="display: none;">로그아웃</button>
+                    </div>
+                </div>
+    </div>
+
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+            </div>
+        </div>
+    </header>
+    <div class="container" id="base-box">
+
+        <!-- 여기부터 복사 -->
+        <div class="user-info-box">
+            <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
+            <span class="me-2">유저이름</span>
+            <button onclick="" class="me-2 btn btn-primary" name="follow-btn">팔로우</button>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-8">
+                <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2F20160608_231%2Fcosmeplanb_1465358154705LzIRU_JPEG%2F%25B4%25DA%25C5%25CD%25C0%25DA%25B8%25A3%25C6%25AE_%25BC%25BC%25B6%25F3%25B8%25B6%25C0%25CC%25B5%25F2_2%25C1%25BE_01.jpg&type=sc960_832" alt="" width="500" height="500" class="rounded">
+            </div>
+            <div class="col-md-4" id="comment-base-box-1">
+                <span class="fs-4">댓글 수 0</span>
+                <!-- 여기부터 복사 -->
+                <div class="comment-box mt-3 d-flex ">
+                    <div class="col-md-3">
+                        <span class="fw-bold">유저이름</span>
+                    </div>
+                    <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handleCommentLikeButton(this)"></button>
+                </div>
+                <div class="text-end" style="color: #949494;">
+                    <span class="likeCount">1 like</span>
+                    <span>comment</span>
+                </div>
+                <!-- 여기까지 복사 -->
+            </div>
+            <div class="col-md-12 mt-3 fs-5">
+                <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
+            </div>
+            <div class="d-flex like-box">
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handlePostLikeButton(this)"></button>
+                <div class="text-start fs-5" style="color: #949494;">
+                    <span>1 like</span>
+                    <span>post</span>
+                </div>
+            </div>
+        </div>
+        <hr class="hr my-5" >
+        <!-- 여기까지 복사 -->
+        <div class="user-info-box">
+            <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
+            <span class="me-2">유저이름</span>
+            <button onclick="" class="me-2 btn btn-primary">팔로우</button>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-8">
+                <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2F20160608_231%2Fcosmeplanb_1465358154705LzIRU_JPEG%2F%25B4%25DA%25C5%25CD%25C0%25DA%25B8%25A3%25C6%25AE_%25BC%25BC%25B6%25F3%25B8%25B6%25C0%25CC%25B5%25F2_2%25C1%25BE_01.jpg&type=sc960_832" alt="" width="500" height="500" class="rounded">
+            </div>
+            <div class="col-md-4" id="comment-base-box-2">
+                <span class="fs-4">댓글 수 0</span>
+                <!-- 여기부터 복사 -->
+                <div class="comment-box mt-3 d-flex ">
+                    <div class="col-md-3">
+                        <span class="fw-bold">유저이름</span>
+                    </div>
+                    <div class="col-md-8"><span>내용샘플 내용샘플 내용샘플 내용샘플 </span></div>
+                    <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handleCommentLikeButton(this)"></button>
+                </div>
+                <div class="text-end" style="color: #949494;">
+                    <span>1 like</span>
+                    <span>comment</span>
+                </div>
+                <!-- 여기까지 복사 -->
+            </div>
+            <div class="col-md-12 mt-3 fs-5">
+                <p>내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 내용샘플 </p>
+            </div>
+            <div class="d-flex like-box">
+                <button class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color:gray" onclick="handlePostLikeButton(this)"></button>
+                <div class="text-start fs-5" style="color: #949494;">
+                    <span>1 like</span>
+                    <span>post</span>
+                </div>
+            </div>
+        </div>
+        <hr class="hr my-5" >
+    </div>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLoginStatus();
+        getPosts();
+        getNotices();
+        drawAdminCanvas();
+        updatePostLikeButtons();
+        updateCommentLikeButtons();
+    });
+
+    function getCookieValueByName(name) {
+        var cookie = document.cookie;
+        var cookiePairs = cookie.split(';');
+
+        for (var i = 0; i < cookiePairs.length; i++) {
+            var pair = cookiePairs[i].trim();
+            if (pair.startsWith(name + '=')) {
+                return pair.substring(name.length + 1);
+            }
+        }
+
+        return null;
+    }
+
+    function isLoggedIn() {
+        var jwtCookie = getCookieValueByName('jwt');
+
+        return !!jwtCookie; // JWT 쿠키가 존재하면 true, 그렇지 않으면 false 반환
+    }
+
+    function disableOrActivateBtns() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        fetch('/api/follow/', {
+            headers: {
+                "Authorization": `${token}`
+            }
+        }).then(response => response.json())
+            .then(data => {
+                let followList = data.followingList;
+                document.getElementsByName('follow-btn').forEach((btn) => {
+                    const nickname = btn.dataset.nickname;
+
+                    if (nickname === data.nickname) {
+                        btn.style.display = 'none';
+                    }
+                });
+                if (followList.length >= 1) {
+                    for (let i = 0; i < followList.length; i++) {
+                        let nickname = followList[i].nickname;
+                        $('.follow-btn').each(function(index, element) {
+                            const btnNickname = $(element).data('nickname');
+
+                            if (btnNickname == nickname) {
+                                // 해당 버튼의 텍스트를 언팔로우로 변경합니다.
+                                $(element).text('unfollow');
+                                // 해당 버튼의 색상을 회색으로 변경합니다.
+                                $(element).removeClass('btn-primary').addClass('btn-secondary');
+                            }
+                        });
+                    }
+                }
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+    function updateLoginStatus() {
+        if (isLoggedIn()) {
+            // JWT 값을 추출하여 로그인 상태로 인식합니다.
+            document.querySelector('.login-button').style.display = 'none';
+            document.querySelector('.signup-button').style.display = 'none';
+            document.querySelector('.logout-button').style.display = 'inline-block';
+            document.querySelector('.profile-button').style.display = 'inline-block';
+            document.querySelector('.post-button').style.display = 'inline-block';
+            document.querySelector('.user-button').style.display = 'inline-block';
+
+
+            document.getElementsByName('follow-btn').forEach((btn) => {
+                btn.style.display='inline-block';
+            });
+            document.getElementsByName('postLike-btn').forEach((btn) => {
+                btn.style.display='inline-block';
+            });
+            document.getElementsByName('commentLike-btn').forEach((btn) => {
+                btn.style.display='inline-block';
+            });
+
+            disableOrActivateBtns();
+
+        } else {
+            // JWT 값이 없으면 비로그인 상태로 인식합니다.
+            document.querySelector('.login-button').style.display = 'inline-block';
+            document.querySelector('.signup-button').style.display = 'inline-block';
+            document.querySelector('.logout-button').style.display = 'none';
+            document.querySelector('.profile-button').style.display = 'none';
+            document.querySelector('.post-button').style.display = 'none';
+            document.querySelector('.user-button').style.display = 'none';
+            document.getElementsByName('follow-btn').forEach((btn) => {
+                btn.style.display='none';
+            });
+            document.getElementsByName('postLike-btn').forEach((btn) => {
+                btn.style.display='none';
+            });
+            document.getElementsByName('commentLike-btn').forEach((btn) => {
+                btn.style.display='none';
+            });
+        }
+    }
+
+
+    document.querySelector('.logout-button').addEventListener('click', function() {
+        logout();
+    });
+
+    document.querySelector('.profile-button').addEventListener('click', function() {
+        window.location.href = "/main/profile"
+    });
+
+    // 로그아웃 요청 함수
+    function logout() {
+        const token = document.cookie.replace("jwt=", "Bearer ");
+        // 로그아웃 요청을 보내는 코드를 작성합니다.
+        fetch('/api/auth/logout', {
+            headers: {
+                "Authorization": `${token}`,
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.msg); // 로그아웃 성공 메시지
+                window.location.href = '/main/home'; // 홈페이지로 리다이렉트
+            })
+            .catch(error => {
+                console.error('로그아웃 요청 실패:', error);
+            });
+    }
+
+    function followAndUnFollow(btn) {
+        const button = $(btn);
+
+        const userId = button.data('user-id');
+
+        const token = document.cookie.replace("jwt=", "Bearer ");
+
+        if (button.text() == "unfollow") {
+            fetch(`/api/follow/${userId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `${token}`
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if(data.statusCode == 200) {
+                        alert("팔로우가 취소되었습니다");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error("에러:", err);
+                })
+        } else {
+            fetch(`/api/follow/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `${token}`
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if(data.statusCode == 201) {
+                        alert("팔로우가 추가되었습니다");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error("에러:", err);
+                })
+        }
+
+    }
+
+    function getPosts() {
+        const container = document.getElementById("base-box");
+        let htmlTemplate = ``;
+        let num = 0;
+        let id = 0;
+        fetch("/api/posts")
+            .then(response => response.json())
+            .then(async data => {
+                for(let i = 0; i < data.postList.length; i++) {
+                    const postData = data.postList[i];
+                    const postImage = postData.imageList[0].image;
+                    let resultArray;
+                    if (postImage.includes(',')) {
+                        resultArray = postImage.split(',');
+                    } else {
+                        resultArray = [postImage];
+                    }
+
+                    let userHtml = `
+                        <div class="user-info-box">
+                            <img src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjhfMTg1%2FMDAxNjg1MjA0NDA2MDQy.LB8liO5OOV8w2E3Vigo2rIp2GWWdRxCXNtB4ONDKVw4g.TrKoUX9P2cyv31uMXAqQyOr60LDPMLLY8PfL1AF0YP8g.JPEG.s422889%2F20230528%25A3%25DF001343.jpg&type=sc960_832" width="50" height="50" alt="" class="me-2 rounded-circle border">
+                            <span class="me-2">${postData.nickname}</span>
+                            <button onclick="followAndUnFollow(this)" class="me-2 btn btn-primary follow-btn" name="follow-btn" data-nickname="${postData.nickname}" data-user-id="${postData.writerId}">follow</button>
+                        </div>
+                        <div id="carouselExampleIndicators${num}" class="carousel slide mt-5" data-bs-ride="carousel">
+                        <div class="carousel-inner">`
+                    let carouselImage = ``;
+
+                    for (let k = 0; k < resultArray.length; k++) {
+                        if (k === 0) {
+                            carouselImage += `
+                            <div class="carousel-item active">
+                            <img src="${resultArray[k]}" class="d-block w-100 custom-carousel-image" alt="...">
+                            </div>
+                            `
+                        } else {
+                            carouselImage += `
+                            <div class="carousel-item">
+                            <img src="${resultArray[k]}" class="d-block w-100 custom-carousel-image" alt="...">
+                            </div>
+                            `
+                        }
+                    }
+                    let carousel =
+                        `
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators${num}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                        </button>
+                        </div>
+                        </div>`
+
+                    let commentHtml = `
+                    <div class="d-flex justify-content-end  mt-2 ms-2 align-items-center">
+                        <div class="col-md-4" id="comment-base-box-${id}">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-${id}" class="fs-4"><i class="fa-regular fa-comment"></i> ${postData.commentList.length}</a>
+                        </div>
+                        <p class="postId hidden">${postData.id}</p>
+                    </div>`
+
+                    let commentModal = `
+                    <div class="modal fade" id="exampleModal-${id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">댓글</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>`
+
+                    let commentModalBody = ``;
+                    const loggedInUserId = await getLoginNickname();
+                    for (let j = 0; j < postData.commentList.length; j++) {
+                        const isCurrentUserCommentAuthor = loggedInUserId === postData.commentList[j].nickname;
+                        commentModalBody += `
+                        <div class="modal-body">
+                            <div class="comment-box mt-3 d-flex">
+                                <div class="col-md-3">
+                                    <span class="fw-bold">${postData.commentList[j].nickname}</span>
+                                </div>
+                            <div class="col-md-8">
+                                <span id="comment-content-${postData.commentList[j].id}">${postData.commentList[j].content}</span>
+                                <input type="text" id="comment-input-${postData.commentList[j].id}" style="display: none" value="${postData.commentList[j].content}">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="btn-box">
+                                <!-- 수정 버튼 -->
+                                <button class="btn btn-primary me-2 comment-btn" onclick="toggleUpdateComment('comment-content-${postData.commentList[j].id}','comment-input-${postData.commentList[j].id}','comment-update-btn-${postData.commentList[j].id}')" value="${postData.commentList[j].id}" style="display: ${
+                            isCurrentUserCommentAuthor ? 'inline-block' : 'none'
+                        }">수정</button>
+                                <!-- 삭제 버튼 -->
+                                <button class="btn btn-secondary me-2 comment-btn" onclick="deleteComment(this)" value="${postData.commentList[j].id}" style="display: ${
+                            isCurrentUserCommentAuthor ? 'inline-block' : 'none'
+                        }">삭제</button>
+                                <button class="btn btn-warning me-2" style="display: none" id="comment-update-btn-${postData.commentList[j].id}" onclick="updateComment('comment-input-${postData.commentList[j].id}',this)" value="${postData.commentList[j].id}">완료</button>
+                            </div>
+                            <div class="text-end" style="color: #949494;">
+                             <button onclick="handleCommentLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color: red" data-comment-id="${postData.commentList[j].id}"></button>
+                                <span>${postData.commentList[j].likeCount} like</span>
+                            </div>
+                        </div>
+                        </div>
+                        `;
+                    }
+
+                    let commentModalFooter = `<div class="modal-footer">
+                    <input type="text" name="commentContent" id="commentContent" placeholder="댓글을 입력하세요">
+                    <button type="button" onclick="createComments('createComment-${postData.id}')" id="createComment-${postData.id}" value="${postData.id}" class="btn btn-primary">등록</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+                    </div>
+                    </div>
+                    </div>
+                    `
+                    let postHtml = `
+                    <div class="col-md-12 mt-3 fs-5">
+                        <p>${postData.content}</p>
+                    <div class="d-flex like-box">
+                        <button onclick="handlePostLikeButton(this)" class="d-inline-block fa-solid fa-heart fs-5 me-2" style="color: red" data-postid="${postData.id}"></button>
+                        <div class="text-start fs-5" style="color: #949494;">
+                            <span>${postData.likeCount} like</span>
+                            <span>post</span>
+                        </div>
+                    </div>
+                    </div>
+                    `
+                    num++;
+                    id++;
+                    let totalHtml = userHtml + carouselImage + carousel + commentHtml + commentModal + commentModalBody + commentModalFooter + postHtml;
+                    htmlTemplate += totalHtml;
+                }
+                container.innerHTML = htmlTemplate;
+                updateLoginStatus();
+
+            })
+            .catch(error => {
+                console.error("Fetch 에러:", error);
+            });
+    }
+
+
+
+
+    // 게시물의 좋아요 상태를 서버로부터 받아와 게시물의 좋아요 버튼을 업데이트하는 함수
+    async function updatePostLikeButtons() {
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (isLoggedInUser) {
+            // 로그인 상태라면 서버로부터 좋아요 정보를 요청합니다.
+            try {
+                const response = await fetch("/api/post/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버에서 좋아요 정보를 받아오는데 실패하였습니다.");
+                }
+
+
+                const postLikeListDto = await response.json();
+
+
+                if (!Array.isArray(postLikeListDto) || postLikeListDto.length === 0) {
+                    // 좋아요 정보가 없는 경우, 모든 버튼을 초기화합니다.
+                    const likeButtons = document.querySelectorAll(".fa-heart");
+                    likeButtons.forEach(button => {
+                        button.classList.remove("fa-heart");
+                        button.classList.add("fa-heart-o");
+                        button.style.color = "#ccc";
+                    });
+                } else {
+                    // 좋아요 정보가 있는 경우, 각 게시물의 좋아요 상태를 업데이트합니다.
+                    postLikeListDto.forEach((postLike) => {
+                        const postId = postLike.postId;
+                        const isLiked = postLike.isLiked;
+
+                        // postId에 해당하는 게시물의 좋아요 버튼을 가져옵니다.
+                        const likeButton = document.querySelector(`[data-postid="${postId}"]`);
+
+                        if (likeButton) {
+                            // isLiked 상태에 따라 버튼 아이콘을 업데이트합니다.
+                            if (isLiked) {
+                                likeButton.classList.add("fa-heart");
+                                likeButton.classList.remove("fa-heart-o");
+                                likeButton.style.color = "red";
+                            } else {
+                                likeButton.classList.remove("fa-heart");
+                                likeButton.classList.add("fa-heart-o");
+                                likeButton.style.color = "#ccc";
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("좋아요 정보 업데이트 에러:", error);
+            }
+        }
+    }
+
+    // 게시물 좋아요 버튼을 클릭할 때 실행되는 함수
+    async function handlePostLikeButton(button) {
+        const postId = button.dataset.postid;
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (!isLoggedInUser) {
+            // 로그인 상태가 아니라면 로그인 페이지로 이동하거나, 로그인을 유도하는 메시지를 보여줍니다.
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        try {
+            // 현재 좋아요 상태를 확인합니다.
+            const isLiked = button.classList.contains("fa-heart");
+
+            // 서버로 좋아요 정보를 보냅니다.
+            const response = await fetch(`/api/post/${postId}/like`, {
+                method: isLiked ? "DELETE" : "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버에 좋아요 정보를 보내는데 실패하였습니다.");
+            }
+
+            console.log("좋아요 정보가 업데이트되었습니다.");
+
+
+        } catch (error) {
+            console.error(error);
+            alert("서버와의 통신에 실패하였습니다.");
+
+        }
+    }
+
+
+
+    // 댓글 좋아요 받아오기
+    async function updateCommentLikeButtons() {
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (isLoggedInUser) {
+            // 로그인 상태라면 서버로부터 좋아요 정보를 요청합니다.
+            try {
+                const response = await fetch("/api/post/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + jwtCookie,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버에서 좋아요 정보를 받아오는데 실패하였습니다.");
+                }
+
+
+                const commentLikeListDto = await response.json();
+
+
+                if (!Array.isArray(commentLikeListDto) || commentLikeListDto.length === 0) {
+                    // 좋아요 정보가 없는 경우, 모든 버튼을 초기화합니다.
+                    const likeButtons = document.querySelectorAll(".fa-heart");
+                    likeButtons.forEach(button => {
+                        button.classList.remove("fa-heart");
+                        button.classList.add("fa-heart-o");
+                        button.style.color = "#ccc";
+                    });
+                } else {
+                    // 좋아요 정보가 있는 경우, 각 게시물의 좋아요 상태를 업데이트합니다.
+                    commentLikeListDto.forEach((postLike) => {
+                        const commentId = commentLike.commentId;
+                        const isLiked = commentLike.isLiked;
+
+                        // postId에 해당하는 게시물의 좋아요 버튼을 가져옵니다.
+                        const likeButton = document.querySelector(`[data-commentid="${commentId}"]`);
+
+                        if (likeButton) {
+                            // isLiked 상태에 따라 버튼 아이콘을 업데이트합니다.
+                            if (isLiked) {
+                                likeButton.classList.add("fa-heart");
+                                likeButton.classList.remove("fa-heart-o");
+                                likeButton.style.color = "red";
+                            } else {
+                                likeButton.classList.remove("fa-heart");
+                                likeButton.classList.add("fa-heart-o");
+                                likeButton.style.color = "#ccc";
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("좋아요 정보 업데이트 에러:", error);
+            }
+        }
+    }
+
+    // 댓글 좋아요 버튼을 클릭할 때 실행되는 함수
+    async function handleCommentLikeButton(button) {
+        const commentId = button.dataset.commentid;
+        const isLoggedInUser = isLoggedIn();
+        const jwtCookie = getCookieValueByName('jwt');
+
+        if (!isLoggedInUser) {
+            // 로그인 상태가 아니라면 로그인 페이지로 이동하거나, 로그인을 유도하는 메시지를 보여줍니다.
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        try {
+            // 현재 좋아요 상태를 확인합니다.
+            const isLiked = button.classList.contains("fa-heart");
+
+            // 서버로 좋아요 정보를 보냅니다.
+            const response = await fetch(`/api/comment/${postData.commentList[j].id}/like`, {
+                method: isLiked ? "DELETE" : "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버에 좋아요 정보를 보내는데 실패하였습니다.");
+            }
+
+            console.log("좋아요 정보가 업데이트되었습니다.");
+
+
+        } catch (error) {
+            console.error(error);
+            alert("서버와의 통신에 실패하였습니다.");
+
+        }
+    }
+
+
+
+
+    function getNotices(){
+        fetch("/api/back/notice")
+            .then(response => response.json())
+            .then(data => {
+                $(`.swiper-wrapper`).empty();
+                for(let i = 0; i < data.length; i++){
+                    let temp_html = `
+                      <div class="swiper-slide" data-link="/main/back/notice/${data[i].id}/view" onclick="navigateToLink(this)">
+                        ${data[i].title}
+                      </div>`;
+
+                    $('.swiper-wrapper').append(temp_html);
+                }
+
+            })
+            .catch(error => {
+                console.error("Fetch 에러:", error);
+            });
+    }
+    function navigateToLink(slide) {
+        const link = slide.getAttribute('data-link');
+        if (link) {
+            window.location.href = link;
+        }
+    }
+    function createComments(elementId){
+        let jwtCookie = getCookieValueByName('jwt');
+        let postId = document.getElementById(elementId).value;
+        let bodyContent = document.getElementById('commentContent').value;
+        let formData = {
+            body : bodyContent
+        }
+        fetch(`/api/post/${postId}/comment`, {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + jwtCookie,
+                "Content-Type": "application/json"
+            },
+                body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.msg);
+                window.location.reload()
+            })
+            .catch(error => {
+                console.error("댓글 작성 실패:", error);
+            });
+    }
+
+
+    function drawAdminCanvas(){
+        let jwtCookie = getCookieValueByName('jwt');
+        fetch("/api/profile", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + jwtCookie,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let loginUsername = data.username;
+                let loginNickname = data.nickname;
+                let loginRole = data.role;
+
+                if(loginRole === "ADMIN"){
+                    console.log("관리자입니다.");
+                    $('.offcanvas').empty();
+
+                    let temp_html = `
+                    <div class="offcanvas-header">
+                <h5 class="offcanvas-title mx-auto" id="userManagementOffcanvasLabel">${loginNickname}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <img src="https://cdn.icon-icons.com/icons2/3054/PNG/512/account_profile_user_icon_190494.png" class="border border-2 rounded-circle d-block mx-auto" alt="" width="200px" height="200px">
+
+                <!-- User and Notice Management content goes here -->
+                <ul class="mt-5">
+                    <li><a href="/main/back/notice" class="fs-5">공지글 관리</a></li>
+                    <li><a href="/main/back/user" class="fs-5">유저 관리</a></li>
+                    <!-- Add more management options here -->
+                </ul>
+            </div>
+            <div class="offcanvas-footer mt-auto">
+                <hr class="hr">
+                <button onclick="#" class="logout-button">로그아웃</button>
+            </div>`;
+                    $('.offcanvas').append(temp_html);
+                }
+            })
+            .catch(error => {
+                console.error("Fetch 에러:", error);
+            });
+    }
+    async function getLoginNickname() {
+        try {
+            let jwtCookie = getCookieValueByName('jwt');
+            let response = await fetch("/api/profile", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + jwtCookie,
+                    "Content-Type": "application/json"
+                }
+            });
+            let data = await response.json();
+            let loginNickname = data.nickname;
+            return loginNickname;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+    function deleteComment(element){
+        let jwtCookie = getCookieValueByName("jwt");
+        let commentId = element.getAttribute('value');
+
+        fetch('/api/comment/'+commentId, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${jwtCookie}`
+            },
+        })
+            .then(response => {
+                return response.json(); // JSON 형태의 응답 데이터 파싱
+            })
+            .then(data => {
+                alert(data.msg);
+                window.location.reload();
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
+    function updateComment(nextElementId,element){
+        let nextValue = document.getElementById(nextElementId).value
+        let jwtCookie = getCookieValueByName("jwt");
+        let commentId = element.getAttribute('value');
+
+        let formData ={
+            body : nextValue
+        }
+        fetch('/api/comment/'+commentId, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${jwtCookie}`,
+                'Content-Type' : 'application/json'
+            },
+            body : JSON.stringify(formData)
+        })
+            .then(response => {
+                return response.json(); // JSON 형태의 응답 데이터 파싱
+            })
+            .then(data => {
+                alert(data.msg);
+                window.location.reload();
+            })
+            .catch(error => {
+                // 오류 처리 로직을 작성합니다.
+                console.error(error);
+            });
+    }
+
+
+
+
+    let state = true
+    function toggleUpdateComment(prevElementId,nextElementId,completeBtn){
+        console.log(prevElementId,nextElementId,completeBtn)
+
+        let prev = document.getElementById(prevElementId);
+        let next = document.getElementById(nextElementId);
+        let btn = document.getElementById(completeBtn);
+
+        if(state){
+            prev.style.display = 'none';
+            next.style.display = 'inline';
+            btn.style.display = 'inline';
+            state = false
+        }else{
+            prev.style.display = 'inline';
+            next.style.display = 'none';
+            btn.style.display = 'none';
+            state = true
+        }
+    }
+</script>
+
+</body>
+</html>
